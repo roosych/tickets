@@ -121,56 +121,34 @@
                         </div>
                     </div>
 
-                    @if($ticket->parent->status->is(App\Enums\TicketStatusEnum::CANCELED))
-                        <div class="notice d-flex bg-light-danger rounded border-danger border border-dashed mb-9 p-6">
-                            <i class="ki-outline ki-lock-2 fs-2tx text-danger me-4"></i>
-                            <div class="d-flex flex-stack flex-grow-1">
-                                <div class="fw-semibold">
-                                    <h4 class="text-gray-900 fw-bold mb-0">
-                                        Родительский тикет отменен
-                                    </h4>
-                                    <div class="fs-6 text-gray-700">
-                                        {{$ticket->parent->getCanceledTicketComment()}}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @else
-                        @if($ticket->status->is(App\Enums\TicketStatusEnum::COMPLETED))
-                            <div class="notice d-flex bg-light-success rounded border-success border border-dashed mb-9 p-6">
-                                <i class="ki-outline ki-lock-2 fs-2tx text-success me-4"></i>
-                                <div class="d-flex flex-stack flex-grow-1">
-                                    <div class="fw-semibold">
-                                        <h4 class="text-gray-900 fw-bold mb-0">
-                                            Тикет выполнен
-                                        </h4>
-                                        {{--<div class="fs-6 text-gray-700">
-                                            {{$ticket->getClosedTicketComment()}}
-                                        </div>--}}
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-
-                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
-                            <div class="notice d-flex bg-light-danger rounded border-danger border border-dashed mb-9 p-6">
-                                <i class="ki-outline ki-lock-2 fs-2tx text-danger me-4"></i>
-                                <div class="d-flex flex-stack flex-grow-1">
-                                    <div class="fw-semibold">
-                                        <h4 class="text-gray-900 fw-bold mb-0">
-                                            Тикет отменен
-                                        </h4>
-                                        <div class="fs-6 text-gray-700">
-                                            {{$ticket->getCanceledTicketComment()}}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    @if($ticket->parent)
+                        @if($ticket->parent->status->is(App\Enums\TicketStatusEnum::CANCELED))
+                            @include('partials.notices.ticket-status', [
+                                'icon' => 'ki-lock-2',
+                                'color' => 'danger',
+                                'title' => 'Родительский тикет отменен',
+                                'message' => $ticket->parent->getCanceledTicketComment()
+                            ])
                         @endif
                     @endif
 
+                    @if($ticket->status->is(App\Enums\TicketStatusEnum::COMPLETED))
+                        @include('partials.notices.ticket-status', [
+                            'icon' => 'ki-lock-2',
+                            'color' => 'success',
+                            'title' => 'Тикет выполнен',
+                            'message' => null
+                        ])
+                    @endif
 
-
+                    @if($ticket->status->is(App\Enums\TicketStatusEnum::CANCELED))
+                        @include('partials.notices.ticket-status', [
+                            'icon' => 'ki-lock-2',
+                            'color' => 'danger',
+                            'title' => 'Тикет отменен',
+                            'message' => $ticket->getCanceledTicketComment()
+                        ])
+                    @endif
 
                         <div class="badge badge-lg badge-light-dark mb-4">
                             <div class="d-flex align-items-center flex-wrap">
