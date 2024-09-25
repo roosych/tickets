@@ -48,10 +48,12 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
 
     Route::prefix('tickets')->name('tickets.')->group(function () {
         Route::get('/', [TicketController::class, 'index'])->name('index');
+        Route::get('inbox', [TicketController::class, 'inbox'])->name('inbox');
         Route::get('sent', [TicketController::class, 'sent'])->name('sent');
         Route::get('{ticket}', [TicketController::class, 'show'])->name('show');
         Route::post('store', [TicketController::class, 'store'])->name('store');
         Route::post('complete', [TicketController::class, 'complete'])->name('complete');
+        Route::post('cancel', [TicketController::class, 'cancel'])->name('cancel');
         Route::post('{ticket}/close', [TicketController::class, 'close'])->name('close');
         Route::post('{id}/inprogress', [TicketController::class, 'inprogress'])->name('inprogress');
         Route::post('{ticket}/comment', [TicketController::class, 'storeComment'])->name('comment.store');

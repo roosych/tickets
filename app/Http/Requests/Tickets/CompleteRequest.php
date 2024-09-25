@@ -10,17 +10,7 @@ class CompleteRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $ticketId = $this->input('ticket_id');
-        if (!auth()->check() || !$ticketId) {
-            return false; // Если нет ID тикета, отклоняем запрос
-        }
-
-        $ticket = Ticket::findOrFail($ticketId);
-        if (!$this->ticketService->isTicketInUserDepartment($this->user(), $ticket)) {
-            throw new TicketDepartmentAuthorizationException();
-        }
-
-        return true;
+        return auth()->check();
     }
 
     public function rules(): array

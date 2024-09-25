@@ -44,7 +44,9 @@
                         </select>
                     </div>
                 @endif
-                <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#kt_modal_new_ticket">
+                <a href="#" class="btn btn-success"
+                   data-bs-toggle="modal"
+                   data-bs-target="#kt_modal_new_ticket">
                     <i class="ki-outline ki-plus-square fs-2"></i>Создать тикет
                 </a>
             </div>
@@ -59,7 +61,7 @@
                         <th class="min-w-125px">Приоритет</th>
                         <th class="min-w-125px">Дата создания</th>
                         <th>Статус</th>
-                        <th>Исполнители</th>
+                        <th>Исполнитель</th>
                         <th class="text-end min-w-100px">Действия</th>
                     </tr>
                     </thead>
@@ -104,7 +106,7 @@
                             <td>
                                 <div class="">
                                     <div class="performers_symbols_{{$ticket->id}} symbol-group symbol-hover flex-nowrap">
-                                        <x-ticket-performer :users="$ticket->performers" :ticket="$ticket"></x-ticket-performer>
+                                        <x-ticket-performer :user="$ticket->performer" :ticket="$ticket"></x-ticket-performer>
                                     </div>
                                 </div>
                             </td>
@@ -115,13 +117,6 @@
                                             <i class="ki-outline ki-eye fs-3"></i>
                                         </span>
                                     </a>
-                                    @if(! $ticket->status->is(App\Enums\TicketStatusEnum::COMPLETED))
-                                        <button disabled class="btn btn-icon btn-active-light-primary w-30px h-30px ms-3 move_{{$ticket->id}}" data-bs-toggle="modal" data-bs-target="#kt_modal_new_card">
-                                                <span data-bs-toggle="tooltip" data-bs-trigger="hover" aria-label="Перенаправить" data-bs-original-title="Перенаправить">
-                                                    <i class="ki-outline ki-entrance-left fs-3"></i>
-                                                </span>
-                                        </button>
-                                    @endif
 
                                     @if(! $ticket->status->is(App\Enums\TicketStatusEnum::COMPLETED))
                                         <button class="btn btn-icon btn-active-light-primary w-30px h-30px ms-3 switch_{{$ticket->id}}" data-bs-toggle="tooltip" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" aria-label="Изменить статус" data-bs-original-title="Изменить статус">
@@ -371,27 +366,32 @@
             });
         });
 
-        // get ticket performers
+        // get ticket performer
         $('#attach_users_modal').on('show.bs.modal', function (event) {
-            let button = $(event.relatedTarget); // Кнопка, которая вызвала модалку
-            let ticketId = button.data('ticket-id'); // ID тикета
+            let button = $(event.relatedTarget);  // Кнопка, которая вызвала модалку
+            let ticketId = button.data('ticket-id');  // ID тикета
             let modal = $(this);
-
-            modal.find('#ticket-id').val(ticketId);
-            modal.find('.user-checkbox').addClass('d-none');
+            modal.find('.user-radio').addClass('d-none');
             modal.find('.spinner-border').removeClass('d-none');
+            modal.find('#ticket-id').val(ticketId);
             $.ajax({
                 url: '{{ route('cabinet.tickets.performers', ':id') }}'.replace(':id', ticketId),
                 method: 'GET',
                 success: function(response) {
-                    let performerIds = response.performerIds;
-                    modal.find('.user-checkbox').each(function() {
-                        let userId = $(this).val();
-                        let isChecked = performerIds.includes(parseInt(userId));
-                        $(this).prop('checked', isChecked)
+                    let performer = response.performer ? response.performer['id'] : null;
+                    modal.find('.user-radio').each(function() {
+                        let $radio = $(this);
+                        let userId = parseInt($radio.val());
+                        let isChecked = performer === userId;
+                        $radio.prop('checked', isChecked)
                             .removeClass('d-none')
                             .siblings('.spinner-border').addClass('d-none');
                     });
+                },
+                error: function() {
+                    Swal.fire('Произошла ошибка!', 'Попробуйте еще раз.', 'error');
+                    modal.find('.user-radio').removeClass('d-none');
+                    modal.find('.spinner-border').addClass('d-none');
                 }
             });
         });
@@ -439,7 +439,6 @@
         // close modal events
         $('#kt_modal_new_ticket').on('hidden.bs.modal', function () {
             let folders = localStorage.getItem('uploadedFolders') || [];
-            console.log(folders)
 
             if (folders.length > 0) {
                 $.ajax({
@@ -451,7 +450,6 @@
                     contentType: 'application/json',
                     data: JSON.stringify(folders),
                     success: function(response) {
-                        console.log(response);
                         const pondElement = $('.my-pond')[0];
                         const pondInstance = FilePond.find(pondElement);
                         if (pondInstance) {

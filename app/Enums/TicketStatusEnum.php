@@ -6,8 +6,12 @@ enum TicketStatusEnum :string
 {
     case OPENED = 'opened';
     case IN_PROGRESS = 'in_progress';
+    case DONE = 'done';
     case COMPLETED = 'completed';
-    case CLOSED = 'closed';
+    case CANCELED = 'canceled';
+
+    // при отмене тикета - все его подтикеты тоже отменяются кроме тех которые completed (в шаблоне коммент что родитель тикет отменен)
+    // + невозможно сделать completed если подтикеты внутри него все не completed
 
     public function is(self $status): bool
     {
@@ -23,10 +27,11 @@ enum TicketStatusEnum :string
     public function color(): string
     {
         return match($this) {
-            self::OPENED => 'warning',
-            self::IN_PROGRESS => 'primary',
+            self::OPENED => 'dark',
+            self::IN_PROGRESS => 'warning',
+            self::DONE => 'primary',
             self::COMPLETED => 'success',
-            self::CLOSED => 'danger',
+            self::CANCELED => 'danger',
         };
     }
 

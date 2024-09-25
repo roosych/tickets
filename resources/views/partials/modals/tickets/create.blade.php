@@ -37,15 +37,33 @@
                             </select>
                         </div>
 
-                        <div class="col-md-6 fv-row">
-                            <label class="required fs-6 fw-semibold mb-2">Отдел</label>
-                            <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Выберите из списка..." name="department">
-                                <option value=""></option>
-                                @foreach($departments as $item)
-                                    <option value="{{$item->id}}">{{$item->name}}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        @if(\Illuminate\Support\Facades\Route::is('cabinet.tickets.show'))
+                            <input type="hidden" name="department" value="{{$ticket->department->id}}">
+                            <input type="hidden" name="parent_id" value="{{$ticket->id}}">
+                            <div class="col-md-6 fv-row">
+                                <label class="required fs-6 fw-semibold mb-2">Сотрудник</label>
+                                <select class="form-select form-select-solid"
+                                        data-control="select2"
+                                        data-hide-search="true"
+                                        data-placeholder="Выберите из списка..." name="user">
+                                    <option value=""></option>
+                                    @foreach(auth()->user()->deptAllUsers() as $item)
+                                        <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @else
+                            <div class="col-md-6 fv-row">
+                                <label class="required fs-6 fw-semibold mb-2">Отдел</label>
+                                <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Выберите из списка..." name="department">
+                                    <option value=""></option>
+                                    @foreach($departments as $item)
+                                        <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+
                     </div>
 
                     <div class="fv-row mb-8">

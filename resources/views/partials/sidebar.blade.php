@@ -51,15 +51,23 @@
                         <!--begin:Menu item-->
                         <div class="menu-item">
                             <!--begin:Menu link-->
-                            <a class="menu-link" href="{{route('cabinet.tickets.index')}}" title="Список тикетов" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                            <a class="menu-link" href="{{route('cabinet.tickets.index')}}" title="Список тикетов отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Входящие</span>
+                                <span class="menu-title">Моего отдела</span>
                             </a>
                             <!--end:Menu link-->
                             <!--begin:Menu link-->
-                            <a class="menu-link" href="{{route('cabinet.tickets.sent')}}" title="Список моих тикетов" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                            <a class="menu-link" href="{{route('cabinet.tickets.inbox')}}" title="Список тикетов адресованных мне" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Мои личные</span>
+                            </a>
+                            <!--end:Menu link-->
+                            <!--begin:Menu link-->
+                            <a class="menu-link" href="{{route('cabinet.tickets.sent')}}" title="Список тикетов созданных мной" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>

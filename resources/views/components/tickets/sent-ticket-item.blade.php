@@ -5,10 +5,15 @@
                 {{$ticket->department->name}}
             </div>
             <div>
-                <button type="button" class="btn btn-sm btn-icon btn-color-light-dark btn-active-light-primary close_ticket"
+                <button type="button" class="btn btn-sm btn-icon btn-color-light-dark btn-active-light-success close_ticket"
                 data-id="{{$ticket->id}}"
                 >
-                    <i class="ki-outline ki-lock-2 fs-2"></i>
+                    <i class="ki-outline ki-check-square fs-2"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-icon btn-color-light-dark btn-active-light-danger cancel_ticket"
+                        data-id="{{$ticket->id}}"
+                >
+                    <i class="ki-outline ki-cross-square fs-2"></i>
                 </button>
             </div>
         </div>
@@ -24,20 +29,14 @@
         </div>
 
         <div class="d-flex flex-stack flex-wrap">
-            @if($ticket->performers->count() > 0)
+            @if($ticket->performer)
                 <div class="symbol-group symbol-hover flex-nowrap">
-                    @foreach($ticket->performers as $key => $user)
-                        @if($key < 5)
-                            <div class="symbol symbol-35px symbol-circle" data-bs-toggle="tooltip" aria-label="{{$user->name}}" data-bs-original-title="{{$user->name}}">
-                                <img alt="avatar" src="{{$user->avatar}}">
-                            </div>
-                        @endif
-                        @if($loop->last && $loop->count > 5)
-                            <a href="javascript:void(0);" class="symbol symbol-35px symbol-circle">
-                                <span class="symbol-label bg-light text-gray-400 fs-8 fw-bold">+{{$loop->count - 5}}</span>
-                            </a>
-                        @endif
-                    @endforeach
+                    <div class="symbol symbol-35px symbol-circle"
+                         data-bs-toggle="tooltip"
+                         aria-label="{{$ticket->performer->name}}"
+                         data-bs-original-title="{{$ticket->performer->name}}">
+                        <img alt="avatar" src="{{$ticket->performer->avatar}}">
+                    </div>
                 </div>
             @else
                 <div>

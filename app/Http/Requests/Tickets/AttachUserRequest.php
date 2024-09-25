@@ -14,8 +14,7 @@ class AttachUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'users' => ['array'],
-            'users.*' => ['required', 'exists:users,id'],
+            'performer_id' => ['required', 'exists:users,id'],
             'ticket_id' => ['required', 'exists:tickets,id'],
         ];
     }

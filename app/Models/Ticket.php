@@ -29,14 +29,24 @@ class Ticket extends Model
         return $this->belongsTo(Priorities::class, 'priorities_id');
     }
 
-    public function performers(): BelongsToMany
+    public function performer(): BelongsTo
     {
-        return $this->belongsToMany(User::class)->inRandomOrder();
+        return $this->belongsTo(User::class, 'executor_id');
     }
 
-    public function allParticipants(): Collection
+    public function parent(): BelongsTo
     {
-        return $this->performers->push($this->creator)->unique('id');
+        return $this->belongsTo(Ticket::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'parent_id');
+    }
+
+    public function allChildren(): HasMany
+    {
+        return $this->children()->with('allChildren');
     }
 
     public function getUsersByDepartment($departmentId): Collection
@@ -67,11 +77,21 @@ class Ticket extends Model
         return $this->belongsToMany(Tag::class, 'ticket_tag');
     }
 
-    public function getCompletedTicketComment()
+    public function getDoneTicketComment()
     {
-        // Получаем последний комментарий со статусом "completed"
+        // Получаем последний комментарий со статусом "done"
         return $this->histories
-            ->where('status', TicketStatusEnum::COMPLETED)
+            ->where('status', TicketStatusEnum::DONE)
+            ->sortByDesc('created_at')
+            ->first()
+            ?->comment;
+    }
+
+    public function getCanceledTicketComment()
+    {
+        // Получаем последний комментарий со статусом "canceled"
+        return $this->histories
+            ->where('status', TicketStatusEnum::CANCELED)
             ->sortByDesc('created_at')
             ->first()
             ?->comment;
@@ -82,6 +102,8 @@ class Ticket extends Model
         'text',
         'voice_message',
         'department_id',
+        'parent_id',
+        'executor_id',
         'priorities_id',
         'status',
     ];

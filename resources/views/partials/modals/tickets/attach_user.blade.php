@@ -32,8 +32,8 @@
                                         <div class="ms-2 text-end">
                                             <div class="form-check form-check-sm form-check-custom form-check-solid">
                                                 <span class="spinner-border spinner-border-sm d-inline-block"></span>
-                                                <input class="form-check-input user-checkbox d-none"
-                                                       type="checkbox" name="users[]"
+                                                <input class="form-check-input user-radio d-none"
+                                                       type="radio" name="performer_id"
                                                        value="{{ $user->id }}">
                                             </div>
                                         </div>
