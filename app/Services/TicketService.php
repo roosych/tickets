@@ -124,7 +124,7 @@ class TicketService
             }
         }
 
-        $this->updateTicketStatus($ticket, TicketStatusEnum::DONE);
+        $this->updateTicketStatus($ticket, TicketStatusEnum::DONE, $comment);
 
     }
 
