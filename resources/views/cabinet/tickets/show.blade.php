@@ -107,7 +107,7 @@
                                     <x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge>
                                 </div>
                                 @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE))
-                                    <a href="#">
+                                    <a href="javascript:void(0);" class="reject_ticket" data-ticket-id="{{$ticket->id}}">
                                         <i class="ki-outline ki-arrow-circle-left text-gray-800 fs-2 ms-2"></i>
                                     </a>
                                 @endif
@@ -643,6 +643,62 @@
                 }
             });
         });
+
+        //reject
+        $(document).on('click', '.reject_ticket', function() {
+            const button = $(this);
+            const ticketId = parseInt(button.data('ticket-id'));
+
+            Swal.fire({
+                html: `Вернуть тикет исполнителю?`,
+                icon: "info",
+                buttonsStyling: false,
+                showCancelButton: true,
+                confirmButtonText: "Да",
+                cancelButtonText: 'Нет',
+                customClass: {
+                    confirmButton: "btn fw-bold btn-danger",
+                    cancelButton: 'btn fw-bold btn-active-light-primary'
+                }
+            }).then(async (result) => {
+                if (result.value) {
+                    try {
+                        applyWait($('body'));
+                        const url = '{{ route('cabinet.tickets.inprogress', ':id') }}'.replace(':id', ticketId);
+                        $.ajax({
+                            url: url,
+                            type: 'POST',
+                            data: {
+                                ticketId: ticketId,
+                                _token: '{{ csrf_token() }}',
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    window.location.reload()
+                                } else {
+                                    removeWait($('body'));
+                                    Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                                }
+                            },
+                            error: function (response) {
+                                let errorMessage = '';
+                                if (response.status === 422) {
+                                    const errors = response.responseJSON.errors;
+                                    for (const key in errors) {
+                                        errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
+                                    }
+                                }
+                                removeWait($('body'));
+                                Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                            },
+                        });
+                    } catch (error) {
+                        removeWait($('body'));
+                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                    }
+                }
+            });
+        })
 
         // completed ticket
         let form = $('#complete_ticket_form');
