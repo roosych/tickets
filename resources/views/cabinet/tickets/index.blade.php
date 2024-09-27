@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Тикеты')
+@section('title', 'Тикеты отдела')
 
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
@@ -10,7 +10,7 @@
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
         </li>
-        <li class="breadcrumb-item text-muted">Входящие тикеты</li>
+        <li class="breadcrumb-item text-muted">Тикеты отдела</li>
     </ul>
 @endsection
 
@@ -122,20 +122,22 @@
                                         <button class="btn btn-icon btn-active-light-primary w-30px h-30px ms-3 switch_{{$ticket->id}}" data-bs-toggle="tooltip" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" aria-label="Изменить статус" data-bs-original-title="Изменить статус">
                                             <i class="ki-outline ki-switch fs-3"></i>
                                         </button>
-                                        <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold w-150px py-3" data-kt-menu="true">
-                                            @if(! $ticket->status->is(App\Enums\TicketStatusEnum::IN_PROGRESS))
-                                                <div class="menu-item px-3">
-                                                    <a href="javascript:void(0);" class="in_progress_btn menu-link px-3" data-ticket_id="{{$ticket->id}}">В процессе</a>
-                                                </div>
-                                            @endif
-                                            @if(! $ticket->status->is(App\Enums\TicketStatusEnum::COMPLETED))
-                                                <div class="menu-item px-3">
-                                                    <a href="#" class="complete_btn menu-link px-3" data-id="{{$ticket->id}}" data-bs-toggle="modal" data-bs-target="#complete_ticket_modal">
-                                                        Выполнен
-                                                    </a>
-                                                </div>
-                                            @endif
-                                        </div>
+                                    @if(!$ticket->status->is(App\Enums\TicketStatusEnum::CANCELED) && ! $ticket->status->is(App\Enums\TicketStatusEnum::DONE))
+                                            <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold w-150px py-3" data-kt-menu="true">
+                                                @if(! $ticket->status->is(App\Enums\TicketStatusEnum::IN_PROGRESS))
+                                                    <div class="menu-item px-3">
+                                                        <a href="javascript:void(0);" class="in_progress_btn menu-link px-3" data-ticket_id="{{$ticket->id}}">В процессе</a>
+                                                    </div>
+                                                @endif
+                                                @if(! $ticket->status->is(App\Enums\TicketStatusEnum::COMPLETED))
+                                                    <div class="menu-item px-3">
+                                                        <a href="#" class="complete_btn menu-link px-3" data-id="{{$ticket->id}}" data-bs-toggle="modal" data-bs-target="#complete_ticket_modal">
+                                                            Выполнен
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endif
                                     @endif
 
                                 </div>

@@ -63,7 +63,7 @@
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Мои личные</span>
+                                <span class="menu-title">Мои тикеты</span>
                             </a>
                             <!--end:Menu link-->
                             <!--begin:Menu link-->

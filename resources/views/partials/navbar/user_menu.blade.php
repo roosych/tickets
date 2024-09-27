@@ -27,14 +27,11 @@
         </div>
         <div class="separator my-2"></div>
         <div class="menu-item px-5">
-            <a href="account/overview.html" class="menu-link px-5">Профиль</a>
+            <a href="#" class="menu-link px-5">Профиль</a>
         </div>
         <div class="menu-item px-5">
-            <a href="apps/projects/list.html" class="menu-link px-5">
+            <a href="{{route('cabinet.tickets.inbox')}}" class="menu-link px-5">
                 <span class="menu-text">Мои тикеты</span>
-                <span class="menu-badge">
-                    <span class="badge badge-light-danger badge-circle fw-bold fs-7">3</span>
-                </span>
             </a>
         </div>
         <div class="separator my-2"></div>

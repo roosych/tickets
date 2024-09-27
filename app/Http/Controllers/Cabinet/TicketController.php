@@ -56,9 +56,14 @@ class TicketController extends Controller
 
     public function inbox()
     {
-        $tickets = Ticket::query()->where('executor_id', auth()->id())->get();
-        //dd($tickets);
-        return view('cabinet.tickets.inbox', compact('tickets'));
+        $statusLabels = [];
+        foreach (TicketStatusEnum::cases() as $status) {
+            $statusLabels[$status->value] = $status->label();
+        }
+        $priorities = Priorities::getCachedPriorities();
+        $tickets = Ticket::query()->where('executor_id', auth()->id())->latest()->get();
+
+        return view('cabinet.tickets.inbox', compact('tickets', 'statusLabels', 'priorities'));
     }
 
     public function sent()

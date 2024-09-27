@@ -24,10 +24,12 @@
                         <div class="d-flex flex-stack">
                             <div class="fw-bold fs-4">
                                 Открытые
-                                <span class="fs-6 text-gray-500 ms-2">2</span>
+                                <span class="fs-6 text-gray-500 ms-2">
+                                    {{count($openTickets)}}
+                                </span>
                             </div>
                         </div>
-                        <div class="h-3px w-100 bg-warning"></div>
+                        <div class="h-3px w-100 bg-dark"></div>
                     </div>
                     <!--end::Col header-->
 
@@ -56,7 +58,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="h-3px w-100 bg-primary"></div>
+                        <div class="h-3px w-100 bg-warning"></div>
                     </div>
                     <!--end::Col header-->
 

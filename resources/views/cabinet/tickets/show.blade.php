@@ -34,17 +34,20 @@
                     </div>
                 <div>
 
-                    @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED)
-     && (!$ticket->parent || !$ticket->parent->status->is(\App\Enums\TicketStatusEnum::CANCELED)))
-                        <button class="btn btn-sm btn-light-danger btn-active-danger me-2 cancel-ticket-btn"
-                                data-ticket_id="{{$ticket->id}}"
-                                data-id="{{$ticket->id}}"
-                                data-bs-toggle="modal"
-                                data-bs-target="#cancel_ticket_modal">
-                            <i class="ki-outline ki-cross-square fs-2"></i>
-                            Отменить тикет
-                        </button>
+                    @if($ticket->creator->id === auth()->id())
+                        @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED)
+                                            && (!$ticket->parent || !$ticket->parent->status->is(\App\Enums\TicketStatusEnum::CANCELED)))
+                            <button class="btn btn-sm btn-light-danger btn-active-danger me-2 cancel-ticket-btn"
+                                    data-ticket_id="{{$ticket->id}}"
+                                    data-id="{{$ticket->id}}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#cancel_ticket_modal">
+                                <i class="ki-outline ki-cross-square fs-2"></i>
+                                Отменить тикет
+                            </button>
+                        @endif
                     @endif
+
 
                     @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE))
                         <button class="btn btn-sm btn-light-success btn-active-success me-2 closed-ticket-btn"
