@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Events\TicketEvent;
+use App\Events\TicketUpdated;
 use App\Listeners\SaveUserPhotoListener;
+use App\Listeners\SendTicketNotificationListener;
+use App\Listeners\TicketEventListener;
 use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -27,6 +31,10 @@ class EventServiceProvider extends ServiceProvider
         //todo сохранение юзера в таблицу users (данные с auth.php)
         Saved::class => [
             SaveUserPhotoListener::class,
+        ],
+
+        TicketEvent::class => [
+            TicketEventListener::class,
         ],
     ];
 

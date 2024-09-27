@@ -34,7 +34,8 @@
                     </div>
                 <div>
 
-                    @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED) && !$ticket->parent->status->is(\App\Enums\TicketStatusEnum::CANCELED))
+                    @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED)
+     && (!$ticket->parent || !$ticket->parent->status->is(\App\Enums\TicketStatusEnum::CANCELED)))
                         <button class="btn btn-sm btn-light-danger btn-active-danger me-2 cancel-ticket-btn"
                                 data-ticket_id="{{$ticket->id}}"
                                 data-id="{{$ticket->id}}"

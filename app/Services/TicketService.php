@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\TicketActionEnum;
 use App\Enums\TicketStatusEnum;
+use App\Events\TicketEvent;
 use App\Exceptions\TicketAccessException;
 use App\Models\Comment;
 use App\Models\Media;
@@ -49,9 +50,9 @@ class TicketService
                 'comment' => $comment,
             ]);
 
-            if ($ticket->performer) {
-                //$ticket->performer->notify(new TicketStatusUpdatedNotification($ticketHistory));
-            }
+            $recipients = $this->getRecipientsForStatusUpdate($ticket);
+            event(new TicketEvent($ticket, 'status_updated', $recipients, Auth::user(),
+                ['ticket_history_id' => $ticketHistory->id]));
         });
     }
 
@@ -166,7 +167,11 @@ class TicketService
             [TicketStatusEnum::CANCELED, TicketStatusEnum::COMPLETED],
             'Нельзя комментировать закрытый или отмененный тикет!'
         );
-        $this->checkUserAuthorization($ticket);
+
+        // Проверяем, является ли текущий пользователь создателем или исполнителем тикета
+        if ($ticket->creator->id !== auth()->id() && $ticket->performer->id !== auth()->id()) {
+            abort(403, 'Вы не можете оставлять комментарии к этому тикету.');
+        }
 
         $comment = Comment::create([
             'ticket_id' => $ticket->id,
@@ -174,11 +179,8 @@ class TicketService
             'text' => $data['text'],
         ]);
 
-        if ($ticket->performer) {
-            //$ticket->performer->notify(new TicketCommentNotification($comment));
-        }
-        //$ticket->creator->notify(new TicketCommentNotification($comment));
-
+        $recipients = $this->getRecipientsForComment($ticket);
+        event(new TicketEvent($ticket, 'commented', $recipients, Auth::user(), ['comment_id' => $comment->id]));
 
         return $comment;
     }
@@ -196,7 +198,9 @@ class TicketService
         );
 
         $ticket->update(['executor_id' => $user->id]);
-        //$user->notify(new UserAssignedToTicketNotification($ticket));
+
+        $recipients = $this->getRecipientsForAssign($ticket);
+        event(new TicketEvent($ticket, 'assigned', $recipients, Auth::user(), null));
     }
 
     /**
@@ -260,7 +264,6 @@ class TicketService
         }
     }
 
-
     public function createTicket(array $data): Ticket
     {
         DB::beginTransaction();
@@ -271,8 +274,8 @@ class TicketService
                 'priorities_id' => $data['priority'],
                 'department_id' => $data['department'],
                 'status' => TicketStatusEnum::OPENED,
-                'executor_id' => $data['user'],
-                'parent_id' => $data['parent_id'],
+                'executor_id' => $data['user'] ?? null,
+                'parent_id' => $data['parent_id'] ?? null,
             ]);
 
             $tempFiles = TemporaryFile::all();
@@ -297,12 +300,8 @@ class TicketService
             }
             DB::commit();
 
-            //todo отправить на почту всех сотрудников депарамента тикета
-//            foreach ($ticket->allParticipants() as $user) {
-//                if ($user->email) {
-//                    $user->notify(new TicketCreatedNotification($ticket));
-//                }
-//            }
+            $recipients = $this->getRecipientsForCreation($ticket);
+            event(new TicketEvent($ticket, 'created', $recipients, Auth::user()));
 
             return $ticket;
 
@@ -310,6 +309,62 @@ class TicketService
             DB::rollBack();
             throw $e;
         }
+    }
+
+    // получатели уведомлений
+    private function getRecipientsForStatusUpdate(Ticket $ticket): array
+    {
+        $recipients = [$ticket->creator];
+        if ($ticket->performer) {
+            $recipients[] = $ticket->performer;
+        }
+        // Удаляем пользователя кто сменил статус из списка получателей
+        $recipients = array_filter($recipients, function ($user) {
+            return $user->id !== Auth::id();
+        });
+
+        return array_unique($recipients, SORT_REGULAR);
+    }
+
+    private function getRecipientsForComment(Ticket $ticket): array
+    {
+        $recipients = [$ticket->creator];
+        // Добавляем исполнителя тикета, если он есть
+        if ($ticket->performer) {
+            $recipients[] = $ticket->performer;
+        }
+        // Удаляем создателя комментария из списка получателей
+        $recipients = array_filter($recipients, function ($user) {
+            return $user->id !== Auth::id();
+        });
+        return array_unique($recipients, SORT_REGULAR);
+    }
+
+    private function getRecipientsForCreation(Ticket $ticket): array
+    {
+        // Получаем всех сотрудников департамента
+         $recipients = User::where('manager', $ticket->department->manager->distinguishedname)
+             ->get()
+             ->all();
+        // Добавляем менеджера департамента, если он есть
+        if ($ticket->department->manager) {
+            $recipients[] = $ticket->department->manager;
+        }
+        // Удаляем создателя тикета из списка получателей
+        $recipients = array_filter($recipients, function ($user) {
+            return $user->id !== Auth::id();
+        });
+
+        return array_unique($recipients, SORT_REGULAR);
+    }
+
+    private function getRecipientsForAssign(Ticket $ticket): array
+    {
+        if ($ticket->performer) {
+            $recipients[] = $ticket->performer;
+        }
+
+        return array_unique($recipients, SORT_REGULAR);
     }
 
     // вспомогательные проверки
@@ -353,63 +408,4 @@ class TicketService
             throw new TicketAccessException('Вы не принадлежите к департаменту, ответственному за этот тикет!');
         }
     }
-
-    // проверки связанные с тикетом
-//    /**
-//     * @throws TicketAccessException
-//     */
-//    protected function isTicketCreatorOrPerformer(Ticket $ticket, $user): bool
-//    {
-//        if (!($ticket->creator->id === $user->id || $ticket->performer->id === $user->id)) {
-//            throw new TicketAccessException('У вас нет доступа к этому тикету!');
-//        }
-//        return true;
-//    }
-//
-//    /**
-//     * @throws TicketAccessException
-//     */
-//    protected function isTicketsDepartmentManager(Ticket $ticket, $user): bool
-//    {
-//        if (!$ticket->department->manager->id === $user->id) {
-//            throw new TicketAccessException('У вас нет доступа к этому тикету!');
-//        }
-//        return true;
-//    }
-//
-//    /**
-//     * @throws TicketAccessException
-//     */
-//    protected function isUserCanCloseTicket(Ticket $ticket, $user): bool
-//    {
-//        if (! $this->hasPermissionForAction($user, $ticket, 'create')) {
-//            throw new TicketAccessException('У вас нет доступа к этому тикету!');
-//        }
-//
-//        return true;
-//    }
-//
-//    /**
-//     * @throws TicketAccessException
-//     */
-//    protected function isInSameDepartment(Ticket $ticket, $user): bool
-//    {
-//        if (! $user->getDepartmentId() === $ticket->department_id) {
-//            throw new TicketAccessException('У вас нет доступа к этому тикету!');
-//        }
-//        return true;
-//    }
-//
-//    /**
-//     * @throws TicketAccessException
-//     */
-//    protected function isInSameDepartmentOrCreator(Ticket $ticket, $user): bool
-//    {
-//        if (! $this->isInSameDepartment($ticket, $user) || $ticket->creator->id === $user->id) {
-//            throw new TicketAccessException('У вас нет доступа к этому тикету!');
-//        }
-//        return true;
-//    }
-//
-
 }

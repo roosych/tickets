@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Comment;
+use App\Models\Ticket;
 use App\Models\TicketHistory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,26 +14,20 @@ class TicketCommentNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected Comment $comment;
+    public Ticket $ticket;
+    public Comment $comment;
 
-    public function __construct(Comment $comment)
+    public function __construct(Ticket $ticket, Comment $comment)
     {
+        $this->ticket = $ticket;
         $this->comment = $comment;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
         return ['mail'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)

@@ -17,13 +17,14 @@ class StoreRequest extends FormRequest
             'text' => ['required', 'string', 'max:10000'],
             'priority' => ['required', 'exists:priorities,id'],
             'department' => ['required', 'exists:departments,id'],
-            'user' => ['nullable', 'exists:users,id'],
+
 //        'files' => ['nullable', 'array'],
 //        'files.*' => ['required', 'file', 'mimes:jpeg,png,pdf,doc,docx,xls,xlsx', 'max:4096'],
         ];
 
         if ($this->has('parent_id')) {
             $rules['parent_id'] = ['required', 'exists:tickets,id'];
+            $rules['user'] = ['nullable', 'exists:users,id'];
         }
 
         return $rules;

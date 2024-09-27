@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Queue\SerializesModels;
 
 class Comment extends Model
 {
+    use SerializesModels;
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
