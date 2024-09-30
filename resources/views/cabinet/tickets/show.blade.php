@@ -136,6 +136,17 @@
                         @endif
                     @endif
 
+                    @if($ticket->status->is(App\Enums\TicketStatusEnum::CANCELED))
+                        @if(!$ticket->parent || !$ticket->parent->status->is(App\Enums\TicketStatusEnum::CANCELED))
+                            @include('partials.notices.ticket-status', [
+                                'icon' => 'ki-lock-2',
+                                'color' => 'danger',
+                                'title' => 'Тикет отменен',
+                                'message' => $ticket->getCanceledTicketComment()
+                            ])
+                        @endif
+                    @endif
+
                     @if($ticket->status->is(App\Enums\TicketStatusEnum::COMPLETED))
                         @include('partials.notices.ticket-status', [
                             'icon' => 'ki-lock-2',
@@ -144,16 +155,6 @@
                             'message' => null
                         ])
                     @endif
-
-                    @if($ticket->status->is(App\Enums\TicketStatusEnum::CANCELED))
-                        @include('partials.notices.ticket-status', [
-                            'icon' => 'ki-lock-2',
-                            'color' => 'danger',
-                            'title' => 'Тикет отменен',
-                            'message' => $ticket->getCanceledTicketComment()
-                        ])
-                    @endif
-
                         <div class="badge badge-lg badge-light-dark mb-4">
                             <div class="d-flex align-items-center flex-wrap">
                                 @if($ticket->parent)

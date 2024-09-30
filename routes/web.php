@@ -29,6 +29,8 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
 
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/{user:username}', [UserController::class, 'show'])->name('show');
+        Route::post('{user}/attach-roles', [UserController::class, 'attach_roles'])->name('attach_roles');
+        Route::post('{user}/attach-permissions', [UserController::class, 'attach_permissions'])->name('attach_permissions');
     });
 
     Route::prefix('dept')->name('dept.')->group(function () {

@@ -208,9 +208,7 @@
         //create ticket
         $('#create_ticket_form_submit').click(function (e) {
             let form = $('#kt_modal_new_ticket_form');
-            //let overlay = $('#loaderOverlay');
             e.preventDefault();
-            //overlay.show();
             $.ajax({
                 url: "{{route('cabinet.tickets.store')}}",
                 method: 'POST',
@@ -219,7 +217,6 @@
                 },
                 data: form.serialize(),
                 success: function (response) {
-                    //overlay.hide();
                     if(response.status === 'success') {
                         window.location.href = '{{route('cabinet.dept.tickets')}}';
                         Swal.fire('Все прошло успешно!', '{{trans('common.swal.success_text')}}', 'success');
@@ -228,7 +225,6 @@
                     }
                 },
                 error: function (response) {
-                    //overlay.hide();
                     let errorMessage = '';
                     if (response.status === 422) {
                         const errors = response.responseJSON.errors;

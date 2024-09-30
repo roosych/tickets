@@ -23,14 +23,13 @@
 @section('content')
     <div class="d-flex flex-column flex-lg-row">
         <div class="flex-lg-row-fluid me-lg-15 order-2 order-lg-1 mb-10 mb-lg-0">
-            <div class="card pt-4 mb-6 mb-xl-9">
+            <div class="card pt-4 pb-10 mb-6 mb-xl-9">
                 <div class="card-header border-0">
                     <div class="card-title">
                         <h2>Последняя активность</h2>
                     </div>
 
                     <div class="card-toolbar">
-                        <!--begin::Button-->
                         <button type="button" class="btn btn-sm btn-light-primary">
 {{--                            <i class="ki-outline ki-cloud-download fs-3"></i>--}}
                             Посмотреть все
@@ -38,7 +37,7 @@
                     </div>
                 </div>
 
-                <div class="card-body py-0">
+                <div class="card-body py-0 scroll-y mh-300px">
                     <table class="table align-middle table-row-dashed fs-6 text-gray-600 fw-semibold gy-5">
                         <tbody>
                             @forelse($user->ticketHistories->take(10) as $item)
@@ -54,7 +53,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed p-6 mb-4">
+                                <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed p-6 my-4">
                                     <div class="d-flex flex-stack flex-grow-1 ">
                                         <div class=" fw-semibold">
                                             <div class="fs-6 text-gray-700">
@@ -69,7 +68,7 @@
                 </div>
             </div>
 
-Проверка на редактирование юзера <br>
+{{--Проверка на редактирование юзера <br>--}}
 
             @if(auth()->user()->getDepartmentId() === $user->getDepartmentId())
                 <div class="card card-flush pt-4 mb-6 mb-xl-9">
@@ -95,17 +94,19 @@
                         </ul>
                         <div class="tab-content" id="myTabContent">
                             <div class="tab-pane fade show active" id="user_roles" role="tabpanel">
-                                <div class="pt-5">
-                                    @forelse(auth()->user()->getDepartment()->roles as $item)
-                                        <div class="mb-5">
-                                            <label class="form-check form-check-custom form-check-solid align-items-start">
-                                                <input class="form-check-input me-3 mt-1" type="checkbox" name="roles" value="{{$item->id}}"
-                                                    {{ is_array($user->roles->pluck('id')->toArray())
-                                                     &&
-                                                     in_array($item->id, $user->roles->pluck('id')->toArray())
-                                                      ? 'checked' : '' }}
-                                                >
-                                                <span class="form-check-label d-flex flex-column align-items-start">
+                                <form id="attach_roles_form" method="POST">
+                                    @csrf
+                                    <div class="pt-5">
+                                        @forelse(auth()->user()->getDepartment()->roles as $item)
+                                            <div class="mb-5">
+                                                <label class="form-check form-check-custom form-check-solid align-items-start">
+                                                    <input class="form-check-input me-3 mt-1" type="checkbox" name="roles[]" value="{{$item->id}}"
+                                                        {{ is_array($user->roles->pluck('id')->toArray())
+                                                         &&
+                                                         in_array($item->id, $user->roles->pluck('id')->toArray())
+                                                          ? 'checked' : '' }}
+                                                    >
+                                                    <span class="form-check-label d-flex flex-column align-items-start">
                                                 <a href="{{route('cabinet.dept.roles.show', $item)}}" class="fw-bold text-gray-800 text-hover-primary fs-5 mb-0" target="_blank">
                                                     {{$item->name}}
                                                 </a>
@@ -113,25 +114,31 @@
                                                 Разрешений: {{count($item->permissions)}}
                                             </span>
                                         </span>
-                                            </label>
-                                        </div>
-                                    @empty
-                                        <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed  p-6">
-                                            <div class="d-flex flex-stack flex-grow-1 ">
-                                                <div class=" fw-semibold">
-                                                    <div class="fs-6 text-gray-700">
-                                                        Вы можете присваивать сотруднику роль, но у Вашего отдела еще нет созданных ролей.
-                                                        Для создания перейдите по
-                                                        <a href="{{route('cabinet.dept.roles')}}" class="fw-bold" target="_blank">ссылке</a>.
+                                                </label>
+                                            </div>
+                                        @empty
+                                            <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed  p-6">
+                                                <div class="d-flex flex-stack flex-grow-1 ">
+                                                    <div class=" fw-semibold">
+                                                        <div class="fs-6 text-gray-700">
+                                                            Вы можете присваивать сотруднику роль, но у Вашего отдела еще нет созданных ролей.
+                                                            Для создания перейдите по
+                                                            <a href="{{route('cabinet.dept.roles')}}" class="fw-bold" target="_blank">ссылке</a>.
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endforelse
-                                </div>
+                                        @endforelse
+                                    </div>
+                                    <div class="pt-5">
+                                        <button id="attach_roles_submit" type="submit" class="btn btn-primary">Сохранить</button>
+                                    </div>
+                                </form>
                             </div>
                             <div class="tab-pane fade" id="user_permissions" role="tabpanel">
-                                <div class="fv-row">
+                                <form id="attach_permissions_form" method="POST">
+                                    @csrf
+                                    <div class="fv-row">
                                     <div class="table-responsive">
                                         <table class="table align-middle table-row-dashed fs-6 gy-5">
                                             <tbody class="text-gray-600 fw-semibold">
@@ -147,8 +154,6 @@
                                                     </label>
                                                 </td>
                                             </tr>
-                                            <form id="attach_user_permissions" method="POST">
-                                                @csrf
                                                 @foreach($groupedPermissions as $permission => $items)
                                                     <tr>
                                                         <td class="text-gray-800">{{$permission}}</td>
@@ -169,25 +174,22 @@
                                                         </td>
                                                     </tr>
                                                 @endforeach
-                                            </form>
                                             </tbody>
                                         </table>
+                                        <div class="pt-5">
+                                            <button id="attach_permissions_submit" type="submit" class="btn btn-primary">Сохранить</button>
+                                        </div>
                                     </div>
                                 </div>
+                                </form>
                             </div>
                         </div>
-
-
-                    </div>
-                    <div class="card-footer pt-0">
-                        <button id="attach_user_permissions_submit_btn" type="submit" class="btn btn-primary">Сохранить</button>
                     </div>
                 </div>
             @endif
 
         </div>
-        <!--end::Content-->
-        <!--begin::Sidebar-->
+
         <div class="flex-column flex-lg-row-auto w-100 w-lg-250px w-xl-300px mb-10 order-1 order-lg-2">
             <div class="card card-flush pt-3 mb-0" data-kt-sticky="true" data-kt-sticky-name="subscription-summary" data-kt-sticky-offset="{default: false, lg: '200px'}" data-kt-sticky-width="{lg: '250px', xl: '300px'}" data-kt-sticky-left="auto" data-kt-sticky-top="150px" data-kt-sticky-animation="false" data-kt-sticky-zindex="95">
                 <div class="card-body pt-0 fs-6">
@@ -229,11 +231,8 @@
                         </div>
                     </div>
                 </div>
-                <!--end::Card body-->
             </div>
-            <!--end::Card-->
         </div>
-        <!--end::Sidebar-->
     </div>
 @endsection
 
@@ -247,6 +246,8 @@
 
 @push('custom_js')
     <script>
+        let token = $('meta[name="_token"]').attr('content');
+
         // check all checkbox
         $("#select_all_permissions").click(function() {
             $(".form-check-input").prop("checked", $(this).prop("checked"));
@@ -255,6 +256,77 @@
             if (!$(this).prop("checked")) {
                 $("#select_all_permissions").prop("checked", false);
             }
+        });
+
+
+        //attach roles
+        $('#attach_roles_submit').click(function (e) {
+            let form = $('#attach_roles_form');
+            e.preventDefault();
+            applyWait($('body'));
+            $.ajax({
+                url: "{{route('cabinet.users.attach_roles', $user)}}",
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token
+                },
+                data: form.serialize(),
+                success: function (response) {
+                    removeWait($('body'));
+                    if(response.success) {
+                        Swal.fire('Все прошло успешно!', '{{trans('common.swal.success_text')}}', 'success');
+                        window.location.reload();
+                    } else {
+                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                    }
+                },
+                error: function (response) {
+                    let errorMessage = '';
+                    if (response.status === 422) {
+                        const errors = response.responseJSON.errors;
+                        for (const key in errors) {
+                            errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
+                        }
+                    }
+                    removeWait($('body'));
+                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                },
+            });
+        });
+
+        //attach permissions
+        $('#attach_permissions_submit').click(function (e) {
+            let form = $('#attach_permissions_form');
+            e.preventDefault();
+            applyWait($('body'));
+            $.ajax({
+                url: "{{route('cabinet.users.attach_permissions', $user)}}",
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token
+                },
+                data: form.serialize(),
+                success: function (response) {
+                    removeWait($('body'));
+                    if(response.success) {
+                        Swal.fire('Все прошло успешно!', '{{trans('common.swal.success_text')}}', 'success');
+                        window.location.reload();
+                    } else {
+                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                    }
+                },
+                error: function (response) {
+                    let errorMessage = '';
+                    if (response.status === 422) {
+                        const errors = response.responseJSON.errors;
+                        for (const key in errors) {
+                            errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
+                        }
+                    }
+                    removeWait($('body'));
+                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                },
+            });
         });
     </script>
 @endpush
