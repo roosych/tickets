@@ -11,7 +11,6 @@ class TagController extends Controller
 {
     public function index()
     {
-        //$tags = auth()->user()->departmentTags();
         $tags = auth()->user()->getDepartment()->tags;
 
         return view('cabinet.tags.index', compact('tags'));
@@ -39,7 +38,8 @@ class TagController extends Controller
     public function destroy(string $id)
     {
         $tag = Tag::query()->findOrFail($id);
+        abort_unless($tag->department_id !== auth()->user()->getDepartmentId(), 403);
         $tag->delete();
-        return response()->json(['success' => true], 200);
+        return response()->json(['success' => true]);
     }
 }

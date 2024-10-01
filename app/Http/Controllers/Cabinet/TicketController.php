@@ -12,15 +12,10 @@ use App\Http\Requests\Tickets\CompleteRequest;
 use App\Http\Requests\Tickets\StoreCommentRequest;
 use App\Http\Requests\Tickets\StoreRequest;
 use App\Models\Department;
-use App\Models\Media;
 use App\Models\Priorities;
-use App\Models\TemporaryFile;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Notifications\TicketCreatedNotification;
 use App\Services\TicketService;
-use Illuminate\Support\Facades\Storage;
-use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 class TicketController extends Controller
 {
@@ -48,8 +43,7 @@ class TicketController extends Controller
             ->get();
 
         $priorities = Priorities::getCachedPriorities();
-        //$departments = Department::all();
-        $departments = Department::where('id', '=', 17)->get();
+        $departments = Department::where('active', '=', true)->get();
 
         return view('cabinet.tickets.index', compact('tickets', 'priorities', 'statusLabels', 'departments'));
     }
@@ -73,8 +67,7 @@ class TicketController extends Controller
             $statusLabels[$status->value] = $status->label();
         }
         $priorities = Priorities::getCachedPriorities();
-        //$departments = Department::all();
-        $departments = Department::where('id', '=', 17)->get();
+        $departments = Department::where('active', '=', true)->get();
         $tickets = Ticket::query()->with('department', 'comments')
             ->where('user_id', auth()->id())
             ->get();

@@ -17,5 +17,6 @@ nt,distinguishedname,extensionattribute11,manager,mailnickname,mobile,pager"
 
 
 php artisan app:install
+php artisan storage:link
 ```
     

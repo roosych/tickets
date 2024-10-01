@@ -212,7 +212,6 @@
                         }
                     },
                     onerror: (response) => {
-                        // Обработка ошибки
                         console.error('Ошибка загрузки файла:', response);
                     }
                 },
@@ -224,11 +223,6 @@
                     }
                 }
             },
-            {{--server: {--}}
-            {{--    process: '{{route('cabinet.files.upload')}}',--}}
-            {{--    revert: '{{route('cabinet.files.delete')}}',--}}
-            {{--    headers: {'X-CSRF-TOKEN': '{{csrf_token()}}'}--}}
-            {{--},--}}
             allowMultiple: true,
             acceptedFileTypes: [
                 'image/png',
@@ -268,6 +262,7 @@
                         Swal.fire('Все прошло успешно!', '{{trans('common.swal.success_text')}}', 'success');
                         window.location.href = '{{route('cabinet.tickets.index')}}';
                     } else {
+                        removeWait($('body'));
                         Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
@@ -279,6 +274,7 @@
                             errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
                         }
                     }
+                    removeWait($('body'));
                     Swal.fire('Произошла ошибка!', errorMessage, 'error');
                 },
             });

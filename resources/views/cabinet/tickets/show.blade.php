@@ -136,17 +136,6 @@
                         @endif
                     @endif
 
-                    @if($ticket->status->is(App\Enums\TicketStatusEnum::CANCELED))
-                        @if(!$ticket->parent || !$ticket->parent->status->is(App\Enums\TicketStatusEnum::CANCELED))
-                            @include('partials.notices.ticket-status', [
-                                'icon' => 'ki-lock-2',
-                                'color' => 'danger',
-                                'title' => 'Тикет отменен',
-                                'message' => $ticket->getCanceledTicketComment()
-                            ])
-                        @endif
-                    @endif
-
                     @if($ticket->status->is(App\Enums\TicketStatusEnum::COMPLETED))
                         @include('partials.notices.ticket-status', [
                             'icon' => 'ki-lock-2',
@@ -155,6 +144,16 @@
                             'message' => null
                         ])
                     @endif
+
+                    @if($ticket->status->is(App\Enums\TicketStatusEnum::CANCELED))
+                        @include('partials.notices.ticket-status', [
+                            'icon' => 'ki-lock-2',
+                            'color' => 'danger',
+                            'title' => 'Тикет отменен',
+                            'message' => $ticket->getCanceledTicketComment()
+                        ])
+                    @endif
+
                         <div class="badge badge-lg badge-light-dark mb-4">
                             <div class="d-flex align-items-center flex-wrap">
                                 @if($ticket->parent)
@@ -279,89 +278,88 @@
                             @endif
                 </div>
             </div>
-            <div class="d-flex flex-wrap flex-stack my-6">
-                <h3 class="fw-bold my-2">
-                    {{$ticket->allChildren->isNotEmpty() ? 'Вложенные тикеты' : 'Нет вложенных тикетов'}}
-                </h3>
+            @if($ticket->department->id === auth()->user()->getDepartmentId())
+                <div class="d-flex flex-wrap flex-stack my-6">
+                    <h3 class="fw-bold my-2">
+                        {{$ticket->allChildren->isNotEmpty() ? 'Вложенные тикеты' : 'Нет вложенных тикетов'}}
+                    </h3>
 
-                <div class="d-flex align-items-center my-2">
-                    <button class="btn btn-success"
-                            @if($ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
-                            || $ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
-                                disabled
-                            @endif
-                            data-bs-toggle="modal"
-                            data-bs-target="#kt_modal_new_ticket">
-                        <i class="ki-outline ki-plus-square fs-2"></i>
-                        Создать
-                    </button>
+                    <div class="d-flex align-items-center my-2">
+                        <button class="btn btn-success"
+                                @if($ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
+                                || $ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
+                                    disabled
+                                @endif
+                                data-bs-toggle="modal"
+                                data-bs-target="#kt_modal_new_ticket">
+                            <i class="ki-outline ki-plus-square fs-2"></i>
+                            Создать
+                        </button>
+                    </div>
                 </div>
-            </div>
-
-            <div class="row">
-                @foreach($ticket->allChildren as $item)
-                    <div class="col-lg-6">
-                        <div class="card mb-6 mb-xl-9">
-                            <div class="card-body">
-                                <div class="d-flex flex-stack mb-3">
-                                    <div class="badge badge-light-{{$item->status->color()}}">
-                                        {{$item->status->label()}}
-                                    </div>
-                                    <div>
-                                    <span class="text-gray-800 fw-bold fs-12">
-                                        Приоритет:
-                                    </span>
-                                        <span class="badge badge-light-{{$item->priority->class}} ms-2 my-1 fw-bold fs-7">
-                                        {{$item->priority->getNameByLocale()}}
-                                </span>
-                                    </div>
-                                </div>
-
-                                <div class="mb-2">
-                                    <a href="{{route('cabinet.tickets.show', $item->id)}}" class="fs-4 fw-bold mb-1 text-gray-900 text-hover-primary" target="_blank">
-                                        #{{$item->parent->id}}<i class="ki-duotone ki-right fs-6"></i>{{$item->id}}
-                                    </a>
-                                </div>
-
-                                <div class="fs-6 fw-semibold text-gray-800 mb-5">
-                                    {{$item->text}}
-                                </div>
-
-                                <div class="d-flex flex-stack flex-wrap">
-                                    @if($item->performer)
-                                        <div class="symbol-group symbol-hover flex-nowrap">
-                                            <div class="symbol symbol-35px symbol-circle"
-                                                 data-bs-toggle="tooltip"
-                                                 aria-label="{{$item->performer->name}}"
-                                                 data-bs-original-title="{{$item->performer->name}}">
-                                                <img alt="avatar" src="{{$item->performer->avatar}}">
-                                            </div>
+                <div class="row">
+                    @foreach($ticket->allChildren as $item)
+                        <div class="col-lg-6">
+                            <div class="card mb-6 mb-xl-9">
+                                <div class="card-body">
+                                    <div class="d-flex flex-stack mb-3">
+                                        <div class="badge badge-light-{{$item->status->color()}}">
+                                            {{$item->status->label()}}
                                         </div>
-                                    @else
                                         <div>
-                                            <a href="#" class="symbol symbol-35px symbol-circle border border-gray-300 border-dashed"
-                                               data-bs-toggle="modal"
-                                               data-bs-target="#kt_modal_view_users">
-                                                <span class="symbol-label bg-light text-gray-400 fs-8 fw-bold" style="width: 34px;height: 34px">
-                                                    +
-                                                </span>
-                                            </a>
+                                        <span class="text-gray-800 fw-bold fs-12">
+                                            Приоритет:
+                                        </span>
+                                            <span class="badge badge-light-{{$item->priority->class}} ms-2 my-1 fw-bold fs-7">
+                                            {{$item->priority->getNameByLocale()}}
+                                    </span>
                                         </div>
+                                    </div>
 
-                                    @endif
+                                    <div class="mb-2">
+                                        <a href="{{route('cabinet.tickets.show', $item->id)}}" class="fs-4 fw-bold mb-1 text-gray-900 text-hover-primary" target="_blank">
+                                            #{{$item->parent->id}}<i class="ki-duotone ki-right fs-6"></i>{{$item->id}}
+                                        </a>
+                                    </div>
 
-                                    <a href="{{route('cabinet.tickets.show', $item->id)}}" class="d-flex align-items-center text-primary opacity-75-hover fs-6 fw-semibold" target="_blank">
-                                        подробнее
-                                        <i class="ki-outline ki-exit-right-corner fs-4 ms-1"></i>
-                                    </a>
+                                    <div class="fs-6 fw-semibold text-gray-800 mb-5">
+                                        {{$item->text}}
+                                    </div>
+
+                                    <div class="d-flex flex-stack flex-wrap">
+                                        @if($item->performer)
+                                            <div class="symbol-group symbol-hover flex-nowrap">
+                                                <div class="symbol symbol-35px symbol-circle"
+                                                     data-bs-toggle="tooltip"
+                                                     aria-label="{{$item->performer->name}}"
+                                                     data-bs-original-title="{{$item->performer->name}}">
+                                                    <img alt="avatar" src="{{$item->performer->avatar}}">
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div>
+                                                <a href="#" class="symbol symbol-35px symbol-circle border border-gray-300 border-dashed"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#kt_modal_view_users">
+                                                    <span class="symbol-label bg-light text-gray-400 fs-8 fw-bold" style="width: 34px;height: 34px">
+                                                        +
+                                                    </span>
+                                                </a>
+                                            </div>
+
+                                        @endif
+
+                                        <a href="{{route('cabinet.tickets.show', $item->id)}}" class="d-flex align-items-center text-primary opacity-75-hover fs-6 fw-semibold" target="_blank">
+                                            подробнее
+                                            <i class="ki-outline ki-exit-right-corner fs-4 ms-1"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
-            </div>
-
-
+                    @endforeach
+                </div>
+            @endif
         </div>
 
         <div class="col-xxl-4">

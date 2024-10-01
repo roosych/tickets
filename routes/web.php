@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Cabinet\ChartDataController;
 use App\Http\Controllers\Cabinet\DepartmentController;
 use App\Http\Controllers\Cabinet\IndexController;
 use App\Http\Controllers\Cabinet\RoleController;
@@ -22,6 +23,9 @@ Route::get('lang/{language}', LanguageController::class)->name('language');
 
 Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function () {
     Route::get('/', IndexController::class)->name('index');
+
+    Route::get('chart-data', [IndexController::class, 'getChartData'])->name('get_tickets_chart');
+
 
     //upload files (filepond)
     Route::post('upload', [TemporaryFileController::class, 'store'])->name('files.upload');

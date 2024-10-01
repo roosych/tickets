@@ -31,9 +31,6 @@
     <div class="d-flex flex-column flex-lg-row flex-column-fluid">
         <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-center" style="background-image: url('{{asset('assets/media/auth/auth-bg.png')}}')">
             <div class="d-flex flex-column flex-center p-6 p-lg-10 w-100">
-                <a href="index.html" class="mb-0 mb-lg-20">
-                    <img alt="Logo" src="assets/media/logos/default-white.svg" class="h-40px h-lg-50px" />
-                </a>
                 <img class="d-none d-lg-block mx-auto w-300px w-lg-75 w-xl-500px mb-10 mb-lg-20" src="{{asset('assets/media/auth/auth-screens.png')}}" alt="" />
                 <h1 class="d-none d-lg-block text-white fs-1qx fw-bold text-center mb-7">
                     Проблема. Действие. Результат.
@@ -46,7 +43,12 @@
                     <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" method="POST" action="{{ route('login') }}">
                         @csrf
                         <div class="text-center mb-11">
-                            <h1 class="text-gray-900 fw-bolder mb-3">Вход в кабинет</h1>
+                            <h1 class="text-gray-900 fw-bolder mb-3">
+                                Tickets
+                            </h1>
+                            <div class="text-gray-500 fw-semibold fs-6">
+                                Вход в кабинет
+                            </div>
                         </div>
                         <div class="fv-row mb-8">
                             <input type="text"

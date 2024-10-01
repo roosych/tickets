@@ -169,7 +169,7 @@ class TicketService
         );
 
         // Проверяем, является ли текущий пользователь создателем или исполнителем тикета
-        if ($ticket->creator->id !== auth()->id() && $ticket->performer->id !== auth()->id()) {
+        if ($ticket->creator->id !== auth()->id() && (!$ticket->performer || $ticket->performer->id !== auth()->id())) {
             abort(403, 'Вы не можете оставлять комментарии к этому тикету.');
         }
 

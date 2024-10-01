@@ -12,6 +12,7 @@ return new class extends Migration
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique(); // Уникальное имя департамента
+            $table->boolean('active')->default(false);
             $table->timestamps();
         });
 
