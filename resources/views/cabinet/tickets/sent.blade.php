@@ -17,9 +17,7 @@
 @section('content')
     <div class="card-body pt-0">
             <div class="row g-9">
-                <!--begin::Col-->
                 <div class="col-md-4 col-lg-12 col-xl-4">
-                    <!--begin::Col header-->
                     <div class="mb-9">
                         <div class="d-flex flex-stack">
                             <div class="fw-bold fs-4">
@@ -31,24 +29,16 @@
                         </div>
                         <div class="h-3px w-100 bg-dark"></div>
                     </div>
-                    <!--end::Col header-->
-
                     <a href="#" class="btn btn-success er w-100 fs-6 px-8 py-4 mb-10"
                        data-bs-toggle="modal"
                        data-bs-target="#kt_modal_new_ticket">
                         <i class="ki-outline ki-plus-square fs-2"></i>Создать тикет
                     </a>
-
                     @foreach($openTickets as $ticket)
                         <x-sent-ticket-item :ticket="$ticket"></x-sent-ticket-item>
                     @endforeach
-
                 </div>
-                <!--end::Col-->
-
-                <!--begin::Col-->
                 <div class="col-md-4 col-lg-12 col-xl-4">
-                    <!--begin::Col header-->
                     <div class="mb-9">
                         <div class="d-flex flex-stack">
                             <div class="fw-bold fs-4">
@@ -60,38 +50,26 @@
                         </div>
                         <div class="h-3px w-100 bg-warning"></div>
                     </div>
-                    <!--end::Col header-->
-
                    @foreach($inProgressTickets as $ticket)
                         <x-sent-ticket-item :ticket="$ticket"></x-sent-ticket-item>
                    @endforeach
-
                 </div>
-                <!--end::Col-->
-
-                <!--begin::Col-->
                 <div class="col-md-4 col-lg-12 col-xl-4">
-                    <!--begin::Col header-->
                     <div class="mb-9">
                         <div class="d-flex flex-stack">
                             <div class="fw-bold fs-4">
                                 Выполненные
                                 <span class="fs-6 text-gray-500 ms-2">
-                                    {{count($completedTickets)}}
+                                    {{count($doneTickets)}}
                                 </span>
                             </div>
                         </div>
-
-                        <div class="h-3px w-100 bg-success"></div>
+                        <div class="h-3px w-100 bg-primary"></div>
                     </div>
-                    <!--end::Col header-->
-
-                    @foreach($completedTickets as $ticket)
+                    @foreach($doneTickets as $ticket)
                         <x-sent-ticket-item :ticket="$ticket"></x-sent-ticket-item>
                     @endforeach
-
                 </div>
-                <!--end::Col-->
             </div>
 
 

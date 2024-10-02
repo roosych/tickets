@@ -162,8 +162,6 @@
 
 @endsection
 
-
-
 @push('vendor_css')
     <link href="{{asset('assets/css/plugins/datatables.bundle.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('assets/css/plugins/filepond.min.css')}}" rel="stylesheet" type="text/css" />

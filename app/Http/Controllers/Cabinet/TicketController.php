@@ -73,7 +73,7 @@ class TicketController extends Controller
             ->get();
         $openTickets = $tickets->where('status', TicketStatusEnum::OPENED);
         $inProgressTickets = $tickets->where('status', TicketStatusEnum::IN_PROGRESS);
-        $completedTickets = $tickets->where('status', TicketStatusEnum::COMPLETED);
+        $doneTickets = $tickets->where('status', TicketStatusEnum::DONE);
 
         return view('cabinet.tickets.sent', compact(
             'priorities',
@@ -81,7 +81,7 @@ class TicketController extends Controller
             'departments',
             'openTickets',
             'inProgressTickets',
-            'completedTickets',
+            'doneTickets',
             )
         );
     }

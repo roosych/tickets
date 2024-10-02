@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Cabinet;
 
 use App\Enums\TicketStatusEnum;
 use App\Http\Controllers\Controller;
+use App\Models\Department;
+use App\Models\Priorities;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -15,19 +17,20 @@ class IndexController extends Controller
     {
         $user = Auth::user();
         $tickets = Ticket::where('executor_id', $user->id)->get();
-        $ticketCounts = [
-            'opened' => $tickets->where('status', TicketStatusEnum::OPENED)->count(),
-            'in_progress' => $tickets->where('status', TicketStatusEnum::IN_PROGRESS)->count(),
-            'done' => $tickets->where('status', TicketStatusEnum::DONE)->count(),
-            'completed' => $tickets->where('status', TicketStatusEnum::COMPLETED)->count(),
-            'canceled' => $tickets->where('status', TicketStatusEnum::CANCELED)->count(),
-        ];
 
-        $done_tickets_count = $tickets->where('status', TicketStatusEnum::DONE)->count();
+        $statusLabels = [];
+        foreach (TicketStatusEnum::cases() as $status) {
+            $statusLabels[$status->value] = $status->label();
+        }
+        $priorities = Priorities::getCachedPriorities();
+        $departments = Department::where('active', true)->get();
+
         $data = $this->getTopPerformers();
         $topPerformers = $data['topPerformers'];
         $totalTickets = $data['totalDepartmentTickets'];
-        return view('cabinet.index', compact('ticketCounts','done_tickets_count', 'topPerformers', 'totalTickets'));
+
+        $view = Auth::user()->getDepartment()->active ? 'cabinet.index' : 'cabinet.deactive';
+        return view($view, compact( 'priorities', 'departments', 'topPerformers', 'totalTickets', 'tickets'));
     }
 
     private function getTopPerformers()

@@ -55,6 +55,11 @@ class User extends Authenticatable implements LdapAuthenticatable
         return $this->hasMany(Ticket::class);
     }
 
+    public function ticketsByExecutor(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'executor_id');
+    }
+
     public function ticketHistories(): HasMany
     {
         return $this->hasMany(TicketHistory::class)->latest();
@@ -81,7 +86,9 @@ class User extends Authenticatable implements LdapAuthenticatable
 
     public function getTicketsCountByStatus(TicketStatusEnum $status): int
     {
-        return $this->tickets()->where('status', $status->value)->count();
+        return $this->ticketsByExecutor()
+            ->where('status', $status->value)
+            ->count();
     }
 
 

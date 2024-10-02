@@ -58,75 +58,78 @@
                     </div>
                 </div>
 
-                <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.dept*', 'cabinet.users*'])}} py-2">
+                @if(auth()->user()->getDepartment()->active)
+                    <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.dept*', 'cabinet.users*'])}} py-2">
                     <span class="menu-link menu-center">
                         <span class="menu-icon me-0">
                             <i class="ki-outline ki-flag fs-2x"></i>
                         </span>
                     </span>
-                    <div class="menu-sub menu-sub-dropdown px-2 py-4 w-200px w-lg-225px mh-75 overflow-auto">
-                        <div class="menu-item">
-                            <div class="menu-content">
-                                <span class="menu-section fs-5 fw-bolder ps-1 py-1">Мой отдел</span>
+                        <div class="menu-sub menu-sub-dropdown px-2 py-4 w-200px w-lg-225px mh-75 overflow-auto">
+                            <div class="menu-item">
+                                <div class="menu-content">
+                                    <span class="menu-section fs-5 fw-bolder ps-1 py-1">Мой отдел</span>
+                                </div>
+                            </div>
+                            <div class="menu-item">
+                                <a class="menu-link" href="{{route('cabinet.dept.users.index')}}" title="Список сотрудников Вашего отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                    <span class="menu-title">Сотрудники</span>
+                                </a>
+                            </div>
+                            <div class="menu-item">
+                                <a class="menu-link" href="{{route('cabinet.dept.roles')}}" title="Роли и полномочия сотрудников Вашего отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                    <span class="menu-title">Роли и полномочия</span>
+                                </a>
                             </div>
                         </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="{{route('cabinet.dept.users.index')}}" title="Список сотрудников Вашего отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Сотрудники</span>
-                            </a>
-                        </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="{{route('cabinet.dept.roles')}}" title="Роли и полномочия сотрудников Вашего отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Роли и полномочия</span>
-                            </a>
-                        </div>
                     </div>
-                </div>
 
-                <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.reports*', 'cabinet.reports*'])}} py-2">
+                    <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.reports*', 'cabinet.reports*'])}} py-2">
                     <span class="menu-link menu-center">
                         <span class="menu-icon me-0">
                             <i class="ki-outline ki-chart-line-up fs-2x"></i>
                         </span>
                     </span>
-                    <div class="menu-sub menu-sub-dropdown px-2 py-4 w-200px w-lg-225px mh-75 overflow-auto">
-                        <div class="menu-item">
-                            <div class="menu-content">
-                                <span class="menu-section fs-5 fw-bolder ps-1 py-1">Статистика</span>
+                        <div class="menu-sub menu-sub-dropdown px-2 py-4 w-200px w-lg-225px mh-75 overflow-auto">
+                            <div class="menu-item">
+                                <div class="menu-content">
+                                    <span class="menu-section fs-5 fw-bolder ps-1 py-1">Статистика</span>
+                                </div>
+                            </div>
+                            <div class="menu-item">
+                                <a class="menu-link" href="{{route('cabinet.reports.users')}}" title="Статистика по сотрудникам отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                    <span class="menu-title">По сотрудникам</span>
+                                </a>
+                            </div>
+                            <div class="menu-item">
+                                <a class="menu-link" href="{{route('cabinet.reports.depts')}}" title="Статистика по всем отделам" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                    <span class="menu-title">По отделам</span>
+                                </a>
+                            </div>
+                            <div class="menu-item">
+                                <a class="menu-link" href="{{route('cabinet.reports.tags')}}" title="Статистика по тегам" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                    <span class="menu-title">По тегам</span>
+                                </a>
                             </div>
                         </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="{{route('cabinet.reports.users')}}" title="Статистика по сотрудникам отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">По сотрудникам</span>
-                            </a>
-                        </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="{{route('cabinet.reports.depts')}}" title="Статистика по всем отделам" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">По отделам</span>
-                            </a>
-                        </div>
-                        <div class="menu-item">
-                            <a class="menu-link" href="{{route('cabinet.reports.tags')}}" title="Статистика по тегам" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">По тегам</span>
-                            </a>
-                        </div>
                     </div>
-                </div>
+                @endif
+
             </div>
         </div>
     </div>

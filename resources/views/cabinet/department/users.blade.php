@@ -96,17 +96,17 @@
                         <thead>
                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                             <th class="min-w-100px">Сотрудник</th>
-                            <th class="text-end min-w-75px">Открытых тикетов</th>
-                            <th class="text-end min-w-75px">Тикеты в процессе</th>
-                            <th class="text-end min-w-75px">Выполненных тикетов</th>
-                            <th class="text-end min-w-100px">Завершенных тикетов</th>
-                            <th class="text-end min-w-100px">Отмененных тикетов</th>
+                            <th class="text-end min-w-75px">Открытых</th>
+                            <th class="text-end min-w-75px">В процессе</th>
+                            <th class="text-end min-w-75px">Выполненных</th>
+                            <th class="text-end min-w-100px">Завершенных</th>
+                            <th class="text-end min-w-100px">Отмененных</th>
                         </tr>
                         </thead>
                         <tbody class="fw-semibold text-gray-600">
                         @forelse($users as $user)
                             <tr>
-                                <td class="d-flex align-items-center">
+                                <td class="d-flex align-items-center border-bottom-0">
                                     <div class="symbol symbol-circle symbol-40px overflow-hidden me-3">
                                         <a href="{{route('cabinet.users.show', $user)}}" target="_blank">
                                             <div class="symbol-label">
@@ -115,7 +115,13 @@
                                         </a>
                                     </div>
                                     <div class="d-flex flex-column">
-                                        {{$user->name}}
+                                        <a href="{{route('cabinet.users.show', $user)}}"
+                                           class="text-gray-800 text-hover-primary mb-1"
+                                           target="_blank"
+                                        >
+                                            {{$user->name}}
+                                        </a>
+                                        <span>{{$user->email}}</span>
                                     </div>
                                 </td>
                                 <td class="text-end pe-0">

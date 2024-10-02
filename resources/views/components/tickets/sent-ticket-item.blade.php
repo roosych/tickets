@@ -2,14 +2,17 @@
     <div class="card-body">
         <div class="d-flex flex-stack mb-3">
             <div class="badge badge-light">
-                {{$ticket->department->name}}
+                {{Str::limit($ticket->department->name, 40)}}
             </div>
             <div>
-                <button type="button" class="btn btn-sm btn-icon btn-color-light-dark btn-active-light-success close_ticket"
-                data-id="{{$ticket->id}}"
-                >
-                    <i class="ki-outline ki-check-square fs-2"></i>
-                </button>
+                @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE))
+                    <button type="button" class="btn btn-sm btn-icon btn-color-light-dark btn-active-light-success close_ticket"
+                            data-id="{{$ticket->id}}"
+                    >
+                        <i class="ki-outline ki-check-square fs-2"></i>
+                    </button>
+                @endif
+
                 <button type="button" class="btn btn-sm btn-icon btn-color-light-dark btn-active-light-danger cancel_ticket"
                         data-id="{{$ticket->id}}"
                 >
@@ -19,9 +22,10 @@
         </div>
 
         <div class="mb-2">
-            <a href="{{route('cabinet.tickets.show', $ticket)}}" class="fs-4 fw-bold mb-1 text-gray-900 text-hover-primary">
+            <a href="{{route('cabinet.tickets.show', $ticket)}}" class="fs-4 fw-bold mb-1 me-2 text-gray-900 text-hover-primary">
                 #{{$ticket->id}}
             </a>
+            <x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge>
         </div>
 
         <div class="fs-6 fw-semibold text-gray-600 mb-5">
