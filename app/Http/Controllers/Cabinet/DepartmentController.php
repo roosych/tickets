@@ -34,7 +34,8 @@ class DepartmentController extends Controller
 
     public function users()
     {
-        $users = auth()->user()->deptAllUsers()->except(auth()->id());
+        //$users = auth()->user()->deptAllUsers()->except(auth()->id());
+        $users = auth()->user()->deptAllUsers();
         return view('cabinet.department.users', compact('users'));
     }
 

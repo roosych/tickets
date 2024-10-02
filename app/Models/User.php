@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\TicketStatusEnum;
 use App\Traits\HasPermissions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -78,28 +79,10 @@ class User extends Authenticatable implements LdapAuthenticatable
         return null; // Или путь к изображению по умолчанию
     }
 
-    // Получение тегов департамента пользователя
-//    public function departmentTags()
-//    {
-//        $departmentId = $this->department_id ?? optional($this->head)->department_id;
-//        return Tag::where('department_id', $departmentId)->latest()->get();
-//    }
-
-    // Метод для проверки, является ли пользователь менеджером и получения департамента
-//    public function getDepartmentIfManager()
-//    {
-//        return $this->is_manager === 'manager' ? $this->getDepartment : null;
-//    }
-
-    // Метод для получения тегов департамента менеджера
-//    public function getManagerDepartmentTags(): Collection
-//    {
-//        $dept = $this->head ? $this->head->getDepartmentIfManager() : null;
-//        return $dept ? $dept->tags : collect(); // Возвращает коллекцию тегов или пустую коллекцию
-//    }
-
-
-
+    public function getTicketsCountByStatus(TicketStatusEnum $status): int
+    {
+        return $this->tickets()->where('status', $status->value)->count();
+    }
 
 
     protected $fillable = [

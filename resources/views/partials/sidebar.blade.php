@@ -89,7 +89,7 @@
                     </div>
                 </div>
 
-                <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item py-2">
+                <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.reports*', 'cabinet.reports*'])}} py-2">
                     <span class="menu-link menu-center">
                         <span class="menu-icon me-0">
                             <i class="ki-outline ki-chart-line-up fs-2x"></i>
@@ -102,7 +102,15 @@
                             </div>
                         </div>
                         <div class="menu-item">
-                            <a class="menu-link" href="#" title="Статистика по всем отделам" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                            <a class="menu-link" href="{{route('cabinet.reports.users')}}" title="Статистика по сотрудникам отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">По сотрудникам</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <a class="menu-link" href="{{route('cabinet.reports.depts')}}" title="Статистика по всем отделам" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
@@ -110,11 +118,11 @@
                             </a>
                         </div>
                         <div class="menu-item">
-                            <a class="menu-link" href="#" title="Статистика по сотрудникам отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                            <a class="menu-link" href="{{route('cabinet.reports.tags')}}" title="Статистика по тегам" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">По сотрудникам</span>
+                                <span class="menu-title">По тегам</span>
                             </a>
                         </div>
                     </div>

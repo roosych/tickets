@@ -3,6 +3,7 @@
 use App\Http\Controllers\Cabinet\ChartDataController;
 use App\Http\Controllers\Cabinet\DepartmentController;
 use App\Http\Controllers\Cabinet\IndexController;
+use App\Http\Controllers\Cabinet\ReportController;
 use App\Http\Controllers\Cabinet\RoleController;
 use App\Http\Controllers\Cabinet\TagController;
 use App\Http\Controllers\Cabinet\TicketController;
@@ -68,11 +69,15 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
         Route::get('{ticket}/performers', [TicketController::class, 'getTicketPerformers'])->name('performers');
     });
 
-
-
     Route::resource('tags', TagController::class)->except(
         ['create', 'edit'] // закрытые маршруты
     );
+
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/users', [ReportController::class, 'users'])->name('users');
+        Route::get('/depts', [ReportController::class, 'depts'])->name('depts');
+        Route::get('/tags', [ReportController::class, 'tags'])->name('tags');
+    });
 
 });
 

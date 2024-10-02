@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\Tag;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Policies\ReportPolicy;
 use App\Policies\RolePolicy;
 use App\Policies\TagPolicy;
 use App\Policies\TicketPolicy;
@@ -25,6 +26,7 @@ class AuthServiceProvider extends ServiceProvider
         Role::class => RolePolicy::class,
         Tag::class => TagPolicy::class,
         User::class => UserPolicy::class,
+        'report' => ReportPolicy::class,
     ];
 
     /**
