@@ -30,8 +30,7 @@
                     <h1 class="fw-bolder fs-2hx text-gray-900 mb-4">Уупс!</h1>
                     <div class="fw-semibold fs-6 text-gray-500 mb-7">Нет доступа к этой странице</div>
                     <div class="mb-3">
-                        <img src="{{asset('assets/media/misc/500.png')}}" class="mw-100 mh-300px theme-light-show" alt="" />
-                        <img src="{{asset('assets/media/misc/500-dark.png')}}" class="mw-100 mh-300px theme-dark-show" alt="" />
+                        <img src="{{asset('assets/media/misc/4.svg')}}" class="mw-100 mb-10 mh-300px theme-light-show" alt="" />
                     </div>
                     <div class="mb-0">
                         <a href="{{route('cabinet.index')}}" class="btn btn-sm btn-primary">
