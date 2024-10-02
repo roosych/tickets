@@ -137,7 +137,7 @@
                 @if(count($topPerformers))
                     <div class="card-body d-flex flex-column justify-content-end pe-0">
                     <span class="fs-6 fw-bolder text-gray-800 d-block mb-2">
-                        Топ 5 исполнителей
+                        Топ 3 исполнителей
                     </span>
                         <div class="symbol-group symbol-hover flex-nowrap">
                             @foreach($topPerformers as $user)

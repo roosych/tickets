@@ -31,7 +31,7 @@
     <div class="d-flex flex-column flex-lg-row flex-column-fluid">
         <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-center" style="background-image: url('{{asset('assets/media/auth/auth-bg.png')}}')">
             <div class="d-flex flex-column flex-center p-6 p-lg-10 w-100">
-                <img class="d-none d-lg-block mx-auto w-300px w-lg-75 w-xl-500px mb-10 mb-lg-20" src="{{asset('assets/media/auth/auth-screens.png')}}" alt="" />
+                <img class="d-none d-lg-block mx-auto w-300px w-lg-75 w-xl-700px mb-10 mb-lg-20" src="{{asset('assets/media/auth/auth-screens.png')}}" alt="" />
                 <h1 class="d-none d-lg-block text-white fs-1qx fw-bold text-center mb-7">
                     Проблема. Действие. Результат.
                 </h1>

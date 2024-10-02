@@ -44,7 +44,7 @@ class IndexController extends Controller
                 $query->where('department_id', $departmentId);
             }])
             ->orderBy('ticket_count', 'desc')
-            ->limit(5)
+            ->limit(3)
             ->get();
 
         return [

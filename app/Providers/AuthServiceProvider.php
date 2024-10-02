@@ -24,6 +24,7 @@ class AuthServiceProvider extends ServiceProvider
         Ticket::class => TicketPolicy::class,
         Role::class => RolePolicy::class,
         Tag::class => TagPolicy::class,
+        User::class => UserPolicy::class,
     ];
 
     /**

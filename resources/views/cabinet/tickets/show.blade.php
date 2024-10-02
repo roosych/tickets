@@ -399,7 +399,9 @@
                             @endif
                         @endif
                         @empty
-                            нет активности
+                            <div class="text-center">
+                                <img src="{{asset('assets/media/misc/13.png')}}" class="w-200px" alt="">
+                            </div>
                         @endforelse
                     </div>
                 </div>

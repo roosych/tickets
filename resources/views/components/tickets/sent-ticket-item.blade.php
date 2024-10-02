@@ -25,7 +25,7 @@
         </div>
 
         <div class="fs-6 fw-semibold text-gray-600 mb-5">
-            {{$ticket->text}}
+            {{Str::limit($ticket->text, 80)}}
         </div>
 
         <div class="d-flex flex-stack flex-wrap">

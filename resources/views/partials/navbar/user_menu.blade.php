@@ -27,9 +27,6 @@
         </div>
         <div class="separator my-2"></div>
         <div class="menu-item px-5">
-            <a href="#" class="menu-link px-5">Профиль</a>
-        </div>
-        <div class="menu-item px-5">
             <a href="{{route('cabinet.tickets.inbox')}}" class="menu-link px-5">
                 <span class="menu-text">Мои тикеты</span>
             </a>
