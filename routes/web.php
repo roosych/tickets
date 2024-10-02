@@ -23,7 +23,7 @@ Route::get('mail', [\App\Http\Controllers\MailController::class, 'index']);
 Route::get('lang/{language}', LanguageController::class)->name('language');
 
 Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function () {
-    Route::get('/', IndexController::class)->name('index');
+    Route::get('/', [IndexController::class, 'index'])->name('index');
 
     Route::get('chart-data', [IndexController::class, 'getChartData'])->name('get_tickets_chart');
 

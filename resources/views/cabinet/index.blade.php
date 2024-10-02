@@ -131,7 +131,8 @@
                         </div>
 
                         <div class="card-body d-flex align-items-end flex-row-fluid p-0">
-                            <div class="card-rounded-bottom w-100" id="kt_charts_widget_44" data-kt-chart-color=primary style="height: 120px"></div>
+                            <div class="card-rounded-bottom w-100" id="kt_charts_widget_44"
+                                 data-kt-chart-color=success style="height: 119px"></div>
                         </div>
                     </div>
                 </div>

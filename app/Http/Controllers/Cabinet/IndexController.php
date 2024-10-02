@@ -8,12 +8,20 @@ use App\Models\Department;
 use App\Models\Priorities;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Services\TicketService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class IndexController extends Controller
 {
-    public function __invoke()
+    public TicketService $ticketService;
+
+    public function __construct(TicketService $ticketService)
+    {
+        $this->ticketService = $ticketService;
+    }
+
+    public function index()
     {
         $user = Auth::user();
         $tickets = Ticket::where('executor_id', $user->id)->get();
@@ -29,8 +37,9 @@ class IndexController extends Controller
         $topPerformers = $data['topPerformers'];
         $totalTickets = $data['totalDepartmentTickets'];
 
-        $view = Auth::user()->getDepartment()->active ? 'cabinet.index' : 'cabinet.deactive';
-        return view($view, compact( 'priorities', 'departments', 'topPerformers', 'totalTickets', 'tickets'));
+        return Auth::user()->getDepartment()->active
+            ? view('cabinet.index', compact('priorities', 'departments', 'topPerformers', 'totalTickets', 'tickets'))
+            : view('cabinet.deactive', compact('priorities', 'departments'));
     }
 
     private function getTopPerformers()
