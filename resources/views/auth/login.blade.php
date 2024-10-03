@@ -1,3 +1,7 @@
+@php
+    $languages = \App\Models\Language::getActive();
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -19,8 +23,6 @@
     <link href="{{asset('assets/css/style.bundle.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('assets/css/plugins/waitMe.min.css')}}" rel="stylesheet" type="text/css" />
 </head>
-<!--end::Head-->
-<!--begin::Body-->
 <body id="kt_body" class="app-blank app-blank">
 {{--<div class="preloader">--}}
 {{--    <div class="spinner-border text-primary" role="status"></div>--}}
@@ -33,7 +35,7 @@
             <div class="d-flex flex-column flex-center p-6 p-lg-10 w-100">
                 <img class="d-none d-lg-block mx-auto w-300px w-lg-75 w-xl-700px mb-10 mb-lg-20" src="{{asset('assets/media/auth/auth-screens.png')}}" alt="" />
                 <h1 class="d-none d-lg-block text-white fs-1qx fw-bold text-center mb-7">
-                    Проблема. Действие. Результат.
+                    {{trans('auth.slogan')}}
                 </h1>
             </div>
         </div>
@@ -44,17 +46,17 @@
                         @csrf
                         <div class="text-center mb-11">
                             <h1 class="text-gray-900 fw-bolder mb-3">
-                                Tickets
+                                {{trans('auth.title')}}
                             </h1>
                             <div class="text-gray-500 fw-semibold fs-6">
-                                Вход в кабинет
+                                {{trans('auth.subtitle')}}
                             </div>
                         </div>
                         <div class="fv-row mb-8">
                             <input type="text"
                                    id="username"
                                    value="{{@old('username')}}"
-                                   placeholder="Логин"
+                                   placeholder="{{trans('auth.login_placeholder')}}"
                                    name="username"
                                    autocomplete="off"
                                    autofocus
@@ -70,7 +72,7 @@
                         </div>
                         <div class="fv-row mb-3">
                             <input type="password"
-                                   placeholder="Пароль"
+                                   placeholder="{{trans('auth.password_placeholder')}}"
                                    name="password"
                                    autocomplete="off"
                                    class="form-control bg-transparent" />
@@ -85,7 +87,9 @@
                         </div>
                         <div class="d-grid mb-10">
                             <button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
-                                <span class="indicator-label">Войти</span>
+                                <span class="indicator-label">
+                                    {{trans('auth.login')}}
+                                </span>
                             </button>
                         </div>
 
@@ -94,7 +98,7 @@
                             <div class="d-flex flex-stack flex-grow-1 ">
                                 <div class=" fw-semibold">
                                     <div class="fs-6 text-gray-700 ">
-                                        Логин - это ваша учетная запись. <br> Пример: <strong>rmamedov, fpoladov, rjalalov</strong>.
+                                        {{trans('auth.hint_text')}} <br> {{trans('auth.example')}} <strong>rmamedov, fpoladov, rjalalov</strong>.
                                     </div>
                                 </div>
                             </div>
@@ -103,7 +107,18 @@
                     </form>
                 </div>
             </div>
-
+            <div class="d-flex flex-center flex-wrap px-5">
+                <div class="d-flex fw-semibold text-primary fs-base">
+                    @foreach($languages as $lang)
+                        <a href="{{route('language', $lang->id)}}" class="px-5">
+                            <span class="symbol symbol-20px me-1">
+                                <img class="rounded-1" src="{{asset('assets/media/flags/'.$lang->id.'.svg')}}" alt="" />
+                            </span>
+                            {{$lang->name}}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -116,66 +131,9 @@
         $('#kt_sign_in_form').on('submit', function() {
             const $submitButton = $('#kt_sign_in_submit');
             $submitButton.prop('disabled', true);
-            $submitButton.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Проверяем...');
+            $submitButton.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> {{trans('auth.loader')}}');
         });
     });
 </script>
 </body>
 </html>
-
-
-
-{{--{{dd(\LdapRecord\Models\ActiveDirectory\User::select(--}}
-{{--    //'cn', 'name', 'username', 'samaccountname', 'mail', 'department'--}}
-{{--    )--}}
-{{--    ->where('samaccountname', '=', 'iamrahzadeh')--}}
-{{--    ->where('department', '!=', '')--}}
-{{--    //->where('useraccountcontrol', '!=', 514)--}}
-{{--    ->limit(50)->get()->toArray())}}--}}
-
-{{--{{dd(auth()->user())}}--}}
-
-{{--{{dd(\App\Models\User::where('username', 'rkandiba')->get())}}--}}
-
-{{--<form method="POST" action="{{ route('login') }}">
-    @csrf
-
-    <!-- Email Address -->
-    <div>
-        <x-input-label for="username" :value="__('Email')" />
-        <x-text-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" required autofocus autocomplete="username" />
-        <x-input-error :messages="$errors->get('samaccountname')" class="mt-2" />
-    </div>
-
-    <!-- Password -->
-    <div class="mt-4">
-        <x-input-label for="password" :value="__('Password')" />
-
-        <x-text-input id="password" class="block mt-1 w-full"
-                      type="password"
-                      name="password"
-                      required autocomplete="current-password" />
-
-        <x-input-error :messages="$errors->get('password')" class="mt-2" />
-    </div>
-
-    <!-- Remember Me -->
-    <div class="block mt-4">
-        <label for="remember_me" class="inline-flex items-center">
-            <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-            <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-        </label>
-    </div>
-
-    <div class="flex items-center justify-end mt-4">
-        @if (Route::has('password.request'))
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                {{ __('Forgot your password?') }}
-            </a>
-        @endif
-
-        <x-primary-button class="ms-3">
-            {{ __('Log in') }}
-        </x-primary-button>
-    </div>
-</form>--}}

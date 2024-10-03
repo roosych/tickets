@@ -26,33 +26,47 @@
                     <div class="menu-sub menu-sub-dropdown px-2 py-4 w-200px w-lg-225px mh-75 overflow-auto">
                         <div class="menu-item">
                             <div class="menu-content">
-                                <span class="menu-section fs-5 fw-bolder ps-1 py-1">Тикеты</span>
+                                <span class="menu-section fs-5 fw-bolder ps-1 py-1">
+                                    {{trans('sidebar.tickets.title')}}
+                                </span>
                             </div>
                         </div>
                         <div class="menu-item">
-                            <a class="menu-link" href="{{route('cabinet.tickets.index')}}" title="Список тикетов отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                            <a class="menu-link" href="{{route('cabinet.tickets.index')}}"
+                               title="{{trans('sidebar.tickets.dept.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Моего отдела</span>
+                                <span class="menu-title">
+                                    {{trans('sidebar.tickets.dept.text')}}
+                                </span>
                             </a>
-                            <a class="menu-link" href="{{route('cabinet.tickets.inbox')}}" title="Список тикетов адресованных мне" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                            <a class="menu-link" href="{{route('cabinet.tickets.inbox')}}"
+                               title="{{trans('sidebar.tickets.my.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Мои тикеты</span>
+                                <span class="menu-title">
+                                    {{trans('sidebar.tickets.my.text')}}
+                                </span>
                             </a>
-                            <a class="menu-link" href="{{route('cabinet.tickets.sent')}}" title="Список тикетов созданных мной" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                            <a class="menu-link" href="{{route('cabinet.tickets.sent')}}"
+                               title="{{trans('sidebar.tickets.sent.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Исходящие</span>
+                                <span class="menu-title">
+                                    {{trans('sidebar.tickets.sent.text')}}
+                                </span>
                             </a>
-                            <a class="menu-link" href="{{route('cabinet.tags.index')}}" title="Теги для тикетов" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                            <a class="menu-link" href="{{route('cabinet.tags.index')}}"
+                               title="{{trans('sidebar.tickets.tags.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">Теги тикетов</span>
+                                <span class="menu-title">
+                                    {{trans('sidebar.tickets.tags.text')}}
+                                </span>
                             </a>
                         </div>
                     </div>
@@ -68,23 +82,31 @@
                         <div class="menu-sub menu-sub-dropdown px-2 py-4 w-200px w-lg-225px mh-75 overflow-auto">
                             <div class="menu-item">
                                 <div class="menu-content">
-                                    <span class="menu-section fs-5 fw-bolder ps-1 py-1">Мой отдел</span>
+                                    <span class="menu-section fs-5 fw-bolder ps-1 py-1">
+                                        Мой отдел
+                                    </span>
                                 </div>
                             </div>
                             <div class="menu-item">
-                                <a class="menu-link" href="{{route('cabinet.dept.users.index')}}" title="Список сотрудников Вашего отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <a class="menu-link" href="{{route('cabinet.dept.users.index')}}"
+                                   title="{{trans('sidebar.dept.users.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                    <span class="menu-title">Сотрудники</span>
+                                    <span class="menu-title">
+                                        {{trans('sidebar.dept.users.text')}}
+                                    </span>
                                 </a>
                             </div>
                             <div class="menu-item">
-                                <a class="menu-link" href="{{route('cabinet.dept.roles')}}" title="Роли и полномочия сотрудников Вашего отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <a class="menu-link" href="{{route('cabinet.dept.roles')}}"
+                                   title="{{trans('sidebar.dept.access.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                    <span class="menu-title">Роли и полномочия</span>
+                                    <span class="menu-title">
+                                        {{trans('sidebar.dept.access.text')}}
+                                    </span>
                                 </a>
                             </div>
                         </div>
@@ -99,39 +121,48 @@
                         <div class="menu-sub menu-sub-dropdown px-2 py-4 w-200px w-lg-225px mh-75 overflow-auto">
                             <div class="menu-item">
                                 <div class="menu-content">
-                                    <span class="menu-section fs-5 fw-bolder ps-1 py-1">Статистика</span>
+                                    <span class="menu-section fs-5 fw-bolder ps-1 py-1">
+                                        {{trans('sidebar.stats.title')}}
+                                    </span>
                                 </div>
                             </div>
                             <div class="menu-item">
-                                <a class="menu-link" href="{{route('cabinet.reports.users')}}" title="Статистика по сотрудникам отдела" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <a class="menu-link" href="{{route('cabinet.reports.users')}}"
+                                   title="{{trans('sidebar.stats.users.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                    <span class="menu-title">По сотрудникам</span>
+                                    <span class="menu-title">
+                                        {{trans('sidebar.stats.users.text')}}
+                                    </span>
                                 </a>
                             </div>
                             <div class="menu-item">
-                                <a class="menu-link" href="{{route('cabinet.reports.depts')}}" title="Статистика по всем отделам" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <a class="menu-link" href="{{route('cabinet.reports.depts')}}"
+                                   title="{{trans('sidebar.stats.dept.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                    <span class="menu-title">По отделам</span>
+                                    <span class="menu-title">
+                                        {{trans('sidebar.stats.dept.text')}}
+                                    </span>
                                 </a>
                             </div>
                             <div class="menu-item">
-                                <a class="menu-link" href="{{route('cabinet.reports.tags')}}" title="Статистика по тегам" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <a class="menu-link" href="{{route('cabinet.reports.tags')}}"
+                                   title="{{trans('sidebar.stats.tags.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                    <span class="menu-title">По тегам</span>
+                                    <span class="menu-title">
+                                        {{trans('sidebar.stats.tags.text')}}
+                                    </span>
                                 </a>
                             </div>
                         </div>
                     </div>
                 @endif
-
             </div>
         </div>
     </div>
-
 </div>

@@ -28,8 +28,8 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'username.required' => 'Введите свой логин',
-            'password.required' => 'Введите пароль',
+            'username.required' => trans('auth.errors.empty_login'),
+            'password.required' => trans('auth.errors.empty_password'),
         ];
     }
 
@@ -48,7 +48,7 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'samaccountname' => 'Неверный логин или пароль',
+                'samaccountname' => trans('auth.errors.failed'),
             ]);
         }
 

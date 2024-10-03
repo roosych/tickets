@@ -12,7 +12,9 @@
                 <div class="card card-flush h-xl-100">
                     <div class="card-header rounded bgi-no-repeat bgi-size-cover bgi-position-y-top bgi-position-x-center align-items-start h-250px" style="background: linear-gradient(112.14deg, #3A7BD5 0%, #00D2FF 100%);" data-bs-theme="light">
                         <h3 class="card-title align-items-start flex-column text-white pt-15">
-                            <span class="fw-bold fs-2x mb-3">Мои тикеты</span>
+                            <span class="fw-bold fs-2x mb-3">
+                                Мои тикеты
+                            </span>
                             <div class="fs-4 text-white">
                             <span class="position-relative d-inline-block">
                                 <a href="{{route('cabinet.tickets.inbox')}}" class="link-white opacity-75-hover text-gray-800 fw-bold d-block mb-1">
