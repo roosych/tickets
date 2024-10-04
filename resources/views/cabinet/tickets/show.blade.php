@@ -50,7 +50,7 @@
 
 
                         @can('close', $ticket)
-                            @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE) && auth()->user()->id === $ticket->creator->id)
+                            @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE) || auth()->user()->id === $ticket->creator->id)
                                 <button class="btn btn-sm btn-light-success btn-active-success me-2 closed-ticket-btn"
                                         data-ticket_id="{{$ticket->id}}"
                                         data-bs-toggle="tooltip"
