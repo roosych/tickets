@@ -40,9 +40,25 @@ class User extends Authenticatable implements LdapAuthenticatable
             ->first();
     }
 
+    public function isManager(): bool
+    {
+        return $this->is_manager === 'manager';
+    }
+
+//    public function deptUsers(): array|Collection
+//    {
+//        return self::where('manager', auth()->user()->manager)->get();
+//    }
+
     public function deptUsers(): array|Collection
     {
-        return self::where('manager', auth()->user()->manager)->get();
+        // Если пользователь — менеджер, то выбираем сотрудников, у которых он является менеджером
+        if ($this->isManager()) {
+            return self::where('manager', $this->distinguishedname)->get();
+        }
+
+        // Если пользователь — не менеджер, то выбираем сотрудников отдела его руководителя
+        return self::where('manager', $this->manager)->get();
     }
 
     public function comments(): HasMany
@@ -65,11 +81,29 @@ class User extends Authenticatable implements LdapAuthenticatable
         return $this->hasMany(TicketHistory::class)->latest();
     }
 
+//    public function deptAllUsers(): Collection
+//    {
+//        $deptUsers = $this->deptUsers();
+//        $head = $this->head()->get();
+//        return $head->merge($deptUsers);
+//    }
+
     public function deptAllUsers(): Collection
     {
+        // Получаем сотрудников отдела
         $deptUsers = $this->deptUsers();
-        $head = $this->head()->get();
-        return $head->merge($deptUsers);
+
+        // Если пользователь является менеджером, добавляем его в коллекцию
+        if ($this->isManager()) {
+            // Добавляем текущего пользователя (менеджера) в коллекцию сотрудников
+            $deptUsers->push($this);
+        } else {
+            // Если пользователь не менеджер, получаем его руководителя и добавляем к сотрудникам
+            $head = $this->head()->get();
+            $deptUsers = $deptUsers->merge($head);
+        }
+
+        return $deptUsers;
     }
 
     public function getAvatarAttribute(): string|null

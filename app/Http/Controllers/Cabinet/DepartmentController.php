@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Cabinet;
 
+use App\Enums\TicketStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Priorities;
 use App\Models\Ticket;
 use App\Models\User;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DepartmentController extends Controller
 {
     public function tickets()
     {
         $statusLabels = [];
-        foreach (\App\Enums\TicketStatusEnum::cases() as $status) {
+        foreach (TicketStatusEnum::cases() as $status) {
             $statusLabels[$status->value] = $status->label();
         }
 
