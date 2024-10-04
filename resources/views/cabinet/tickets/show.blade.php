@@ -541,6 +541,7 @@
                         Swal.fire('Все прошло успешно!', '{{trans('common.swal.success_text')}}', 'success');
                         window.location.href = '{{route('cabinet.tickets.show', $ticket->id)}}';
                     } else {
+                        removeWait($('body'));
                         Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
@@ -552,6 +553,7 @@
                             errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
                         }
                     }
+                    removeWait($('body'));
                     Swal.fire('Произошла ошибка!', errorMessage, 'error');
                 },
             });
@@ -877,6 +879,7 @@
                     if(response.status === 'success') {
                         removeWait($('body'));
                     } else {
+                        removeWait($('body'));
                         Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
@@ -888,8 +891,10 @@
                             errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
                         }
                     } else if (response.status === 403) {
+                        removeWait($('body'));
                         Swal.fire('Произошла ошибка!', response.responseJSON.message, 'error');
                     } else {
+                        removeWait($('body'));
                         Swal.fire('Произошла ошибка!', errorMessage, 'error');
                     }
                 },
@@ -911,10 +916,10 @@
                     _token: '{{ csrf_token() }}',
                 },
                 success: function(response) {
-                    console.log(response)
                     if (response.success) {
                         window.location.reload();
                     } else {
+                        removeWait($('body'));
                         Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
@@ -926,6 +931,7 @@
                             errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
                         }
                     } else if(response.status === 403) {
+                        removeWait($('body'));
                         errorMessage = `<p class="mb-0">${response.responseJSON.message}</p>`;
                         Swal.fire('Произошла ошибка!', errorMessage, 'error');
                     }
