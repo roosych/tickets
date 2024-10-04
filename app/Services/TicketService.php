@@ -131,7 +131,7 @@ class TicketService
     public function cancelTicket(Ticket $ticket, string $comment): void
     {
         $user = Auth::user();
-// Проверяем, есть ли у тикета исполнитель
+        // Проверяем, есть ли у тикета исполнитель
         if ($ticket->performer === null) {
             // Если исполнителя нет, проверяем только принадлежность к отделу
             if ($user->getDepartmentId() !== $ticket->department->id) {
