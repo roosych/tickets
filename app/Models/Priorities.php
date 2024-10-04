@@ -46,8 +46,4 @@ class Priorities extends Model
             Cache::forget('priorities');
         });
     }
-
-    protected $casts = [
-        'name' => 'array',
-    ];
 }
