@@ -43,10 +43,10 @@
                             @forelse($user->ticketHistories->take(10) as $item)
                                 <tr>
                                     <td class="min-w-400px">
-                                        {{$item->action}} тикета <a href="{{route('cabinet.tickets.show', $item->ticket->id)}}" class="fw-bold text-gray-900 text-hover-primary me-1" target="_blank">
+                                        Тикет <a href="{{route('cabinet.tickets.show', $item->ticket->id)}}" class="fw-bold text-gray-900 text-hover-primary" target="_blank">
                                             #{{$item->ticket->id}}
-                                        </a>
-                                        на <span class="badge badge-light-{{$item->status->color()}}">{{$item->status}}</span>
+                                        </a>.
+                                        {{$item->action->label()}} <span class="badge badge-light-{{$item->status->color()}}">{{$item->status->label()}}</span>
                                     </td>
                                     <td class="pe-0 text-gray-600 text-end min-w-200px">
                                         {{\Carbon\Carbon::parse($item->created_at)->isoFormat('D MMMM Y, HH:mm')}}
