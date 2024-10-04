@@ -11,7 +11,7 @@ return [
         'canceled' => 'Отменён',
     ],
     'actions' => [
-        'update_status' => 'Изменение статуса на:',
+        'update_status' => 'Статус изменен на:',
         'commented' => 'Новый комментарий',
         'assign_user' => 'Добавлен исполнитель',
         'create_child' => 'Создан подтикет',

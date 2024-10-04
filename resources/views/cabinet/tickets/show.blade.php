@@ -377,9 +377,9 @@
                                 <x-ticket-comment :comment="$activity"></x-ticket-comment>
                             @elseif($activity instanceof \App\Models\TicketHistory)
                                 <div class="d-flex align-items-center justify-content-center mt-1 fs-6 mb-5">
-                                    <div class="text-muted me-2 fs-7">{{ $activity->action }}
-                                        <span class="badge badge-light-{{$activity->status->color()}}">{{ $activity->status }}</span>
-                                        {{ $activity->created_at->isoFormat('D MMMM, HH:mm') }}
+                                    <div class="text-muted me-2 fs-7">{{ $activity->action->label() }}
+                                        <span class="badge badge-light-{{$activity->status->color()}}">{{ $activity->status->label() }}</span>
+                                        {{ $activity->created_at->isoFormat('D MMM, HH:mm') }}
                                     </div>
                                     <div class="symbol symbol-circle symbol-25px" data-bs-toggle="tooltip" data-bs-boundary="window" data-bs-placement="top" aria-label="{{ $activity->user->name }}" data-bs-original-title="{{ $activity->user->name }}">
                                         <img src="{{ $activity->user->avatar }}" alt="img">
