@@ -88,7 +88,9 @@ class TicketController extends Controller
 
     public function show(Ticket $ticket)
     {
-        $this->authorize('show', $ticket);
+        abort_unless(auth()->user()->getDepartmentId() === $ticket->department_id,
+            403,
+            'Вы не можете просматривать тикеты другого отдела');
 
         $ticket = $ticket->load(['comments.creator', 'histories', 'tags']);
 

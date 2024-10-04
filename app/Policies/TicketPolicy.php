@@ -16,11 +16,11 @@ class TicketPolicy
         return $user->hasPermissions('create', Ticket::class);
     }
 
-    #[PolicyPermissionNameAttribute(['az' => 'Baxmaq', 'en' => 'Show', 'ru' => 'Просмотр'])]
-    public function show(User $user, Ticket $ticket): bool
-    {
-        return $user->hasPermissions('show', Ticket::class);
-    }
+//    #[PolicyPermissionNameAttribute(['az' => 'Baxmaq', 'en' => 'Show', 'ru' => 'Просмотр'])]
+//    public function show(User $user, Ticket $ticket): bool
+//    {
+//        return $user->hasPermissions('show', Ticket::class);
+//    }
 
     #[PolicyPermissionNameAttribute(['az' => 'Bağlamaq', 'en' => 'Close', 'ru' => 'Закрытие'])]
     public function close(User $user, Ticket $ticket): bool
