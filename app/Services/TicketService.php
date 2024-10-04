@@ -326,6 +326,10 @@ class TicketService
         if ($ticket->performer) {
             $recipients[] = $ticket->performer;
         }
+        // Если у тикета есть родитель, добавляем создателя родительского тикета
+        if ($ticket->parent) {
+            $recipients[] = $ticket->parent->creator;
+        }
         // Удаляем пользователя кто сменил статус из списка получателей
         $recipients = array_filter($recipients, function ($user) {
             return $user->id !== Auth::id();
