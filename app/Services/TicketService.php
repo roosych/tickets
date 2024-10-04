@@ -174,8 +174,10 @@ class TicketService
             'Нельзя комментировать закрытый или отмененный тикет!'
         );
 
-        // Проверяем, является ли текущий пользователь создателем или исполнителем тикета
-        if ($ticket->creator->id !== auth()->id() && (!$ticket->performer || $ticket->performer->id !== auth()->id())) {
+        // Проверяем, является ли текущий пользователь создателем, исполнителем или начальником департамента
+        if ($ticket->creator->id !== auth()->id()
+            && (!$ticket->performer || $ticket->performer->id !== auth()->id())
+            && !$this->isDepartmentHead($ticket)) {
             abort(403, 'Вы не можете оставлять комментарии к этому тикету.');
         }
 
@@ -374,6 +376,12 @@ class TicketService
     }
 
     // вспомогательные проверки
+    public function isDepartmentHead(Ticket $ticket): bool
+    {
+        // Проверяем, если текущий пользователь начальник департамента и департамент тикета совпадает
+        return auth()->user()->isManager() && auth()->user()->department_id === $ticket->department_id;
+    }
+
     protected function checkTicketStatus(Ticket $ticket, array|TicketStatusEnum $statuses, string $errorMessage): void
     {
         $statuses = is_array($statuses) ? $statuses : [$statuses];
