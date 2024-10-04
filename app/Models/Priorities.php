@@ -11,7 +11,7 @@ class Priorities extends Model
     public function getNameByLocale(): string
     {
         // Декодируем JSON, если name хранится в виде строки JSON
-        $nameData = json_decode($this->name, true);
+        $nameData = json_decode($this->name, true, JSON_UNESCAPED_UNICODE);
 
         // Проверяем, является ли декодированное значение массивом
         if (is_array($nameData)) {
@@ -46,4 +46,8 @@ class Priorities extends Model
             Cache::forget('priorities');
         });
     }
+
+    protected $casts = [
+        'name' => 'array',
+    ];
 }

@@ -26,22 +26,22 @@ class CreateTicketPrioritiesCommand extends Command
 
         $priorities = [
             [
-                'name' => json_encode(['en' => 'Urgent', 'ru' => 'Urgent', 'az' => 'Urgent']),
+                'name' => json_encode(['en' => 'Urgent', 'ru' => 'Срочно', 'az' => 'Təcili']),
                 'class' => 'danger',
                 'minutes' => 10
             ],
             [
-                'name' => json_encode(['en' => 'High', 'ru' => 'High', 'az' => 'High']),
+                'name' => json_encode(['en' => 'High', 'ru' => 'Высокий', 'az' => 'Yüksək']),
                 'class' => 'warning',
                 'minutes' => 30
             ],
             [
-                'name' => json_encode(['en' => 'Normal', 'ru' => 'Normal', 'az' => 'Normal']),
+                'name' => json_encode(['en' => 'Normal', 'ru' => 'Нормальный', 'az' => 'Normal']),
                 'class' => 'primary',
                 'minutes' => 60
             ],
             [
-                'name' => json_encode(['en' => 'Low', 'ru' => 'Low', 'az' => 'Low']),
+                'name' => json_encode(['en' => 'Low', 'ru' => 'Низкий', 'az' => 'Aşağı']),
                 'class' => 'secondary',
                 'minutes' => 100
             ],

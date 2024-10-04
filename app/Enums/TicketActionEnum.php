@@ -13,4 +13,9 @@ enum TicketActionEnum :string
     {
         return $this === $action;
     }
+
+    public function label(): string
+    {
+        return trans('tickets.actions.'.$this->value);
+    }
 }

@@ -10,9 +10,6 @@ enum TicketStatusEnum :string
     case COMPLETED = 'completed';
     case CANCELED = 'canceled';
 
-    // при отмене тикета - все его подтикеты тоже отменяются кроме тех которые completed (в шаблоне коммент что родитель тикет отменен)
-    // + невозможно сделать completed если подтикеты внутри него все не completed
-
     public function is(self $status): bool
     {
         return $this === $status;
@@ -20,8 +17,8 @@ enum TicketStatusEnum :string
 
     public function label(): string
     {
-        //return __('ticket_statuses.' . $this->value);
-        return $this->value;
+        return trans('tickets.statuses.'.$this->value);
+        //return $this->value;
     }
 
     public function color(): string
