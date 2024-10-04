@@ -399,7 +399,7 @@
                             @endif
                         @endif
                         @empty
-                            <div class="text-center">
+                            <div class="text-center empty_activity">
                                 <img src="{{asset('assets/media/misc/13.png')}}" class="w-200px" alt="">
                             </div>
                         @endforelse
@@ -576,6 +576,7 @@
                     console.log(response)
                     if(response.status === 'success') {
                         let newMessage = $(response.html).hide();
+                        $('.empty_activity').remove();
                         $('#chat-messages').append(newMessage);
                         newMessage.fadeIn('slow');
                         scrollToBottom();
