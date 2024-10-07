@@ -48,7 +48,7 @@
         </div>
         <div class="card-body pt-0">
             @if(count($tickets))
-                <table class="table align-middle table-row-dashed fs-6 gy-5" id="dept_tickets_table">
+                <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="dept_tickets_table">
                     <thead>
                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                         <th class="">Тикет</th>
@@ -62,8 +62,8 @@
                     </thead>
                     <tbody class="fw-semibold text-gray-600">
                     @foreach($tickets as $ticket)
-                        <tr class="position_row_{{$ticket->id}}">
-                            <td>
+                        <tr class="position_row_{{$ticket->id}}" onclick="location.href='{{ route('cabinet.tickets.show', $ticket) }}';" style="cursor: pointer;">
+                            <td class="ps-3">
                                 <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
                             </td>
                             <td class="d-flex align-items-center border-bottom-1">
@@ -105,7 +105,7 @@
                                     не вложен
                                 @endif
                             </td>
-                            <td class="text-end">
+                            <td class="text-end pe-2">
                                 <div class="my-3 ms-9">
                                     <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-icon btn-active-light-primary w-30px h-30px">
                                         <span data-bs-toggle="tooltip" data-bs-trigger="hover" aria-label="Подробнее" data-bs-original-title="Подробнее">

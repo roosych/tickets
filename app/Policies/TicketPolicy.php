@@ -27,4 +27,10 @@ class TicketPolicy
     {
         return $user->hasPermissions('close', Ticket::class);
     }
+
+    #[PolicyPermissionNameAttribute(['az' => 'Təyinat', 'en' => 'Assign', 'ru' => 'Назначение'])]
+    public function assign(User $user, Ticket $ticket): bool
+    {
+        return $user->hasPermissions('assign', Ticket::class);
+    }
 }
