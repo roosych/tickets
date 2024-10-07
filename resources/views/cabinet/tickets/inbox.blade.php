@@ -62,7 +62,7 @@
                     </thead>
                     <tbody class="fw-semibold text-gray-600">
                     @foreach($tickets as $ticket)
-                        <tr class="position_row_{{$ticket->id}}" onclick="location.href='{{ route('cabinet.tickets.show', $ticket) }}';" style="cursor: pointer;">
+                        <tr class="position_row_{{$ticket->id}}">
                             <td class="ps-3">
                                 <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
                             </td>

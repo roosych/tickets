@@ -67,7 +67,7 @@
                     </thead>
                     <tbody class="fw-semibold text-gray-600">
                     @foreach($tickets as $ticket)
-                        <tr class="position_row_{{$ticket->id}}" onclick="location.href='{{ route('cabinet.tickets.show', $ticket) }}';" style="cursor: pointer;">
+                        <tr class="position_row_{{$ticket->id}}">
                             <td class="ps-3">
                                 <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
                             </td>
@@ -104,17 +104,11 @@
                                 <x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge>
                             </td>
                             <td>
-                                @can('assign', $ticket)
-                                    @if($ticket->department_id === auth()->user()->getDepartmentId())
-                                        <div class="">
-                                            <div class="performers_symbols_{{$ticket->id}} symbol-group symbol-hover flex-nowrap">
-                                                <x-ticket-performer :user="$ticket->performer" :ticket="$ticket"></x-ticket-performer>
-                                            </div>
-                                        </div>
-                                    @endif
-                                @else
-                                    не выбран
-                                @endcan
+                                <div class="">
+                                    <div class="performers_symbols_{{$ticket->id}} symbol-group symbol-hover flex-nowrap">
+                                        <x-ticket-performer :user="$ticket->performer" :ticket="$ticket"></x-ticket-performer>
+                                    </div>
+                                </div>
                             </td>
                             <td class="text-end pe-2">
                                 <div class="my-3 ms-9">

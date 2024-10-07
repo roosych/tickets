@@ -175,7 +175,7 @@ class TicketService
         );
 
         // Проверяем, является ли текущий пользователь создателем, исполнителем или начальником департамента
-        if ($ticket->creator->id !== auth()->id()
+        if ((!$ticket->creator || $ticket->creator->id !== auth()->id())
             && (!$ticket->performer || $ticket->performer->id !== auth()->id())
             && !$this->isDepartmentHead($ticket)) {
             abort(403, 'Вы не можете оставлять комментарии к этому тикету.');
