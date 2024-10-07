@@ -902,36 +902,56 @@
         // closed
         $(document).on('click', '.closed-ticket-btn', function(e) {
             e.preventDefault();
-            applyWait($('body'));
-            const url = '{{ route('cabinet.tickets.close', $ticket) }}';
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                },
-                success: function(response) {
-                    if (response.success) {
-                        window.location.reload();
-                    } else {
+            Swal.fire({
+                html: `Уверены что хотите закрыть тикет?`,
+                icon: "info",
+                buttonsStyling: false,
+                showCancelButton: true,
+                confirmButtonText: "Да",
+                cancelButtonText: 'Нет',
+                customClass: {
+                    confirmButton: "btn fw-bold btn-danger",
+                    cancelButton: 'btn fw-bold btn-active-light-primary'
+                }
+            }).then(async (result) => {
+                if (result.value) {
+                    try {
+                        applyWait($('body'));
+                        const url = '{{ route('cabinet.tickets.close', $ticket) }}';
+                        $.ajax({
+                            url: url,
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    window.location.reload();
+                                } else {
+                                    removeWait($('body'));
+                                    Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                                }
+                            },
+                            error: function (response) {
+                                let errorMessage = '';
+                                if (response.status === 422) {
+                                    const errors = response.responseJSON.errors;
+                                    for (const key in errors) {
+                                        errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
+                                    }
+                                } else if(response.status === 403) {
+                                    removeWait($('body'));
+                                    errorMessage = `<p class="mb-0">${response.responseJSON.message}</p>`;
+                                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                                }
+                                removeWait($('body'));
+                                Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                            }
+                        });
+                    } catch (error) {
                         removeWait($('body'));
                         Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
                     }
-                },
-                error: function (response) {
-                    let errorMessage = '';
-                    if (response.status === 422) {
-                        const errors = response.responseJSON.errors;
-                        for (const key in errors) {
-                            errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
-                        }
-                    } else if(response.status === 403) {
-                        removeWait($('body'));
-                        errorMessage = `<p class="mb-0">${response.responseJSON.message}</p>`;
-                        Swal.fire('Произошла ошибка!', errorMessage, 'error');
-                    }
-                    removeWait($('body'));
-                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
                 }
             });
         });
