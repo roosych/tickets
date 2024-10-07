@@ -38,7 +38,7 @@ class TicketStatusUpdatedNotification extends Notification implements ShouldQueu
         return (new MailMessage)
             ->subject('🏷️ Статус тикета #' .$this->ticketHistory->ticket->id. ' изменен')
             ->greeting('Изменение статуса')
-            ->line('Пользователь ' . $this->ticketHistory->user->name . ' изменил статус тикета #' . $this->ticketHistory->ticket->id . ' на "' . $this->ticketHistory->status->label() . '"')
+            ->line('Пользователь ' . $this->ticketHistory->user->name . ' изменил статус тикета #' . $this->ticketHistory->ticket->id . ' на "' . trans('tickets.statuses.'.$this->ticketHistory->status->label()) . '"')
             ->action('Посмотреть тикет', url('/cabinet/tickets/' . $this->ticketHistory->ticket->id));
             //->line('"'.$this->ticketHistory->ticket->text.'"')
             //->line('Время действовать! 🚀');
