@@ -1,4 +1,4 @@
-<div class="modal fade" id="kt_modal_new_ticket" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="kt_modal_new_ticket" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered mw-750px">
         <div class="modal-content rounded">
             <div class="modal-header pb-0 border-0 justify-content-end">

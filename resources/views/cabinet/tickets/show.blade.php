@@ -34,21 +34,20 @@
                     </div>
                 <div>
 
-                    @if($ticket->creator->id === auth()->id())
-                        @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED)
-                                            && (!$ticket->parent || !$ticket->parent->status->is(\App\Enums\TicketStatusEnum::CANCELED)))
-                            <button class="btn btn-sm btn-light-danger btn-active-danger me-2 cancel-ticket-btn"
-                                    data-ticket_id="{{$ticket->id}}"
-                                    data-id="{{$ticket->id}}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#cancel_ticket_modal">
-                                <i class="ki-outline ki-cross-square fs-2"></i>
-                                Отменить тикет
-                            </button>
+                    @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED) && !$ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED))
+                        @if($ticket->creator->id === auth()->id())
+                            @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED)
+                                                && (!$ticket->parent || !$ticket->parent->status->is(\App\Enums\TicketStatusEnum::CANCELED)))
+                                <button class="btn btn-sm btn-light-danger btn-active-danger me-2 cancel-ticket-btn"
+                                        data-ticket_id="{{$ticket->id}}"
+                                        data-id="{{$ticket->id}}"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#cancel_ticket_modal">
+                                    <i class="ki-outline ki-cross-square fs-2"></i>
+                                    Отменить тикет
+                                </button>
+                            @endif
                         @endif
-                    @endif
-
-
                         @can('close', $ticket)
                             @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE) || auth()->user()->id === $ticket->creator->id)
                                 <button class="btn btn-sm btn-light-success btn-active-success me-2 closed-ticket-btn"
@@ -61,38 +60,28 @@
                                 </button>
                             @endif
                         @endcan
-
-
-
-                    @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED))
-                        <button class="btn btn-sm btn-light-warning btn-active-warning me-2 start-task-btn"
-                                data-ticket_id="{{$ticket->id}}"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Начать выполнение">
-                            <i class="ki-outline ki-timer fs-2"></i>
-                            Начать выполнение
-                        </button>
+                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED))
+                            <button class="btn btn-sm btn-light-warning btn-active-warning me-2 start-task-btn"
+                                    data-ticket_id="{{$ticket->id}}"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Начать выполнение">
+                                <i class="ki-outline ki-timer fs-2"></i>
+                                Начать выполнение
+                            </button>
+                        @endif
+                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS))
+                            <button class="btn btn-sm btn-light-primary btn-active-primary me-2"
+                                    data-ticket_id="{{$ticket->id}}"
+                                    data-id="{{$ticket->id}}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#complete_ticket_modal">
+                                <i class="ki-outline ki-timer fs-2"></i>
+                                Закончить выполнение
+                            </button>
+                        @endif
                     @endif
-
-                    @if($ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS))
-                        <button class="btn btn-sm btn-light-primary btn-active-primary me-2"
-                                data-ticket_id="{{$ticket->id}}"
-                                data-id="{{$ticket->id}}"
-                                data-bs-toggle="modal"
-                                data-bs-target="#complete_ticket_modal">
-                            <i class="ki-outline ki-timer fs-2"></i>
-                            Закончить выполнение
-                        </button>
-                    @endif
-
-{{--                        <button class="btn btn-sm btn-icon btn-light btn-active-light-primary"--}}
-{{--                                data-bs-toggle="tooltip"--}}
-{{--                                data-bs-placement="top"--}}
-{{--                                title="Переслать" disabled>--}}
-{{--                            <i class="ki-outline ki-entrance-left fs-2 m-0"></i>--}}
-{{--                        </button>--}}
-                    </div>
+                </div>
 
                 </div>
                 <div class="card-body">
