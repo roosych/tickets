@@ -197,7 +197,7 @@ class TicketController extends Controller
      */
     public function storeComment(StoreCommentRequest $request, Ticket $ticket)
     {
-        $this->authorize('show', $ticket);
+        //$this->authorize('show', $ticket);
 
         $data = $request->validated();
         $comment = $this->ticketService->addComment($ticket, $data);
