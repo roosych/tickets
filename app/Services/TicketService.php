@@ -286,6 +286,8 @@ class TicketService
                 'parent_id' => $data['parent_id'] ?? null,
             ]);
 
+            $ticket->tags()->sync($data['tags'] ?? []);
+
             $tempFiles = TemporaryFile::all();
 
             foreach ($tempFiles as $tempFile) {

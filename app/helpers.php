@@ -32,4 +32,25 @@ if (!function_exists('get_initials')) {
             ->implode('');
     }
 }
+if (!function_exists('generateDepartmentCode')) {
+    /**
+     * Generate department code in format #ABC-123 using ticket ID
+     *
+     * @param string $departmentName
+     * @param int $ticketId
+     * @return string
+     */
+    function generateDepartmentCode($departmentName, $ticketId): string
+    {
+        // Convert to uppercase and remove any special characters
+        $cleaned = preg_replace('/[^A-Za-z]/', '', strtoupper($departmentName));
 
+        // Get first 3 letters, if less than 3 letters pad with 'X'
+        $abbreviation = substr($cleaned . 'XXX', 0, 3);
+
+        // Format ticket ID to ensure it's 3 digits with leading zeros
+        $formattedTicketId = str_pad($ticketId, 3, '0', STR_PAD_LEFT);
+
+        return "#{$abbreviation}-{$formattedTicketId}";
+    }
+}

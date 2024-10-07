@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tickets;
 
+use App\Models\Tag;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -17,6 +18,20 @@ class StoreRequest extends FormRequest
             'text' => ['required', 'string', 'max:10000'],
             'priority' => ['required', 'exists:priorities,id'],
             'department' => ['required', 'exists:departments,id'],
+            'tags' => ['required', 'array'],
+            'tags.*' => [
+                'required',
+                'integer',
+                'exists:tags,id',
+                function ($attribute, $value, $fail) {
+                    $user = auth()->user();
+                    $tag = Tag::find($value);
+
+                    if (!$tag || $tag->department_id !== $user->getDepartmentId()) {
+                        $fail('Выбранный тег не принадлежит вашему департаменту');
+                    }
+                },
+            ],
 
 //        'files' => ['nullable', 'array'],
 //        'files.*' => ['required', 'file', 'mimes:jpeg,png,pdf,doc,docx,xls,xlsx', 'max:4096'],

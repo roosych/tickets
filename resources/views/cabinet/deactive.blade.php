@@ -227,4 +227,5 @@
             KTChartsWidget44.init();
         });
     </script>
+    @stack('js_from_modal')
 @endpush

@@ -55,7 +55,12 @@
                         @else
                             <div class="col-md-6 fv-row">
                                 <label class="required fs-6 fw-semibold mb-2">Отдел</label>
-                                <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Выберите из списка..." name="department">
+                                <select class="form-select form-select-solid"
+                                        data-control="select2"
+                                        data-hide-search="true"
+                                        data-placeholder="Выберите из списка..."
+                                        data-department-id="{{ auth()->user()->getDepartmentId() }}"
+                                        name="department">
                                     <option value=""></option>
                                     @foreach($departments as $item)
                                         <option value="{{$item->id}}">{{$item->name}}</option>
@@ -65,6 +70,30 @@
                         @endif
 
                     </div>
+
+                    @php
+                        $deptTags = auth()->user()->getDepartment()->tags()->get();
+                    @endphp
+
+                    @if(count($deptTags) > 0)
+                        <div class="my-10" id="tagsSelect" style="display: none;">
+                            <label class="fs-6 fw-semibold mb-2">Теги</label>
+                            <select class="form-select form-select-solid"
+                                    name="tags[]"
+                                    data-control="select2"
+                                    data-close-on-select="false"
+                                    data-placeholder="Выбрать теги"
+                                    data-allow-clear="true"
+                                    multiple="multiple">
+                                <option></option>
+                                @foreach($deptTags as $tag)
+                                    <option value="{{$tag->id}}">
+                                        {{$tag->text}}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
 
                     <div class="fv-row mb-8">
                         <label class="fs-6 fw-semibold mb-2">Вложения</label>
@@ -82,3 +111,21 @@
         </div>
     </div>
 </div>
+
+@push('js_from_modal')
+    <script>
+        $(document).ready(function() {
+            let userDepartmentId = $('select[name="department"]').data('department-id');
+
+            $('select[name="department"]').change(function() {
+                let selectedDepartmentId = $(this).val();
+                if (selectedDepartmentId === userDepartmentId.toString()) {
+                    $('#tagsSelect').show(300);
+                } else {
+                    $('#tagsSelect').hide(300);
+                    $('select[name="tags[]"]').val([]).trigger('change');
+                }
+            });
+        });
+    </script>
+@endpush

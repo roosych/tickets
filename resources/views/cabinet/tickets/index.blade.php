@@ -73,7 +73,7 @@
                             </td>
                             <td class="d-flex align-items-center border-bottom-1">
                                 <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
-                                    <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank">
+                                    <a href="{{route('cabinet.users.show', $ticket->creator)}}">
                                         @if($ticket->creator->avatar)
                                             <div class="symbol-label">
                                                 <img src="{{$ticket->creator->avatar}}" alt="{{$ticket->creator->name}}" class="w-100" />
@@ -461,6 +461,6 @@
                 });
             }
         });
-
     </script>
+@stack('js_from_modal')
 @endpush
