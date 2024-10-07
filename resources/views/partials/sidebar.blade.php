@@ -17,7 +17,7 @@
                     </span>
                 </div>
 
-                <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.tickets*', 'cabinet.tags*'])}} py-2">
+                <div data-kt-menu-trigger="{default: 'click', lg: 'click'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.tickets*', 'cabinet.tags*'])}} py-2">
                     <span class="menu-link menu-center">
                         <span class="menu-icon me-0">
                             <i class="ki-outline ki-mouse-circle fs-2x"></i>
@@ -73,7 +73,7 @@
                 </div>
 
                 @if(auth()->user()->getDepartment()->active)
-                    <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.dept*', 'cabinet.users*'])}} py-2">
+                    <div data-kt-menu-trigger="{default: 'click', lg: 'click'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.dept*', 'cabinet.users*'])}} py-2">
                     <span class="menu-link menu-center">
                         <span class="menu-icon me-0">
                             <i class="ki-outline ki-flag fs-2x"></i>
@@ -112,7 +112,7 @@
                         </div>
                     </div>
 
-                    <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.reports*', 'cabinet.reports*'])}} py-2">
+                    <div data-kt-menu-trigger="{default: 'click', lg: 'click'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.reports*', 'cabinet.reports*'])}} py-2">
                     <span class="menu-link menu-center">
                         <span class="menu-icon me-0">
                             <i class="ki-outline ki-chart-line-up fs-2x"></i>
