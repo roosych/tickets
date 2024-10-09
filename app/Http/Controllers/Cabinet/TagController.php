@@ -18,6 +18,8 @@ class TagController extends Controller
 
     public function store(StoreRequest $request)
     {
+        $this->authorize('create', Tag::class);
+
         $data = $request->validated();
         $data['department_id'] = auth()->user()->getDepartmentId();
         Tag::query()->create($data);
@@ -38,6 +40,7 @@ class TagController extends Controller
     public function destroy(string $id)
     {
         $tag = Tag::query()->findOrFail($id);
+        $this->authorize('delete', $tag);
         abort_unless($tag->department_id !== auth()->user()->getDepartmentId(), 403);
         $tag->delete();
         return response()->json(['success' => true]);

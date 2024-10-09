@@ -16,19 +16,22 @@
 
 @section('content')
     <div class="row g-6 g-xl-9 mb-6 mb-xl-9">
-        <div class="col-md-6 col-lg-4 col-xl-3">
-            <div class="card h-100 flex-center p-8">
-                <button type="button" class="btn btn-clear d-flex flex-column flex-center"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modal_add_tag"
-                >
-                    <img src="{{asset('assets/media/misc/2.svg')}}" alt="" class="mw-100 mh-100px mb-7">
-                    <div class="fw-bold fs-3 text-gray-600 text-hover-primary">
-                        Добавить тег
-                    </div>
-                </button>
+        @can('create', \App\Models\Tag::class)
+            <div class="col-md-6 col-lg-4 col-xl-3">
+                <div class="card h-100 flex-center p-8">
+                    <button type="button" class="btn btn-clear d-flex flex-column flex-center"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modal_add_tag"
+                    >
+                        <img src="{{asset('assets/media/misc/2.svg')}}" alt="" class="mw-100 mh-100px mb-7">
+                        <div class="fw-bold fs-3 text-gray-600 text-hover-primary">
+                            Добавить тег
+                        </div>
+                    </button>
+                </div>
             </div>
-        </div>
+        @endcan
+
 
         @foreach($tags as $tag)
             <div class="col-md-6 col-lg-4 col-xl-3 tag_item_{{$tag->id}}">
@@ -41,11 +44,13 @@
                         <div class="fs-6 fw-semibold text-gray-500">
                             Тикеты: {{count($tag->tickets)}}
                         </div>
-                        <div class="text-center mt-10">
-                            <button class="btn btn-sm btn-light-danger delete_tag" data-name="{{$tag->text}}" data-id="{{$tag->id}}">
-                                Удалить
-                            </button>
-                        </div>
+                        @can('delete', $tag)
+                            <div class="text-center mt-10">
+                                <button class="btn btn-sm btn-light-danger delete_tag" data-name="{{$tag->text}}" data-id="{{$tag->id}}">
+                                    Удалить
+                                </button>
+                            </div>
+                        @endcan
 
                     </div>
                 </div>
@@ -72,46 +77,48 @@
 
 @push('custom_js')
     <script>
-        //add role
-        let form = $('#add_tag_form');
-        let modal = $('#modal_add_tag');
-        let button = $('#add_tag_submit_btn');
         let token = $('meta[name="csrf-token"]').attr('content');
 
-        button.on('click', function(e){
-            e.preventDefault();
-            applyWait($('body'));
-            $.ajax({
-                url: '{{route('cabinet.tags.store')}}',
-                method: 'POST',
-                headers: {'X-CSRF-TOKEN': token},
-                data: form.serialize(),
-                success: function(response)
-                {
-                    removeWait($('body'));
-                    if(response.success) {
-                        form.trigger('reset');
-                        modal.modal('toggle');
-                        location.reload();
-                    } else {
+        @can('create', \App\Models\Tag::class)
+            //add tag
+            let form = $('#add_tag_form');
+            let modal = $('#modal_add_tag');
+            let button = $('#add_tag_submit_btn');
+            button.on('click', function(e){
+                e.preventDefault();
+                applyWait($('body'));
+                $.ajax({
+                    url: '{{route('cabinet.tags.store')}}',
+                    method: 'POST',
+                    headers: {'X-CSRF-TOKEN': token},
+                    data: form.serialize(),
+                    success: function(response)
+                    {
                         removeWait($('body'));
-                        Swal.fire('Ошибка!', 'Что-то пошло не так', 'error');
-                    }
-                },
-                error: function (response)
-                {
-                    removeWait($('body'));
-                    let errorMessage = '';
-                    if (response.status === 422) {
-                        const errors = response.responseJSON.errors;
-                        for (const key in errors) {
-                            errorMessage += `<p>${errors[key][0]}</p>`;
+                        if(response.success) {
+                            form.trigger('reset');
+                            modal.modal('toggle');
+                            location.reload();
+                        } else {
+                            removeWait($('body'));
+                            Swal.fire('Ошибка!', 'Что-то пошло не так', 'error');
                         }
-                    }
-                    Swal.fire('Ошибка!', errorMessage, 'error');
-                },
+                    },
+                    error: function (response)
+                    {
+                        removeWait($('body'));
+                        let errorMessage = '';
+                        if (response.status === 422) {
+                            const errors = response.responseJSON.errors;
+                            for (const key in errors) {
+                                errorMessage += `<p>${errors[key][0]}</p>`;
+                            }
+                        }
+                        Swal.fire('Ошибка!', errorMessage, 'error');
+                    },
+                });
             });
-        });
+        @endcan
 
         //delete tag
         $(".delete_tag").on('click', function (){

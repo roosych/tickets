@@ -5,7 +5,7 @@ namespace App\Policies;
 use App\Attributes\PolicyNameAttribute;
 use App\Attributes\PolicyPermissionNameAttribute;
 use App\Models\Tag;
-use LdapRecord\Models\ActiveDirectory\User;
+use App\Models\User;
 
 #[PolicyNameAttribute(['az' => 'Teqlər', 'en' => 'Tags', 'ru' => 'Теги'])]
 class TagPolicy
@@ -17,8 +17,8 @@ class TagPolicy
     }
 
     #[PolicyPermissionNameAttribute(['az' => 'Silmək', 'en' => 'Delete', 'ru' => 'Удаление'])]
-    public function delete(User $user, Tag $ticket): bool
+    public function delete(User $user): bool
     {
-        return $user->hasPermissions('close', Tag::class);
+        return $user->hasPermissions('delete', Tag::class);
     }
 }

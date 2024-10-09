@@ -112,34 +112,14 @@
                             </td>
                             <td class="text-end pe-2">
                                 <div class="my-3 ms-9">
-                                    <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-icon btn-active-light-primary w-30px h-30px">
-                                        <span data-bs-toggle="tooltip" data-bs-trigger="hover" aria-label="Подробнее" data-bs-original-title="Подробнее">
-                                            <i class="ki-outline ki-eye fs-3"></i>
+                                    <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
+                                        <span data-bs-toggle="tooltip"
+                                              data-bs-trigger="hover"
+                                              aria-label="Подробнее"
+                                              data-bs-original-title="Подробнее">
+                                            <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
                                         </span>
                                     </a>
-
-                                    @if(! $ticket->status->is(App\Enums\TicketStatusEnum::COMPLETED))
-                                        <button class="btn btn-icon btn-active-light-primary w-30px h-30px ms-3 switch_{{$ticket->id}}" data-bs-toggle="tooltip" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" aria-label="Изменить статус" data-bs-original-title="Изменить статус">
-                                            <i class="ki-outline ki-switch fs-3"></i>
-                                        </button>
-                                    @if(!$ticket->status->is(App\Enums\TicketStatusEnum::CANCELED) && ! $ticket->status->is(App\Enums\TicketStatusEnum::DONE))
-                                            <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold w-150px py-3" data-kt-menu="true">
-                                                @if(! $ticket->status->is(App\Enums\TicketStatusEnum::IN_PROGRESS))
-                                                    <div class="menu-item px-3">
-                                                        <a href="javascript:void(0);" class="in_progress_btn menu-link px-3" data-ticket_id="{{$ticket->id}}">В процессе</a>
-                                                    </div>
-                                                @endif
-                                                @if(! $ticket->status->is(App\Enums\TicketStatusEnum::COMPLETED))
-                                                    <div class="menu-item px-3">
-                                                        <a href="#" class="complete_btn menu-link px-3" data-id="{{$ticket->id}}" data-bs-toggle="modal" data-bs-target="#complete_ticket_modal">
-                                                            Выполнен
-                                                        </a>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        @endif
-                                    @endif
-
                                 </div>
                             </td>
                         </tr>
@@ -177,7 +157,6 @@
 
 @push('modals')
     @include('partials.modals.tickets.create')
-    @include('partials.modals.tickets.complete')
     @include('partials.modals.tickets.attach_user')
 @endpush
 
@@ -275,90 +254,6 @@
                     removeWait($('body'));
                     Swal.fire('Произошла ошибка!', errorMessage, 'error');
                 },
-            });
-        });
-
-        // in progress
-        $(document).on('click', '.in_progress_btn', function() {
-            const button = $(this);
-            button.blur();
-            const ticketId = button.data('ticket_id');
-            applyWait($('body'));
-            const url = '{{ route('cabinet.tickets.inprogress', ':id') }}'.replace(':id', ticketId);
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: {
-                    ticketId: ticketId,
-                    _token: '{{ csrf_token() }}',
-                },
-                success: function(response) {
-                    console.log(response)
-                    if (response.success) {
-                        $('#ticket_status_' + ticketId).html(response.html);
-                        $('#select_users_' + ticketId).html(response.html2);
-                        button.remove();
-                    } else {
-                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
-                    }
-                },
-                error: function (response) {
-                    let errorMessage = '';
-                    if (response.status === 422) {
-                        const errors = response.responseJSON.errors;
-                        for (const key in errors) {
-                            errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
-                        }
-                    }
-                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
-                },
-                complete: function () {
-                    removeWait($('body'));
-                }
-            });
-        });
-
-        // completed ticket
-        let form = $('#complete_ticket_form');
-        $('.complete_btn').on('click', function () {
-            let ticket_id = $(this).attr('data-id');
-            form[0].reset();
-            $('#ticket_id').val(ticket_id);
-        });
-        $('#complete_ticket_submit').click(function (e) {
-            e.preventDefault();
-            let _ticket_id = $('#ticket_id').val();
-            applyWait($('body'));
-            $.ajax({
-                url: "{{route('cabinet.tickets.complete')}}",
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': token
-                },
-                data: form.serialize(),
-                success: function (response) {
-                    if(response.success) {
-                        removeWait($('body'));
-                        $('#ticket_status_' + _ticket_id).html(response.html);
-                        $('.switch_' + _ticket_id + ', .move_' + _ticket_id).remove();
-                        $('#complete_ticket_modal').modal('hide');
-                    } else {
-                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
-                    }
-                },
-                error: function (response) {
-                    let errorMessage = '';
-                    if (response.status === 422) {
-                        const errors = response.responseJSON.errors;
-                        for (const key in errors) {
-                            errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
-                        }
-                    }
-                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
-                },
-                complete: function () {
-                    removeWait($('body'));
-                }
             });
         });
 
