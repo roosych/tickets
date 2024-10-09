@@ -49,8 +49,8 @@
                                 <label class="required fs-6 fw-semibold mb-2">Отдел</label>
                                 <select class="form-select form-select-solid"
                                         data-control="select2"
-                                        data-hide-search="true"
                                         data-placeholder="Выберите из списка..."
+                                        data-dropdown-parent="#kt_modal_new_ticket"
                                         data-department-id="{{ auth()->user()->getDepartmentId() }}"
                                         name="department">
                                     <option value=""></option>
@@ -77,8 +77,9 @@
                                 <label class="fs-6 fw-semibold mb-2">Сотрудник</label>
                                 <select class="form-select form-select-solid"
                                         data-control="select2"
-                                        data-hide-search="true"
-                                        data-placeholder="Выберите из списка..." name="user">
+                                        data-placeholder="Выберите из списка..."
+                                        data-dropdown-parent="#kt_modal_new_ticket"
+                                        name="user">
                                     <option value=""></option>
                                     @foreach(auth()->user()->deptAllUsers() as $item)
                                         <option value="{{$item->id}}">{{$item->name}}</option>
