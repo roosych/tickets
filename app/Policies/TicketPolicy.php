@@ -29,7 +29,7 @@ class TicketPolicy
     }
 
     #[PolicyPermissionNameAttribute(['az' => 'Təyinat', 'en' => 'Assign', 'ru' => 'Назначение'])]
-    public function assign(User $user, Ticket $ticket): bool
+    public function assign(User $user): bool
     {
         return $user->hasPermissions('assign', Ticket::class);
     }

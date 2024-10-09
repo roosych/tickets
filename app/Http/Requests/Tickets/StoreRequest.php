@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tickets;
 
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -18,6 +19,18 @@ class StoreRequest extends FormRequest
             'text' => ['required', 'string', 'max:10000'],
             'priority' => ['required', 'exists:priorities,id'],
             'department' => ['required', 'exists:departments,id'],
+            'user' => [
+                'nullable',
+                'exists:users,id',
+                function ($attribute, $value, $fail) {
+                    $authUser = auth()->user();
+                    $selectedUser = User::find($value);
+
+                    if (!$selectedUser || $selectedUser->getDepartmentId() !== $authUser->getDepartmentId()) {
+                        $fail('Выбранный пользователь не принадлежит вашему отделу.');
+                    }
+                },
+            ],
             'tags' => ['array'],
             'tags.*' => [
                 'required',

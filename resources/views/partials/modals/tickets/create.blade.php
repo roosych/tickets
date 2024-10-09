@@ -18,24 +18,16 @@
                     </div>
                     <div class="d-flex flex-column mb-8 fv-row">
                         <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
-                            <span class="required">Проблема</span>
-                            <span class="ms-2" data-bs-toggle="tooltip" title="Чем более подробно описана проблема, тем быстрее она решается :)">
+                            <span class="required">Описание</span>
+                            <span class="ms-2" data-bs-toggle="tooltip" title="Чем более подробно описан икет, тем быстрее он решается :)">
                             <i class="ki-outline ki-information fs-7"></i>
                         </span>
                         </label>
-                        <textarea class="form-control form-control-solid" rows="4" name="text" placeholder="Опишите проблему"></textarea>
+                        <textarea class="form-control form-control-solid" rows="4" name="text" placeholder="Опишите ситуацию, задачу или проблему"></textarea>
                     </div>
 
                     <div class="row g-9 mb-8">
-                        <div class="col-md-6 fv-row">
-                            <label class="required fs-6 fw-semibold mb-2">Приоритет</label>
-                            <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Выберите из списка..." name="priority">
-                                <option value=""></option>
-                                @foreach($priorities as $item)
-                                    <option value="{{$item->id}}">{{$item->getNameByLocale()}}</option>
-                                @endforeach
-                            </select>
-                        </div>
+
 
                         @if(\Illuminate\Support\Facades\Route::is('cabinet.tickets.show'))
                             <input type="hidden" name="department" value="{{$ticket->department->id}}">
@@ -68,8 +60,33 @@
                                 </select>
                             </div>
                         @endif
-
+                            <div class="col-md-6 fv-row">
+                                <label class="required fs-6 fw-semibold mb-2">Приоритет</label>
+                                <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Выберите из списка..." name="priority">
+                                    <option value=""></option>
+                                    @foreach($priorities as $item)
+                                        <option value="{{$item->id}}">{{$item->getNameByLocale()}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                     </div>
+
+                    @can('assign', \App\Models\Ticket::class)
+                        <div id="dept_users_list" style="display: none;">
+                            <div class="col-md-12 fv-row">
+                                <label class="fs-6 fw-semibold mb-2">Сотрудник</label>
+                                <select class="form-select form-select-solid"
+                                        data-control="select2"
+                                        data-hide-search="true"
+                                        data-placeholder="Выберите из списка..." name="user">
+                                    <option value=""></option>
+                                    @foreach(auth()->user()->deptAllUsers() as $item)
+                                        <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    @endcan
 
                     @php
                         $deptTags = auth()->user()->getDepartment()->tags()->get();
@@ -119,13 +136,18 @@
 
             $('select[name="department"]').change(function() {
                 let selectedDepartmentId = $(this).val();
-                if (selectedDepartmentId === userDepartmentId.toString()) {
+
+                if (selectedDepartmentId === userDepartmentId?.toString()) {
                     $('#tagsSelect').show(300);
+                    $('#dept_users_list').show(300);
                 } else {
                     $('#tagsSelect').hide(300);
+                    $('#dept_users_list').hide(300);
                     $('select[name="tags[]"]').val([]).trigger('change');
+                    $('select[name="user"]').val([]).trigger('change');
                 }
             });
         });
+
     </script>
 @endpush
