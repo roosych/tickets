@@ -21,12 +21,12 @@ class RolePolicy
     {
         // если роль относится к департаменту (через менеджера)
         // и есть ли у роли юзера доступ (через трейт HasPermissions)
-        return $role->department_id === $user->head->getDepartment->id
+        return $role->department_id === $user->head->getDepartmentId()
             && $user->hasPermissions('show', Role::class);
     }
 
     #[PolicyPermissionNameAttribute(['az' => 'Silmək', 'en' => 'Delete', 'ru' => 'Удаление'])]
-    public function delete(User $user, Role $role): bool
+    public function delete(User $user): bool
     {
         return $user->hasPermissions('close', Role::class);
     }

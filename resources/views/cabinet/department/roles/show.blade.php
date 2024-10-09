@@ -69,12 +69,14 @@
                     </div>
                 </div>
 
-                <div class="card-footer pt-0">
-                    <button type="button" class="btn btn-light btn-active-primary" data-bs-toggle="modal"
-                            data-bs-target="#kt_modal_update_role">
-                        Редактировать
-                    </button>
-                </div>
+                @can('create', \App\Models\Role::class)
+                    <div class="card-footer pt-0">
+                        <button type="button" class="btn btn-light btn-active-primary" data-bs-toggle="modal"
+                                data-bs-target="#kt_modal_update_role">
+                            Редактировать
+                        </button>
+                    </div>
+                @endcan
             </div>
             @include('partials.modals.roles.edit_role')
         </div>
@@ -93,10 +95,12 @@
                             <i class="ki-outline ki-magnifier fs-1 position-absolute ms-6"></i>
                             <input type="text" data-kt-roles-table-filter="search"
                                    class="form-control form-control-solid w-250px ps-15" placeholder="Поиск..."/>
-                            <button type="button" class="btn btn-primary ms-3" data-bs-toggle="modal"
-                                    data-bs-target="#attach_users_modal">
-                                <i class="ki-outline ki-plus fs-2"></i> Добавить
-                            </button>
+                            @can('create', \App\Models\Role::class)
+                                <button type="button" class="btn btn-primary ms-3" data-bs-toggle="modal"
+                                        data-bs-target="#attach_users_modal">
+                                    <i class="ki-outline ki-plus fs-2"></i> Добавить
+                                </button>
+                            @endcan
                         </div>
                     </div>
                 </div>
@@ -171,7 +175,9 @@
             </div>
         </div>
     </div>
-    @include('partials.modals.roles.add_user')
+    @can('create', \App\Models\Role::class)
+        @include('partials.modals.roles.add_user')
+    @endcan
 @endsection
 
 @push('vendor_css')
@@ -185,6 +191,7 @@
 @push('custom_js')
     <script src="{{asset('assets/js/custom/roles/view.js')}}"></script>
     <script>
+        @can('create', \App\Models\Role::class)
         // check all checkbox
         $("#select_all_permissions").click(function() {
             $(".form-check-input").prop("checked", $(this).prop("checked"));
@@ -305,5 +312,6 @@
                 },
             });
         });
+        @endcan
     </script>
 @endpush

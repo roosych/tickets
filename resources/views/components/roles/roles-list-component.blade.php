@@ -34,12 +34,16 @@
             </div>
 
             <div class="card-footer flex-wrap pt-0">
-                <a href="{{route('cabinet.dept.roles.show', $role->id)}}" class="btn btn-light btn-active-primary my-1 me-2">
-                    Подробнее
-                </a>
-                <a href="javascript:void(0);" class="btn btn-light btn-light-danger btn-active-danger my-1 delete_role" data-name="{{$role->name}}" data-id="{{$role->id}}">
-                    Удалить
-                </a>
+                @can('show', $role)
+                    <a href="{{route('cabinet.dept.roles.show', $role->id)}}" class="btn btn-light btn-active-primary my-1 me-2">
+                        Подробнее
+                    </a>
+                @endcan
+                @can('delete', \App\Models\Role::class)
+                    <a href="javascript:void(0);" class="btn btn-light btn-light-danger btn-active-danger my-1 delete_role" data-name="{{$role->name}}" data-id="{{$role->id}}">
+                        Удалить
+                    </a>
+                @endcan
             </div>
         </div>
     </div>

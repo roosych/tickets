@@ -17,19 +17,21 @@
 @section('content')
 
 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-5 g-xl-9">
-    <div class="col-md-4">
-        <div class="card h-md-100">
-            <div class="card-body d-flex flex-center">
-                <button type="button" class="btn btn-clear d-flex flex-column flex-center" data-bs-toggle="modal" data-bs-target="#kt_modal_add_role">
-                    <img src="{{asset('assets/media/misc/6.svg')}}" alt="" class="mw-100 mh-150px mb-7">
+    @can('create', \App\Models\Role::class)
+        <div class="col-md-4">
+            <div class="card h-md-100">
+                <div class="card-body d-flex flex-center">
+                    <button type="button" class="btn btn-clear d-flex flex-column flex-center" data-bs-toggle="modal" data-bs-target="#kt_modal_add_role">
+                        <img src="{{asset('assets/media/misc/6.svg')}}" alt="" class="mw-100 mh-150px mb-7">
 
-                    <div class="fw-bold fs-3 text-gray-600 text-hover-primary">
-                        Добавить роль
-                    </div>
-                </button>
+                        <div class="fw-bold fs-3 text-gray-600 text-hover-primary">
+                            Добавить роль
+                        </div>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    @endcan
     @foreach($roles as $role)
         <x-roles-list-component :role="$role"></x-roles-list-component>
     @endforeach
@@ -64,6 +66,7 @@
         });
 
 
+        @can('create', \App\Models\Role::class)
         //add role
         let form = $('#kt_modal_add_role_form');
         let modal = $('#kt_modal_add_role');
@@ -104,7 +107,9 @@
                 },
             });
         });
+        @endcan
 
+        @can('delete', \App\Models\Role::class)
         //delete role
         $(".delete_role").on('click', function (){
             let roleId = $(this).data('id');
@@ -157,5 +162,6 @@
                 }
             });
         });
+        @endcan
     </script>
 @endpush

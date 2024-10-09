@@ -24,7 +24,7 @@ class RoleController extends Controller
 
     public function show(Role $role)
     {
-        //$this->authorize('show', $role);
+        $this->authorize('show', $role);
 
         $permissions = Permission::getCachedPermissions(); // Права из кеша
         $groupedPermissions = $permissions->groupBy('group');
