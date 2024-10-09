@@ -13,16 +13,12 @@ use App\Models\TemporaryFile;
 use App\Models\Ticket;
 use App\Models\TicketHistory;
 use App\Models\User;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class TicketService
 {
-    /**
-     * @throws TicketAccessException
-     */
     public function updateTicketStatus(Ticket $ticket, TicketStatusEnum $status, ?string $comment = null): void
     {
         $this->checkTicketStatus(
@@ -368,13 +364,22 @@ class TicketService
 
     private function getRecipientsForCreation(Ticket $ticket): array
     {
-        // Получаем всех сотрудников департамента
-         $recipients = User::where('manager', $ticket->department->manager->distinguishedname)
-             ->get()
-             ->all();
-        // Добавляем менеджера департамента, если он есть
-        if ($ticket->department->manager) {
-            $recipients[] = $ticket->department->manager;
+        $recipients = [];
+
+        // Проверяем, назначен ли перформер
+        if ($ticket->performer) {
+            // Если перформер назначен, добавляем его к получателям
+            $recipients[] = $ticket->performer;
+        } else {
+            // Если перформер не назначен, получаем всех сотрудников департамента
+            $recipients = User::where('manager', $ticket->department->manager->distinguishedname)
+                ->get()
+                ->all();
+
+            // Добавляем менеджера департамента, если он существует
+            if ($ticket->department->manager) {
+                $recipients[] = $ticket->department->manager;
+            }
         }
         // Удаляем создателя тикета из списка получателей
         $recipients = array_filter($recipients, function ($user) {
