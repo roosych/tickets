@@ -60,7 +60,7 @@
                                 </button>
                             @endif
                         @endcan
-                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED))
+                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED) && $ticket->performer && $ticket->performer->id === auth()->id())
                             <button class="btn btn-sm btn-light-warning btn-active-warning me-2 start-task-btn"
                                     data-ticket_id="{{$ticket->id}}"
                                     data-bs-toggle="tooltip"
@@ -70,7 +70,7 @@
                                 Начать выполнение
                             </button>
                         @endif
-                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS))
+                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS) && $ticket->performer && $ticket->performer->id === auth()->id())
                             <button class="btn btn-sm btn-light-primary btn-active-primary me-2"
                                     data-ticket_id="{{$ticket->id}}"
                                     data-id="{{$ticket->id}}"
@@ -380,18 +380,18 @@
                                     </div>
                                 </div>
 
-                            @if($activity->status === \App\Enums\TicketStatusEnum::DONE)
-                                <div class="p-5 mb-10 rounded bg-light-primary text-gray-900 fw-semibold mw-lg-400px text-start">
-                                    {{$ticket->getDoneTicketComment()}}
-                                </div>
-                            @endif
+                                @if($activity->status === \App\Enums\TicketStatusEnum::DONE)
+                                    <div class="p-5 mb-10 rounded bg-light-primary text-gray-900 fw-semibold mw-lg-400px text-start">
+                                        {{$ticket->getDoneTicketComment()}}
+                                    </div>
+                                @endif
 
-                            @if($activity->status === \App\Enums\TicketStatusEnum::CANCELED)
-                                <div class="p-5 mb-10 rounded bg-light-danger text-gray-900 fw-semibold mw-lg-400px text-start">
-                                    {{$ticket->getCanceledTicketComment()}}
-                                </div>
+                                @if($activity->status === \App\Enums\TicketStatusEnum::CANCELED)
+                                    <div class="p-5 mb-10 rounded bg-light-danger text-gray-900 fw-semibold mw-lg-400px text-start">
+                                        {{$ticket->getCanceledTicketComment()}}
+                                    </div>
+                                @endif
                             @endif
-                        @endif
                         @empty
                             <div class="text-center empty_activity">
                                 <img src="{{asset('assets/media/misc/13.png')}}" class="w-200px" alt="">
@@ -829,10 +829,13 @@
                 data: form.serialize(),
                 success: function (response) {
                     if(response.status === 'success') {
-                        removeWait($('body'));
-                        performersSymbols.html(response.html);
-                        $('#attach_users_modal').modal('toggle');
+                        window.location.reload();
+                        // removeWait($('body'));
+                        // $('.ticket_status_label').html(response.ticket_status);
+                        // performersSymbols.html(response.html);
+                        // $('#attach_users_modal').modal('toggle');
                     } else {
+                        removeWait($('body'));
                         Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
@@ -843,15 +846,15 @@
                         for (const key in errors) {
                             errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
                         }
+                        removeWait($('body'));
                         Swal.fire('Произошла ошибка!', errorMessage, 'error');
                     } else if (response.status === 403) {
+                        removeWait($('body'));
                         Swal.fire('Произошла ошибка!', response.responseJSON.message, 'error');
                     } else {
+                        removeWait($('body'));
                         Swal.fire('Произошла ошибка!', errorMessage, 'error');
                     }
-                },
-                complete: function () {
-                    removeWait($('body'));
                 }
             });
         })

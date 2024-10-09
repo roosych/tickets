@@ -45,6 +45,7 @@ class TicketService
                 'action' => TicketActionEnum::UPDATE_STATUS,
                 'status' => $status->value,
                 'comment' => $comment,
+                'assign_user' => $ticket->performer->id ?? null,
             ]);
 
             $recipients = $this->getRecipientsForStatusUpdate($ticket);
@@ -205,7 +206,18 @@ class TicketService
             'Тикет закрыт или отменен!'
         );
 
-        $ticket->update(['executor_id' => $user->id]);
+        $ticket->update([
+            'executor_id' => $user->id,
+            'status' => TicketStatusEnum::OPENED,
+        ]);
+
+        TicketHistory::create([
+            'ticket_id' => $ticket->id,
+            'user_id' => auth()->id(),
+            'action' => TicketActionEnum::ASSIGN_USER,
+            'status' => TicketStatusEnum::OPENED,
+            'assign_user' => $user->id,
+        ]);
 
         $recipients = $this->getRecipientsForAssign($ticket);
         event(new TicketEvent($ticket, 'assigned', $recipients, Auth::user(), null));

@@ -392,8 +392,6 @@
             });
         });
 
-        @can('assign', $ticket)
-        @if($ticket->department_id === auth()->user()->getDepartmentId())
         //attach users
         $('#attach_user_submit').click(function (e) {
             e.preventDefault();
@@ -433,9 +431,6 @@
                 }
             });
         })
-        @endif
-        @endcan
-
 
         // close modal events
         $('#kt_modal_new_ticket').on('hidden.bs.modal', function () {

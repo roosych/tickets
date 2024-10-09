@@ -110,7 +110,7 @@ class TicketController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        $this->authorize('create', Ticket::class);
+        //$this->authorize('create', Ticket::class);
 
         $data = $request->validated();
         $ticket = $this->ticketService->createTicket($data);
@@ -224,6 +224,10 @@ class TicketController extends Controller
 
         return response()->json([
             'status' => 'success',
+            'ticket_status' => view('components.tickets.ticket-status-badge', [
+                'color' => $ticket->status->color(),
+                'status' => $ticket->status->label(),
+            ])->render(),
             'html' => view('components.tickets.ticket-performer', [
                 'ticket' => $ticket,
                 'user' => $ticket->performer,

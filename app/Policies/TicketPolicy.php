@@ -10,11 +10,11 @@ use App\Models\User;
 #[PolicyNameAttribute(['az' => 'Tiketlər', 'en' => 'Tickets', 'ru' => 'Тикеты'])]
 class TicketPolicy
 {
-    #[PolicyPermissionNameAttribute(['az' => 'Yaratmaq', 'en' => 'Create', 'ru' => 'Создание'])]
-    public function create(User $user): bool
-    {
-        return $user->hasPermissions('create', Ticket::class);
-    }
+//    #[PolicyPermissionNameAttribute(['az' => 'Yaratmaq', 'en' => 'Create', 'ru' => 'Создание'])]
+//    public function create(User $user): bool
+//    {
+//        return $user->hasPermissions('create', Ticket::class);
+//    }
 
 //    #[PolicyPermissionNameAttribute(['az' => 'Baxmaq', 'en' => 'Show', 'ru' => 'Просмотр'])]
 //    public function show(User $user, Ticket $ticket): bool

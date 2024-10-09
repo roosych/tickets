@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\TicketStatusEnum;
 use App\Traits\MediaTrait;
+use DateInterval;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;

@@ -18,7 +18,7 @@ class StoreRequest extends FormRequest
             'text' => ['required', 'string', 'max:10000'],
             'priority' => ['required', 'exists:priorities,id'],
             'department' => ['required', 'exists:departments,id'],
-            'tags' => ['required', 'array'],
+            'tags' => ['array'],
             'tags.*' => [
                 'required',
                 'integer',
