@@ -62,7 +62,8 @@
                         <th class="min-w-125px">Дата создания</th>
                         <th>Статус</th>
                         <th>Исполнитель</th>
-                        <th class="text-end min-w-100px">Действия</th>
+                        <th>Теги</th>
+                        <th class="text-end">Действия</th>
                     </tr>
                     </thead>
                     <tbody class="fw-semibold text-gray-600">
@@ -103,12 +104,29 @@
                             <td id="ticket_status_{{$ticket->id}}">
                                 <x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge>
                             </td>
-                            <td>
+                            <td class="w-50px">
                                 <div class="">
                                     <div class="performers_symbols_{{$ticket->id}} symbol-group symbol-hover flex-nowrap">
                                         <x-ticket-performer :user="$ticket->performer" :ticket="$ticket"></x-ticket-performer>
                                     </div>
                                 </div>
+                            </td>
+                            <td>
+                                @php
+                                    $tagsHtml = '';
+                                       if ($ticket->tags->isNotEmpty()) {  // Проверяем, есть ли теги
+                                        $tagsHtml = '<div>';
+                                        foreach ($ticket->tags as $tag) {
+                                            $tagsHtml .= "<p class='fs-6 fw-bold mb-0'>{$tag->text}</p>";
+                                        }
+                                        $tagsHtml .= '</div>';
+                                    }
+                                @endphp
+                                <span class="badge badge-light-dark badge-circle cursor-help fw-bold fs-7"
+                                      data-bs-toggle="tooltip"
+                                      data-bs-html="true"
+                                      data-bs-original-title="{{ $tagsHtml }}"
+                                >{{count($ticket->tags)}}</span>
                             </td>
                             <td class="text-end pe-2">
                                 <div class="my-3 ms-9">

@@ -15,6 +15,7 @@ let DeptTickets = (function () {
                     { orderable: false, targets: 4 },
                     { orderable: false, targets: 5 },
                     { orderable: false, targets: 6 },
+                    { orderable: false, targets: 7 },
                 ],
             })),
                 document.querySelector('[data-dept-tickets-filter="search"]').addEventListener("keyup", function (t) {
