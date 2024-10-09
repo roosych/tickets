@@ -37,8 +37,9 @@
     @endforeach
 </div>
 
-@include('partials.modals.roles.add_role')
-
+@can('create', \App\Models\Role::class)
+    @include('partials.modals.roles.add_role')
+@endcan
 @endsection
 
 @push('vendor_css')
