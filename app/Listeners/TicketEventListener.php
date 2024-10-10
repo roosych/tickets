@@ -32,8 +32,8 @@ class TicketEventListener implements ShouldQueue
         $delay = 0; // Начальная задержка
         foreach ($event->recipients as $user) {
             // Отправка уведомления с увеличивающейся задержкой
-//            SendTicketNotification::dispatch($user, $event->ticket, $event->action, $event->additionalData)
-//                ->delay(now()->addSeconds($delay));
+            SendTicketNotification::dispatch($user, $event->ticket, $event->action, $event->additionalData)
+                ->delay(now()->addSeconds($delay));
             // Увеличиваем задержку на 5 секунд для следующего получателя
             $delay += 5;
         }
