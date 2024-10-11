@@ -69,7 +69,7 @@ class IndexController extends Controller
     {
         $user = Auth::user();
 
-        $data = Ticket::where('status', TicketStatusEnum::DONE)
+        $data = Ticket::where('status', TicketStatusEnum::COMPLETED)
             ->where('executor_id', $user->id)
             ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as count'))
             ->groupBy('month')
