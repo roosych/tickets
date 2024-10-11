@@ -127,7 +127,7 @@
                             </span>
                                 </div>
                                 <span class="text-gray-800 fw-bold fs-2x">
-                            {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::DONE) }}
+                            {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::COMPLETED) }}
                         </span>
                             </div>
                         </div>
