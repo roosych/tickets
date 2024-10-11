@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-dialog-centered mw-850px">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="fw-bold">Редактирование роли</h2>
+                <h2 class="fw-bold">{{trans('common.roles.edit_role')}}</h2>
                 <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
                     <i class="ki-outline ki-cross fs-1"></i>
                 </div>
@@ -15,30 +15,31 @@
                     <div class="d-flex flex-column scroll-y me-n7 pe-7" id="kt_modal_update_role_scroll" data-kt-scroll="true" data-kt-scroll-activate="{default: false, lg: true}" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_update_role_header" data-kt-scroll-wrappers="#kt_modal_update_role_scroll" data-kt-scroll-offset="300px">
                         <div class="row">
                             <label class="fs-5 fw-bold form-label mb-2">
-                                <span class="required">Название</span>
+                                <span class="required">{{trans('common.roles.name')}}</span>
                             </label>
                             <div class="col-12">
                                 <div class="fv-row mb-10">
-                                    <input class="form-control" value="{{$role->name}}" placeholder="Название роли" name="name"  autocomplete="false"/>
+                                    <input class="form-control" value="{{$role->name}}" placeholder="{{trans('common.roles.name')}}" name="name"  autocomplete="false"/>
                                 </div>
                             </div>
                         </div>
                         <div class="fv-row">
-                            <label class="fs-5 fw-bold form-label mb-2">Разрешения</label>
+                            <label class="fs-5 fw-bold form-label mb-2">{{trans('common.roles.permissions')}}</label>
                             <div class="table-responsive">
                                 <table class="table align-middle table-row-dashed fs-6 gy-5">
                                     <tbody class="text-gray-600 fw-semibold">
                                     <tr>
                                         <td class="fw-bold text-gray-800">
-                                            Полный доступ
-                                            <span class="ms-2" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content="Доступ на все функции">
+                                            {{trans('common.roles.full_access')}}
+                                            <span class="ms-2" data-bs-toggle="popover"
+                                                  data-bs-trigger="hover" data-bs-html="true" data-bs-content="{{trans('common.roles.full_access_hint')}}">
                                                 <i class="ki-outline ki-information-5 fs-7"></i>
                                             </span>
                                         </td>
                                         <td>
                                             <label class="form-check form-check-sm form-check-custom form-check-solid me-9">
                                                 <input class="form-check-input" type="checkbox" value="" id="select_all_permissions" />
-                                                <span class="form-check-label">Выбрать все</span>
+                                                <span class="form-check-label">{{trans('common.roles.select_all')}}</span>
                                             </label>
                                         </td>
                                     </tr>
@@ -69,9 +70,9 @@
                         </div>
                     </div>
                     <div class="text-center pt-15">
-                        <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Отменить</button>
+                        <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">{{trans('common.roles.buttons.cancel')}}</button>
                         <button id="kt_modal_update_role_submit_btn" type="submit" class="btn btn-primary" data-kt-roles-modal-action="submit">
-                            <span class="indicator-label">Сохранить</span>
+                            <span class="indicator-label">{{trans('common.roles.buttons.save')}}</span>
                         </button>
                     </div>
                 </form>

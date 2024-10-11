@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Роли')
+@section('title', trans('common.roles.title'))
 
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
         <li class="breadcrumb-item text-muted">
-            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">Главная</a>
+            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">{{trans('common.mainpage')}}</a>
         </li>
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
         </li>
         <li class="breadcrumb-item text-muted">
-            <a href="{{route('cabinet.dept.roles')}}" class="text-muted text-hover-primary">Роли</a>
+            <a href="{{route('cabinet.dept.roles')}}" class="text-muted text-hover-primary">{{trans('common.roles.title')}}</a>
         </li>
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -60,7 +60,7 @@
                                 <div class="d-flex flex-stack flex-grow-1">
                                     <div class="fw-semibold">
                                         <div class="fs-6 text-gray-700">
-                                            Нет разрешений
+                                            {{trans('common.roles.permissions_empty')}}
                                         </div>
                                     </div>
                                 </div>
@@ -73,7 +73,7 @@
                     <div class="card-footer pt-0">
                         <button type="button" class="btn btn-light btn-active-primary" data-bs-toggle="modal"
                                 data-bs-target="#kt_modal_update_role">
-                            Редактировать
+                            {{trans('common.roles.buttons.edit')}}
                         </button>
                     </div>
                 @endcan
@@ -86,7 +86,7 @@
                 <div class="card-header pt-5">
                     <div class="card-title">
                         <h2 class="d-flex align-items-center">
-                            Сотрудники с этой ролью
+                            {{trans('common.roles.role_users')}}
                         </h2>
                     </div>
                     <div class="card-toolbar">
@@ -94,11 +94,11 @@
                              data-kt-view-roles-table-toolbar="base">
                             <i class="ki-outline ki-magnifier fs-1 position-absolute ms-6"></i>
                             <input type="text" data-kt-roles-table-filter="search"
-                                   class="form-control form-control-solid w-250px ps-15" placeholder="Поиск..."/>
+                                   class="form-control form-control-solid w-250px ps-15" placeholder="{{trans('tickets.table.search')}}"/>
                             @can('create', \App\Models\Role::class)
                                 <button type="button" class="btn btn-primary ms-3" data-bs-toggle="modal"
                                         data-bs-target="#attach_users_modal">
-                                    <i class="ki-outline ki-plus fs-2"></i> Добавить
+                                    <i class="ki-outline ki-plus fs-2"></i> {{trans('common.roles.buttons.add')}}
                                 </button>
                             @endcan
                         </div>
@@ -109,10 +109,10 @@
                         <table class="table align-middle table-row-dashed fs-6 gy-5 mb-0" id="kt_roles_view_table">
                             <thead>
                             <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                <th class="min-w-150px">Сотрудник</th>
-                                <th class="min-w-150px">Назначен</th>
-                                <th class="min-w-100px">Последний вход</th>
-                                <th class="text-end min-w-100px">Действия</th>
+                                <th class="min-w-150px">{{trans('common.roles.table_name')}}</th>
+                                <th class="min-w-150px">{{trans('common.roles.connected_at')}}</th>
+                                <th class="min-w-100px">{{trans('common.roles.last_login')}}</th>
+                                <th class="text-end min-w-100px">{{trans('common.roles.actions')}}</th>
                             </tr>
                             </thead>
                             <tbody class="fw-semibold text-gray-600">
@@ -136,18 +136,19 @@
                                     </td>
                                     <td>
                                         <div class="badge badge-light fw-bold">
-                                            {{\Carbon\Carbon::parse($item->pivot->created_at)->isoFormat('D MMMM YYYY')}}
+                                            {{\Carbon\Carbon::parse($item->pivot->created_at)->isoFormat('D MMM YYYY')}}
                                         </div>
                                     </td>
                                     <td>
                                         <div class="badge badge-light fw-bold">
-                                            {{\Carbon\Carbon::parse($item->created_at)->isoFormat('D MMMM YYYY, h:mm:ss')}}
+                                            {{\Carbon\Carbon::parse($item->created_at)->isoFormat('D MMM YYYY, h:mm:ss')}}
                                         </div>
                                     </td>
                                     <td class="text-end">
                                         <div class="d-flex justify-content-end my-3 ms-9">
                                             <a href="javascript:void(0);" data-id="{{$item->id}}"
-                                               class="btn btn-icon btn-active-light-danger w-30px h-30px me-3 detach_user" data-bs-toggle="tooltip" title="Открепить">
+                                               class="btn btn-icon btn-active-light-danger w-30px h-30px me-3 detach_user"
+                                               data-bs-toggle="tooltip" title="{{trans('common.roles.disconnect')}}">
                                                 <i class="ki-outline ki-disconnect fs-3"></i>
                                             </a>
                                         </div>
@@ -162,10 +163,10 @@
                             <div class="d-flex flex-stack flex-grow-1 ">
                                 <div class=" fw-semibold">
                                     <h4 class="text-gray-900 fw-bold">
-                                        Сотрудников не найдено
+                                        {{trans('common.roles.empty_users')}}
                                     </h4>
                                     <div class="fs-6 text-gray-700 ">
-                                        Добавляйте сотрудников на должности, чтобы у них были определенные полномочия
+                                        {{trans('common.roles.empty_users_text2')}}
                                     </div>
                                 </div>
                             </div>

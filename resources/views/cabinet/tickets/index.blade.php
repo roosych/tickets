@@ -1,16 +1,20 @@
 @extends('layouts.app')
 
-@section('title', 'Тикеты отдела')
+@section('title', trans('common.dept_tickets.title'))
 
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
         <li class="breadcrumb-item text-muted">
-            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">Главная</a>
+            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">
+                {{trans('common.mainpage')}}
+            </a>
         </li>
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
         </li>
-        <li class="breadcrumb-item text-muted">Тикеты отдела</li>
+        <li class="breadcrumb-item text-muted">
+            {{trans('common.dept_tickets.title')}}
+        </li>
     </ul>
 @endsection
 
@@ -20,24 +24,34 @@
             <div class="card-title">
                 <div class="d-flex align-items-center position-relative my-1">
                     <i class="ki-outline ki-magnifier fs-3 position-absolute ms-4"></i>
-                    <input type="text" data-dept-tickets-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Поиск..." />
+                    <input type="text" data-dept-tickets-filter="search" class="form-control form-control-solid w-250px ps-12"
+                           placeholder="{{trans('tickets.table.search')}}" />
                 </div>
             </div>
             <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
                 @if(count($tickets))
                     <div class="w-100 mw-250px">
-                        <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Приоритет" data-kt-ecommerce-priority-filter="priority">
+                        <select class="form-select form-select-solid"
+                                data-control="select2"
+                                data-hide-search="true"
+                                data-placeholder="{{trans('tickets.table.priority')}}" data-kt-ecommerce-priority-filter="priority">
                             <option></option>
-                            <option value="all">Все приоритеты</option>
+                            <option value="all">
+                                {{trans('tickets.table.all_priorities')}}
+                            </option>
                             @foreach($priorities as $item)
                                 <option value="{{$item->getNameByLocale()}}">{{$item->getNameByLocale()}}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="w-100 mw-150px">
-                        <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Все статусы" data-dept-tickets-filter="status">
+                        <select class="form-select form-select-solid"
+                                data-control="select2"
+                                data-hide-search="true" data-placeholder="{{trans('tickets.table.all_statuses')}}" data-dept-tickets-filter="status">
                             <option></option>
-                            <option value="all">Все статусы</option>
+                            <option value="all">
+                                {{trans('tickets.table.all_statuses')}}
+                            </option>
                             @foreach($statusLabels as $item)
                                 <option value="{{$item}}">{{$item}}</option>
                             @endforeach
@@ -47,7 +61,7 @@
                 <a href="#" class="btn btn-success"
                    data-bs-toggle="modal"
                    data-bs-target="#kt_modal_new_ticket">
-                    <i class="ki-outline ki-plus-square fs-2"></i>Создать тикет
+                    <i class="ki-outline ki-plus-square fs-2"></i>{{trans('tickets.table.create_ticket')}}
                 </a>
             </div>
         </div>
@@ -56,14 +70,14 @@
                 <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="dept_tickets_table">
                     <thead>
                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                        <th class="">Тикет</th>
-                        <th class="min-w-125px">Автор</th>
-                        <th class="min-w-125px">Приоритет</th>
-                        <th class="min-w-125px">Дата создания</th>
-                        <th>Статус</th>
-                        <th>Исполнитель</th>
-                        <th>Теги</th>
-                        <th class="text-end">Действия</th>
+                        <th class="">{{trans('tickets.table.ticket')}}</th>
+                        <th class="min-w-125px">{{trans('tickets.table.creator')}}</th>
+                        <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
+                        <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
+                        <th>{{trans('tickets.table.status')}}</th>
+                        <th>{{trans('tickets.table.performer')}}</th>
+                        <th>{{trans('tickets.table.tags')}}</th>
+                        <th class="text-end">{{trans('tickets.table.actions')}}</th>
                     </tr>
                     </thead>
                     <tbody class="fw-semibold text-gray-600">
@@ -114,7 +128,7 @@
                             <td>
                                 @php
                                     $tagsHtml = '';
-                                       if ($ticket->tags->isNotEmpty()) {  // Проверяем, есть ли теги
+                                       if ($ticket->tags->isNotEmpty()) {
                                         $tagsHtml = '<div>';
                                         foreach ($ticket->tags as $tag) {
                                             $tagsHtml .= "<p class='fs-6 fw-bold mb-0'>{$tag->text}</p>";
@@ -133,8 +147,8 @@
                                     <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
                                         <span data-bs-toggle="tooltip"
                                               data-bs-trigger="hover"
-                                              aria-label="Подробнее"
-                                              data-bs-original-title="Подробнее">
+                                              aria-label="{{trans('tickets.table.more')}}"
+                                              data-bs-original-title="{{trans('tickets.table.more')}}">
                                             <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
                                         </span>
                                     </a>
@@ -149,7 +163,9 @@
                     <i class="ki-outline ki-information fs-2tx text-warning me-4"></i>
                     <div class="d-flex flex-stack flex-grow-1 ">
                         <div class=" fw-semibold">
-                            <h4 class="text-gray-900 fw-bold mb-0">Нет тикетов</h4>
+                            <h4 class="text-gray-900 fw-bold mb-0">
+                                {{trans('tickets.table.empty')}}
+                            </h4>
                         </div>
                     </div>
                 </div>
@@ -229,10 +245,10 @@
                 'application/vnd.ms-excel',
                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ],
-            labelFileTypeNotAllowed: 'Не поддерживаемый тип файла',
+            labelFileTypeNotAllowed: '{{trans('tickets.create_modal.format_error')}}',
             maxFileSize: '5MB',
-            labelMaxFileSizeExceeded: 'Файл слишком большой',
-            labelIdle: 'Перетащите файлы сюда или нажмите, чтобы загрузить.'
+            labelMaxFileSizeExceeded: '{{trans('tickets.create_modal.size_limit')}}',
+            labelIdle: '{{trans('tickets.create_modal.attachments_hint')}}'
         });
 
 

@@ -5,12 +5,12 @@
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
         <li class="breadcrumb-item text-muted">
-            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">Главная</a>
+            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">{{trans('common.mainpage')}}</a>
         </li>
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
         </li>
-        <li class="breadcrumb-item text-muted">Исходящие тикеты</li>
+        <li class="breadcrumb-item text-muted">{{trans('common.sent_tickets.title')}}</li>
     </ul>
 @endsection
 
@@ -21,7 +21,7 @@
                     <div class="mb-9">
                         <div class="d-flex flex-stack">
                             <div class="fw-bold fs-4">
-                                Открытые
+                                {{trans('tickets.sent.opened')}}
                                 <span class="fs-6 text-gray-500 ms-2">
                                     {{count($openTickets)}}
                                 </span>
@@ -32,7 +32,7 @@
                     <a href="#" class="btn btn-success er w-100 fs-6 px-8 py-4 mb-10"
                        data-bs-toggle="modal"
                        data-bs-target="#kt_modal_new_ticket">
-                        <i class="ki-outline ki-plus-square fs-2"></i>Создать тикет
+                        <i class="ki-outline ki-plus-square fs-2"></i>{{trans('tickets.table.create_ticket')}}
                     </a>
                     @foreach($openTickets as $ticket)
                         <x-sent-ticket-item :ticket="$ticket"></x-sent-ticket-item>
@@ -42,7 +42,7 @@
                     <div class="mb-9">
                         <div class="d-flex flex-stack">
                             <div class="fw-bold fs-4">
-                                В процессе
+                                {{trans('tickets.sent.in_progress')}}
                                 <span class="fs-6 text-gray-500 ms-2">
                                     {{count($inProgressTickets)}}
                                 </span>
@@ -58,7 +58,7 @@
                     <div class="mb-9">
                         <div class="d-flex flex-stack">
                             <div class="fw-bold fs-4">
-                                Выполненные
+                                {{trans('tickets.sent.done')}}
                                 <span class="fs-6 text-gray-500 ms-2">
                                     {{count($doneTickets)}}
                                 </span>
@@ -152,10 +152,10 @@
                 'application/vnd.ms-excel',
                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ],
-            labelFileTypeNotAllowed: 'Не поддерживаемый тип файла',
+            labelFileTypeNotAllowed: '{{trans('tickets.create_modal.format_error')}}',
             maxFileSize: '5MB',
-            labelMaxFileSizeExceeded: 'Файл слишком большой',
-            labelIdle: 'Перетащите файлы сюда или нажмите, чтобы загрузить.'
+            labelMaxFileSizeExceeded: '{{trans('tickets.create_modal.size_limit')}}',
+            labelIdle: '{{trans('tickets.create_modal.attachments_hint')}}'
         });
 
 

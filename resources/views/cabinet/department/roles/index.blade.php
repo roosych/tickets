@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Роли')
+@section('title', trans('common.roles.title'))
 
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
         <li class="breadcrumb-item text-muted">
-            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">Главная</a>
+            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">{{trans('common.mainpage')}}</a>
         </li>
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
         </li>
-        <li class="breadcrumb-item text-muted">Роли</li>
+        <li class="breadcrumb-item text-muted">{{trans('common.roles.title')}}</li>
     </ul>
 @endsection
 
@@ -21,11 +21,12 @@
         <div class="col-md-4">
             <div class="card h-md-100">
                 <div class="card-body d-flex flex-center">
-                    <button type="button" class="btn btn-clear d-flex flex-column flex-center" data-bs-toggle="modal" data-bs-target="#kt_modal_add_role">
+                    <button type="button" class="btn btn-clear d-flex flex-column flex-center"
+                            data-bs-toggle="modal" data-bs-target="#kt_modal_add_role">
                         <img src="{{asset('assets/media/misc/6.svg')}}" alt="" class="mw-100 mh-150px mb-7">
 
                         <div class="fw-bold fs-3 text-gray-600 text-hover-primary">
-                            Добавить роль
+                            {{trans('common.roles.add_role')}}
                         </div>
                     </button>
                 </div>

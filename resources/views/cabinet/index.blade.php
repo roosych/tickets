@@ -1,8 +1,8 @@
 @extends('layouts.app')
-@section('title', 'Дашборд')
+@section('title', trans('common.dashboard'))
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
-        <li class="breadcrumb-item text-muted">Главная</li>
+        <li class="breadcrumb-item text-muted">{{trans('common.mainpage')}}</li>
     </ul>
 @endsection
 @section('content')
@@ -13,12 +13,12 @@
                     <div class="card-header rounded bgi-no-repeat bgi-size-cover bgi-position-y-top bgi-position-x-center align-items-start h-250px" style="background: linear-gradient(112.14deg, #3A7BD5 0%, #00D2FF 100%);" data-bs-theme="light">
                         <h3 class="card-title align-items-start flex-column text-white pt-15">
                             <span class="fw-bold fs-2x mb-3">
-                                Мои тикеты
+                                {{trans('common.index.my_tickets')}}
                             </span>
                             <div class="fs-4 text-white">
                             <span class="position-relative d-inline-block">
                                 <a href="{{route('cabinet.tickets.inbox')}}" class="link-white opacity-75-hover text-gray-800 fw-bold d-block mb-1">
-                                    Открытых тикетов: {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::OPENED) }}
+                                    {{trans('common.index.opened_tickets')}} {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::OPENED) }}
                                 </a>
                                 <span class="position-absolute opacity-50 bottom-0 start-0 border-2 border-body border-bottom w-100"></span>
                             </span>
@@ -50,7 +50,7 @@
                                             {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::IN_PROGRESS) }}
                                         </span>
                                             <span class="text-gray-500 fw-semibold fs-6">
-                                            В процессе
+                                            {{trans('tickets.statuses.in_progress')}}
                                         </span>
                                         </div>
                                     </div>
@@ -67,7 +67,7 @@
                                             {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::DONE) }}
                                         </span>
                                             <span class="text-gray-500 fw-semibold fs-6">
-                                            Выполненных
+                                            {{trans('tickets.statuses.done')}}
                                         </span>
                                         </div>
                                     </div>
@@ -84,7 +84,7 @@
                                             {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::COMPLETED) }}
                                         </span>
                                             <span class="text-gray-500 fw-semibold fs-6">
-                                            Завершенных
+                                            {{trans('tickets.statuses.completed')}}
                                         </span>
                                         </div>
                                     </div>
@@ -101,7 +101,7 @@
                                             {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::CANCELED) }}
                                         </span>
                                             <span class="text-gray-500 fw-semibold fs-6">
-                                            Отмененных
+                                            {{trans('tickets.statuses.canceled')}}
                                         </span>
                                         </div>
                                     </div>
@@ -120,10 +120,10 @@
                             <div class="card-title d-flex flex-row-fluid flex-stack">
                                 <div class="d-flex flex-column">
                                     <p class="mb-2 fw-bold text-gray-800 fs-3">
-                                        Выполнено тикетов
+                                        {{trans('common.index.done_tickets')}}
                                     </p>
                                     <span class="fs-6 text-gray-500 fs-semibase">
-                                за всё время
+                                {{trans('common.index.all_time')}}
                             </span>
                                 </div>
                                 <span class="text-gray-800 fw-bold fs-2x">
@@ -146,14 +146,14 @@
                             {{ number_format($totalTickets, 0, '.', ',') }}
                         </span>
                                 <span class="text-gray-500 pt-1 fw-semibold fs-6">
-                            Тикеты отдела
+                            {{trans('common.index.dept_tickets')}}
                         </span>
                             </div>
                         </div>
                         @if(count($topPerformers))
                             <div class="card-body d-flex flex-column justify-content-end pe-0">
                     <span class="fs-6 fw-bolder text-gray-800 d-block mb-2">
-                        Топ 3 исполнителей
+                        {{trans('common.index.top_3')}}
                     </span>
                                 <div class="symbol-group symbol-hover flex-nowrap">
                                     @foreach($topPerformers as $user)
@@ -238,10 +238,10 @@
                 'application/vnd.ms-excel',
                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ],
-            labelFileTypeNotAllowed: 'Не поддерживаемый тип файла',
+            labelFileTypeNotAllowed: '{{trans('tickets.create_modal.format_error')}}',
             maxFileSize: '5MB',
-            labelMaxFileSizeExceeded: 'Файл слишком большой',
-            labelIdle: 'Перетащите файлы сюда или нажмите, чтобы загрузить.'
+            labelMaxFileSizeExceeded: '{{trans('tickets.create_modal.size_limit')}}',
+            labelIdle: '{{trans('tickets.create_modal.attachments_hint')}}'
         });
 
         let token = $('meta[name="_token"]').attr('content');
@@ -321,7 +321,7 @@
 
                     let options = {
                         series: [{
-                            name: "Тикетов",
+                            name: "{{trans('common.index.chart_tickets')}}",
                             data: chartData
                         }],
                         chart: {
@@ -338,7 +338,20 @@
                         fill: { type: "solid", opacity: 1 },
                         stroke: { curve: "smooth", show: true, width: 3, colors: [baseColor] },
                         xaxis: {
-                            categories: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+                            categories: [
+                                "{{trans('common.month.jan')}}",
+                                "{{trans('common.month.feb')}}",
+                                "{{trans('common.month.mar')}}",
+                                "{{trans('common.month.apr')}}",
+                                "{{trans('common.month.may')}}",
+                                "{{trans('common.month.jun')}}",
+                                "{{trans('common.month.jul')}}",
+                                "{{trans('common.month.aug')}}",
+                                "{{trans('common.month.sep')}}",
+                                "{{trans('common.month.okt')}}",
+                                "{{trans('common.month.nov')}}",
+                                "{{trans('common.month.dec')}}"
+                            ],
                             axisBorder: { show: false },
                             axisTicks: { show: false },
                             labels: { show: false, style: { colors: grayColor, fontSize: "12px" } },

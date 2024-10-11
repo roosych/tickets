@@ -7,7 +7,7 @@ use App\Attributes\PolicyPermissionNameAttribute;
 use App\Models\Tag;
 use App\Models\User;
 
-#[PolicyNameAttribute(['az' => 'Teqlər', 'en' => 'Tags', 'ru' => 'Теги'])]
+#[PolicyNameAttribute(['az' => 'Taqlar', 'en' => 'Tags', 'ru' => 'Теги'])]
 class TagPolicy
 {
     #[PolicyPermissionNameAttribute(['az' => 'Yaratmaq', 'en' => 'Create', 'ru' => 'Создание'])]

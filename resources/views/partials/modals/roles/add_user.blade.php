@@ -10,11 +10,11 @@
                 <form id="attach_users_role_form" method="POST">
                     @csrf
                     <div class="text-center mb-13">
-                        <h1 class="mb-3">Добавить сотрудников</h1>
+                        <h1 class="mb-3">{{trans('common.roles.add_users')}}</h1>
                     </div>
                     @if(count($employees))
                         <div class="mb-10">
-                            <div class="fs-6 fw-semibold mb-2">Сотрудники моего отдела</div>
+                            <div class="fs-6 fw-semibold mb-2">{{trans('common.roles.my_dept_users')}}</div>
                             <div class="mh-300px scroll-y me-n7 pe-7">
                                 @foreach($employees as $employee)
                                     <div class="d-flex flex-stack py-4 border-bottom border-gray-300 border-bottom-dashed">
@@ -49,7 +49,7 @@
                         </div>
                         <div class="text-center">
                             <button id="attach_form_submit_btn" type="submit" class="btn btn-primary">
-                                Добавить
+                                {{trans('common.roles.buttons.add')}}
                             </button>
                         </div>
                     @else
@@ -57,7 +57,7 @@
                             <div class="d-flex flex-stack flex-grow-1 ">
                                 <div class=" fw-semibold">
                                     <h4 class="text-gray-900 fw-bold">
-                                        В Вашем отделе нет сотрудников
+                                        {{trans('common.roles.empty_dept_users')}}
                                     </h4>
                                 </div>
                             </div>

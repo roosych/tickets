@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Сотрудники отдела')
+@section('title', trans('common.users.title'))
 
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
         <li class="breadcrumb-item text-muted">
-            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">Главная</a>
+            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">{{trans('common.mainpage')}}</a>
         </li>
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
         </li>
-        <li class="breadcrumb-item text-muted">Сотрудники отдела</li>
+        <li class="breadcrumb-item text-muted">{{trans('common.users.title')}}</li>
     </ul>
 @endsection
 
@@ -22,13 +22,13 @@
                 <li class="nav-item">
                     <a class="nav-link text-active-primary d-flex align-items-center pb-5 active" data-bs-toggle="tab" href="#dept_users_info">
                     <i class="ki-outline ki-people fs-2 me-2"></i>
-                        Сотрудники
+                        {{trans('users.users_table')}}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-active-primary d-flex align-items-center pb-5" data-bs-toggle="tab" href="#dept_users_tickets">
                         <i class="ki-outline ki-chart-simple fs-2 me-2"></i>
-                        Таблица тикетов
+                        {{trans('users.ticket_table')}}
                     </a>
                 </li>
             </ul>
@@ -38,10 +38,10 @@
                     <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_users">
                         <thead>
                         <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                            <th class="min-w-125px">Имя</th>
-                            <th class="min-w-125px">Должность</th>
-                            <th class="min-w-125px">Роли</th>
-                            <th class="min-w-125px">Последний вход</th>
+                            <th class="min-w-125px">{{trans('users.name')}}</th>
+                            <th class="min-w-125px">{{trans('users.position')}}</th>
+                            <th class="min-w-125px">{{trans('users.roles')}}</th>
+                            <th class="min-w-125px">{{trans('users.last_login')}}</th>
                         </tr>
                         </thead>
                         <tbody class="text-gray-600 fw-semibold">
@@ -72,14 +72,14 @@
                                         {{$role->name}}
                                     </span>
                                     @empty
-                                        нет ролей
+                                        {{trans('users.roles_empty')}}
                                     @endforelse
                                 </td>
                                 <td>
                                     @if($user->last_login)
                                         {{\Carbon\Carbon::parse($user->last_login)->isoFormat('D MMMM, HH:mm')}}
                                     @else
-                                        не входил(а)
+                                        {{trans('users.not_logined')}}
                                     @endif
                                 </td>
                             </tr>
@@ -90,17 +90,18 @@
                 <div class="tab-pane fade" id="dept_users_tickets" role="tabpanel">
                     <div class="d-flex align-items-center position-relative my-2 pt-5">
                         <i class="ki-outline ki-magnifier fs-3 position-absolute ms-4"></i>
-                        <input type="text" user-report-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Поиск..." />
+                        <input type="text" user-report-filter="search" class="form-control form-control-solid w-250px ps-12"
+                               placeholder="{{trans('tickets.table.search')}}" />
                     </div>
                     <table class="table align-middle table-row-dashed fs-6 gy-5" id="user_report_table">
                         <thead>
                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                            <th class="min-w-100px">Сотрудник</th>
-                            <th class="text-end min-w-75px">Открытых</th>
-                            <th class="text-end min-w-75px">В процессе</th>
-                            <th class="text-end min-w-75px">Выполненных</th>
-                            <th class="text-end min-w-100px">Завершенных</th>
-                            <th class="text-end min-w-100px">Отмененных</th>
+                            <th class="min-w-100px">{{trans('users.name')}}</th>
+                            <th class="text-end min-w-75px">{{trans('users.tickets_statuses.opened')}}</th>
+                            <th class="text-end min-w-75px">{{trans('users.tickets_statuses.in_progress')}}</th>
+                            <th class="text-end min-w-75px">{{trans('users.tickets_statuses.done')}}</th>
+                            <th class="text-end min-w-100px">{{trans('users.tickets_statuses.completed')}}</th>
+                            <th class="text-end min-w-100px">{{trans('users.tickets_statuses.cancelled')}}</th>
                         </tr>
                         </thead>
                         <tbody class="fw-semibold text-gray-600">
@@ -141,7 +142,7 @@
                                 </td>
                             </tr>
                         @empty
-                            нет сотрудников в отделе
+                        {{trans('users.users_empty')}}
                         @endforelse
                         </tbody>
                     </table>

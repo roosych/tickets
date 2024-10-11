@@ -1,18 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'Тикет: ' . '#'.$ticket->id)
+@section('title', trans('common.tickets.title').': ' . '#'.$ticket->id)
 
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
         <li class="breadcrumb-item text-muted">
-            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">Главная</a>
+            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">{{trans('common.mainpage')}}</a>
         </li>
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
         </li>
         <li class="breadcrumb-item text-muted">
             <a href="{{route('cabinet.tickets.index')}}" class="text-muted text-hover-primary">
-                Тикеты
+                {{trans('common.tickets.title')}}
             </a>
         </li>
         <li class="breadcrumb-item">
@@ -28,7 +28,8 @@
             <div class="card">
                 <div class="card-header align-items-center py-5 gap-5">
                     <div class="d-flex">
-                        <a href="{{url()->previous()}}" class="btn btn-sm btn-icon btn-clear btn-active-light-primary me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Назад">
+                        <a href="{{url()->previous()}}" class="btn btn-sm btn-icon btn-clear btn-active-light-primary me-3"
+                           data-bs-toggle="tooltip" data-bs-placement="top" title="{{trans('common.back')}}">
                             <i class="ki-outline ki-arrow-left fs-1 m-0"></i>
                         </a>
                     </div>
@@ -44,7 +45,7 @@
                                         data-bs-toggle="modal"
                                         data-bs-target="#cancel_ticket_modal">
                                     <i class="ki-outline ki-cross-square fs-2"></i>
-                                    Отменить тикет
+                                    {{trans('tickets.buttons.cancel_ticket')}}
                                 </button>
                             @endif
                         @endif
@@ -54,9 +55,9 @@
                                         data-ticket_id="{{$ticket->id}}"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="top"
-                                        title="Закрыть тикет">
+                                        title="{{trans('tickets.buttons.close_ticket')}}">
                                     <i class="ki-outline ki-check-square fs-2"></i>
-                                    Закрыть тикет
+                                    {{trans('tickets.buttons.close_ticket')}}
                                 </button>
                             @endif
                         @endcan
@@ -65,9 +66,9 @@
                                     data-ticket_id="{{$ticket->id}}"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
-                                    title="Начать выполнение">
+                                    title="{{trans('tickets.buttons.start_ticket')}}">
                                 <i class="ki-outline ki-timer fs-2"></i>
-                                Начать выполнение
+                                {{trans('tickets.buttons.start_ticket')}}
                             </button>
                         @endif
                         @if($ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS) && $ticket->performer && $ticket->performer->id === auth()->id())
@@ -77,7 +78,7 @@
                                     data-bs-toggle="modal"
                                     data-bs-target="#complete_ticket_modal">
                                 <i class="ki-outline ki-timer fs-2"></i>
-                                Закончить выполнение
+                                {{trans('tickets.buttons.done_ticket')}}
                             </button>
                         @endif
                     @endif
@@ -96,7 +97,7 @@
 
                             <div class="d-flex">
                                 <span class="text-gray-800 fw-bold fs-12 me-2">
-                                    Статус:
+                                    {{trans('tickets.table.status')}}:
                                 </span>
                                 <div class="ticket_status_label">
                                     <x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge>
@@ -124,7 +125,7 @@
                             @include('partials.notices.ticket-status', [
                                 'icon' => 'ki-lock-2',
                                 'color' => 'danger',
-                                'title' => 'Родительский тикет отменен',
+                                'title' => trans('tickets.parent_ticket_cancelled'),
                                 'message' => $ticket->parent->getCanceledTicketComment()
                             ])
                         @endif
@@ -134,7 +135,7 @@
                         @include('partials.notices.ticket-status', [
                             'icon' => 'ki-lock-2',
                             'color' => 'success',
-                            'title' => 'Тикет выполнен',
+                            'title' => trans('tickets.statuses.ticket_done'),
                             'message' => null
                         ])
                     @endif
@@ -143,7 +144,7 @@
                         @include('partials.notices.ticket-status', [
                             'icon' => 'ki-lock-2',
                             'color' => 'danger',
-                            'title' => 'Тикет отменен',
+                            'title' => trans('tickets.statuses.ticket_canceled'),
                             'message' => $ticket->getCanceledTicketComment()
                         ])
                     @endif
@@ -195,7 +196,7 @@
                             <div class="d-flex align-items-center flex-wrap gap-2">
                                 <div class="d-flex align-items-center">
                                     <div class="text-gray-800 fw-bold fs-12">
-                                        Приоритет:
+                                        {{trans('tickets.table.priority')}}:
                                     </div>
                                     <span class="badge badge-light-{{$ticket->priority->class}} ms-2 my-1 fw-bold fs-7">
                                         {{$ticket->priority->getNameByLocale()}}
@@ -206,7 +207,7 @@
                             <div class="my-5">
                                 <div class="performers_symbols symbol-group symbol-hover flex-nowrap">
                                     <div class="text-gray-800 fw-bold fs-12 me-5">
-                                        Ответственный:
+                                        {{trans('tickets.responsible')}}:
                                     </div>
                                     <x-ticket-performer :user="$ticket->performer" :ticket="$ticket"></x-ticket-performer>
                                 </div>
@@ -246,7 +247,7 @@
                                             name="tags"
                                             data-control="select2"
                                             data-close-on-select="false"
-                                            data-placeholder="Теги"
+                                            data-placeholder="{{trans('tickets.table.tags')}}"
                                             data-allow-clear="true" multiple="multiple">
                                         <option></option>
                                         @foreach($departmentTags as $tag)
@@ -261,9 +262,11 @@
                                         <div class="d-flex flex-stack flex-grow-1 ">
                                             <div class=" fw-semibold">
                                                 <div class="fs-6 text-gray-700">
-                                                    Вы можете добавлять теги к тикету, но у Вашего отдела еще нет тегов.
-                                                    Для создания перейдите по
-                                                    <a href="{{route('cabinet.tags.index')}}" class="fw-bold" target="_blank">ссылке</a>.
+                                                    {{trans('tickets.tags_text1')}}
+                                                    @can('create', \App\Models\Tag::class)
+                                                        {{trans('tickets.tags_text2')}}
+                                                        <a href="{{route('cabinet.tags.index')}}" class="fw-bold" target="_blank">{{trans('tickets.tags_text_link')}}</a>.
+                                                    @endcan
                                                 </div>
                                             </div>
                                         </div>
@@ -275,7 +278,7 @@
             @if($ticket->department->id === auth()->user()->getDepartmentId())
                 <div class="d-flex flex-wrap flex-stack my-6">
                     <h3 class="fw-bold my-2">
-                        {{$ticket->allChildren->isNotEmpty() ? 'Вложенные тикеты' : 'Нет вложенных тикетов'}}
+                        {{$ticket->allChildren->isNotEmpty() ? trans('tickets.children_title') : trans('tickets.children_title_empty')}}
                     </h3>
 
                     <div class="d-flex align-items-center my-2">
@@ -287,7 +290,7 @@
                                 data-bs-toggle="modal"
                                 data-bs-target="#kt_modal_new_ticket">
                             <i class="ki-outline ki-plus-square fs-2"></i>
-                            Создать
+                            {{trans('tickets.buttons.create')}}
                         </button>
                     </div>
                 </div>
@@ -302,7 +305,7 @@
                                         </div>
                                         <div>
                                         <span class="text-gray-800 fw-bold fs-12">
-                                            Приоритет:
+                                            {{trans('tickets.table.priority')}}:
                                         </span>
                                             <span class="badge badge-light-{{$item->priority->class}} ms-2 my-1 fw-bold fs-7">
                                             {{$item->priority->getNameByLocale()}}
@@ -344,7 +347,7 @@
                                         @endif
 
                                         <a href="{{route('cabinet.tickets.show', $item->id)}}" class="d-flex align-items-center text-primary opacity-75-hover fs-6 fw-semibold" target="_blank">
-                                            подробнее
+                                            {{strtolower(trans('tickets.table.more'))}}
                                             <i class="ki-outline ki-exit-right-corner fs-4 ms-1"></i>
                                         </a>
                                     </div>
@@ -360,7 +363,7 @@
             <div class="card" id="kt_chat_messenger">
                 <div class="card-header" id="kt_chat_messenger_header">
                     <div class="card-title">
-                        Активность
+                        {{trans('tickets.activity')}}
                     </div>
                 </div>
 
@@ -414,10 +417,11 @@
                 <form method="POST" id="send_comment_form">
                     @csrf
                     <div class="card-footer pt-4" id="kt_chat_messenger_footer">
-                        <textarea class="form-control form-control-flush mb-3" rows="3" name="text" placeholder="Оставить комментарий"></textarea>
+                        <textarea class="form-control form-control-flush mb-3" rows="3" name="text" placeholder="{{trans('tickets.send_comment')}}"></textarea>
                         <div class="d-flex flex-stack">
                             <div class="d-flex align-items-center me-2">
-                                <button class="btn btn-sm btn-icon btn-active-light-primary me-1" type="button" data-bs-toggle="tooltip" aria-label="Прикрепить файл" data-bs-original-title="Прикрепить файл">
+                                <button class="btn btn-sm btn-icon btn-active-light-primary me-1" type="button"
+                                        data-bs-toggle="tooltip" aria-label="{{trans('tickets.add_file')}}" data-bs-original-title="{{trans('tickets.add_file')}}">
                                     <i class="ki-outline ki-paper-clip fs-3"></i>
                                 </button>
                             </div>
@@ -429,7 +433,7 @@
                                     class="btn btn-primary"
                                     type="submit">
                                 <i class="ki-outline ki-send fs-2"></i>
-                                Отправить
+                                {{trans('tickets.buttons.send')}}
                             </button>
                         </div>
                     </div>
@@ -512,10 +516,10 @@
                 'application/vnd.ms-excel',
                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ],
-            labelFileTypeNotAllowed: 'Не поддерживаемый тип файла',
+            labelFileTypeNotAllowed: '{{trans('tickets.create_modal.format_error')}}',
             maxFileSize: '5MB',
-            labelMaxFileSizeExceeded: 'Файл слишком большой',
-            labelIdle: 'Перетащите файлы сюда или нажмите, чтобы загрузить.'
+            labelMaxFileSizeExceeded: '{{trans('tickets.create_modal.size_limit')}}',
+            labelIdle: '{{trans('tickets.create_modal.attachments_hint')}}'
         });
     </script>
     <script>
@@ -628,14 +632,14 @@
                     if (response.success) {
                         $('.ticket_status_label').html(response.html);
                         button.removeClass('btn-light-warning start-task-btn').addClass('btn-light-primary');
-                        button.html('<i class="ki-outline ki-timer fs-2"></i> Закончить выполнение');
+                        button.html('<i class="ki-outline ki-timer fs-2"></i> {{trans('tickets.buttons.done_ticket')}}');
                         button.blur();
                         button.prop('disabled', false);
                         button.attr('data-bs-original-title', 'Закончить выполнение');
                         button.attr('data-bs-toggle', 'modal');
                         button.attr('data-bs-target', '#complete_ticket_modal');
                     } else {
-                        button.html('<i class="ki-outline ki-timer fs-2"></i>Начать выполнение').prop('disabled', false);
+                        button.html('<i class="ki-outline ki-timer fs-2"></i>{{trans('tickets.buttons.start_ticket')}}').prop('disabled', false);
                         Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
@@ -647,7 +651,7 @@
                             errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
                         }
                     }
-                    button.html('<i class="ki-outline ki-timer fs-2"></i>Начать выполнение').prop('disabled', false);
+                    button.html('<i class="ki-outline ki-timer fs-2"></i>{{trans('tickets.buttons.done_ticket')}}').prop('disabled', false);
                     Swal.fire('Произошла ошибка!', errorMessage, 'error');
                 },
                 complete: function () {

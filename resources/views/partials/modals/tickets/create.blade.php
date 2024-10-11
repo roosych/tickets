@@ -14,16 +14,16 @@
                       enctype="multipart/form-data">
                     @csrf
                     <div class="mb-13 text-center">
-                        <h1 class="mb-3">Новый тикет</h1>
+                        <h1 class="mb-3">{{trans('tickets.create_modal.title')}}</h1>
                     </div>
                     <div class="d-flex flex-column mb-8 fv-row">
                         <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
-                            <span class="required">Описание</span>
-                            <span class="ms-2" data-bs-toggle="tooltip" title="Чем более подробно описан икет, тем быстрее он решается :)">
+                            <span class="required">{{trans('tickets.create_modal.description')}}</span>
+                            <span class="ms-2" data-bs-toggle="tooltip" title="{{trans('tickets.create_modal.description_hint')}}">
                             <i class="ki-outline ki-information fs-7"></i>
                         </span>
                         </label>
-                        <textarea class="form-control form-control-solid" rows="4" name="text" placeholder="Опишите ситуацию, задачу или проблему"></textarea>
+                        <textarea class="form-control form-control-solid" rows="4" name="text" placeholder="{{trans('tickets.create_modal.description_placeholder')}}"></textarea>
                     </div>
 
                     <div class="row g-9 mb-8">
@@ -33,11 +33,11 @@
                             <input type="hidden" name="department" value="{{$ticket->department->id}}">
                             <input type="hidden" name="parent_id" value="{{$ticket->id}}">
                             <div class="col-md-6 fv-row">
-                                <label class="required fs-6 fw-semibold mb-2">Сотрудник</label>
+                                <label class="required fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.performer')}}</label>
                                 <select class="form-select form-select-solid"
                                         data-control="select2"
                                         data-hide-search="true"
-                                        data-placeholder="Выберите из списка..." name="user">
+                                        data-placeholder="{{trans('tickets.create_modal.select_from_list')}}" name="user">
                                     <option value=""></option>
                                     @foreach(auth()->user()->deptAllUsers() as $item)
                                         <option value="{{$item->id}}">{{$item->name}}</option>
@@ -46,10 +46,10 @@
                             </div>
                         @else
                             <div class="col-md-6 fv-row">
-                                <label class="required fs-6 fw-semibold mb-2">Отдел</label>
+                                <label class="required fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.department')}}</label>
                                 <select class="form-select form-select-solid"
                                         data-control="select2"
-                                        data-placeholder="Выберите из списка..."
+                                        data-placeholder="{{trans('tickets.create_modal.select_from_list')}}"
                                         data-dropdown-parent="#kt_modal_new_ticket"
                                         data-department-id="{{ auth()->user()->getDepartmentId() }}"
                                         name="department">
@@ -61,8 +61,8 @@
                             </div>
                         @endif
                             <div class="col-md-6 fv-row">
-                                <label class="required fs-6 fw-semibold mb-2">Приоритет</label>
-                                <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Выберите из списка..." name="priority">
+                                <label class="required fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.priority')}}</label>
+                                <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="{{trans('tickets.create_modal.select_from_list')}}" name="priority">
                                     <option value=""></option>
                                     @foreach($priorities as $item)
                                         <option value="{{$item->id}}">{{$item->getNameByLocale()}}</option>
@@ -74,10 +74,10 @@
                     @can('assign', \App\Models\Ticket::class)
                         <div id="dept_users_list" style="display: none;">
                             <div class="col-md-12 fv-row">
-                                <label class="fs-6 fw-semibold mb-2">Сотрудник</label>
+                                <label class="fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.performer')}}</label>
                                 <select class="form-select form-select-solid"
                                         data-control="select2"
-                                        data-placeholder="Выберите из списка..."
+                                        data-placeholder="{{trans('tickets.create_modal.select_from_list')}}"
                                         data-dropdown-parent="#kt_modal_new_ticket"
                                         name="user">
                                     <option value=""></option>
@@ -95,12 +95,12 @@
 
                     @if(count($deptTags) > 0)
                         <div class="my-10" id="tagsSelect" style="display: none;">
-                            <label class="fs-6 fw-semibold mb-2">Теги</label>
+                            <label class="fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.tags')}}</label>
                             <select class="form-select form-select-solid"
                                     name="tags[]"
                                     data-control="select2"
                                     data-close-on-select="false"
-                                    data-placeholder="Выбрать теги"
+                                    data-placeholder="{{trans('tickets.create_modal.select_from_list')}}"
                                     data-allow-clear="true"
                                     multiple="multiple">
                                 <option></option>
@@ -114,14 +114,14 @@
                     @endif
 
                     <div class="fv-row mb-8">
-                        <label class="fs-6 fw-semibold mb-2">Вложения</label>
+                        <label class="fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.attachments')}}</label>
                         <input type="file" class="my-pond" name="media" multiple />
                     </div>
 
                     <div class="text-center">
-                        <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">{{trans('tickets.buttons.close')}}</button>
                         <button type="submit" id="create_ticket_form_submit" class="btn btn-primary">
-                            <span class="indicator-label">Создать</span>
+                            <span class="indicator-label">{{trans('tickets.buttons.create')}}</span>
                         </button>
                     </div>
                 </form>
