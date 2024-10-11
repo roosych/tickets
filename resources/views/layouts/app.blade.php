@@ -40,7 +40,7 @@
                 </div>
                 <div class="d-flex d-lg-none align-items-center me-auto">
                     <a href="{{url('/')}}">
-                        <img alt="Logo" src="{{asset('assets/media/logos/default-small-dark.svg')}}" class="h-35px" />
+                        <img alt="Logo" src="{{asset('assets/media/logo.svg')}}" class="h-35px" />
                     </a>
                 </div>
                 <div data-kt-swapper="true" data-kt-swapper-mode="{default: 'prepend', lg: 'prepend'}" data-kt-swapper-parent="{default: '#kt_app_content_container', lg: '#kt_app_header_container'}" class="page-title d-flex flex-column justify-content-center me-3 mb-6 mb-lg-0">
