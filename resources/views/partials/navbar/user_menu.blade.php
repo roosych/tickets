@@ -28,13 +28,13 @@
         <div class="separator my-2"></div>
         <div class="menu-item px-5">
             <a href="{{route('cabinet.tickets.inbox')}}" class="menu-link px-5">
-                <span class="menu-text">Мои тикеты</span>
+                <span class="menu-text">{{trans('common.user_menu.my_tickets')}}</span>
             </a>
         </div>
         <div class="separator my-2"></div>
         <div class="menu-item px-5" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="left-start" data-kt-menu-offset="-15px, 0">
             <a href="#" class="menu-link px-5">
-                <span class="menu-title position-relative">Тема
+                <span class="menu-title position-relative">{{trans('common.user_menu.theme')}}
                 <span class="ms-5 position-absolute translate-middle-y top-50 end-0">
                     <i class="ki-outline ki-night-day theme-light-show fs-2"></i>
                     <i class="ki-outline ki-moon theme-dark-show fs-2"></i>
@@ -46,7 +46,7 @@
                         <span class="menu-icon" data-kt-element="icon">
                             <i class="ki-outline ki-night-day fs-2"></i>
                         </span>
-                        <span class="menu-title">Светлая</span>
+                        <span class="menu-title">{{trans('common.user_menu.light')}}</span>
                     </a>
                 </div>
                 <div class="menu-item px-3 my-0">
@@ -54,7 +54,7 @@
                         <span class="menu-icon" data-kt-element="icon">
                             <i class="ki-outline ki-moon fs-2"></i>
                         </span>
-                        <span class="menu-title">Темная</span>
+                        <span class="menu-title">{{trans('common.user_menu.dark')}}</span>
                     </a>
                 </div>
                 <div class="menu-item px-3 my-0">
@@ -62,14 +62,14 @@
                         <span class="menu-icon" data-kt-element="icon">
                             <i class="ki-outline ki-screen fs-2"></i>
                         </span>
-                        <span class="menu-title">Системная</span>
+                        <span class="menu-title">{{trans('common.user_menu.system')}}</span>
                     </a>
                 </div>
             </div>
         </div>
         <div class="menu-item px-5" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="left-start" data-kt-menu-offset="-15px, 0">
             <a href="#" class="menu-link px-5">
-                <span class="menu-title position-relative">Язык
+                <span class="menu-title position-relative">{{trans('common.user_menu.languages')}}
                     <span class="fs-8 rounded bg-light px-3 py-2 position-absolute translate-middle-y top-50 end-0">
                         {{$languages->firstWhere('id', app()->getLocale())?->name}}
                         <img class="w-15px h-15px rounded-1 ms-2" src="{{asset('assets/media/flags/'.app()->getLocale().'.svg')}}" alt="" />
@@ -92,7 +92,7 @@
         <div class="menu-item px-5">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" href="#" class="btn btn-sm w-100 menu-link px-5 fs-6">Выйти</button>
+                <button type="submit" href="#" class="btn btn-sm w-100 menu-link px-5 fs-6">{{trans('common.user_menu.logout')}}</button>
             </form>
         </div>
     </div>

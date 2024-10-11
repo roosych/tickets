@@ -83,4 +83,16 @@ return [
         '500_subtitle' => 'Xəta baş verdi, yenidən cəhd edin',
         'button' => 'Əsas səhifə',
     ],
+    'user_menu' => [
+        'my_tickets' => 'Mənim tiketlərim',
+        'theme' => 'Rejim',
+        'dark' => 'Gecə',
+        'light' => 'Gündüz',
+        'system' => 'Sistem',
+        'languages' => 'Dil seçimi',
+        'logout' => 'Çıxış',
+        'fast_links' => 'Keçidlər',
+        'link_mail' => 'Mail',
+        'link_intranet' => 'İntranet',
+    ]
 ];
