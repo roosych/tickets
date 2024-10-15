@@ -184,6 +184,30 @@ class TicketService
             'text' => $data['text'],
         ]);
 
+
+        $tempFiles = TemporaryFile::all();
+
+        foreach ($tempFiles as $tempFile) {
+            Storage::disk('public')->copy(
+                'uploads/tmp/' . $tempFile->folder . '/' . $tempFile->filename,
+                'uploads/comments/' . $comment->id . '/' . $tempFile->folder . '.' . $tempFile->extension
+            );
+
+            Storage::disk('public')->deleteDirectory('uploads/tmp/' . $tempFile->folder);
+
+            Media::create([
+                'mediable_type' => Comment::class,
+                'mediable_id' => $comment->id,
+                'folder' => 'comments/' . $comment->id,
+                'filename' => $tempFile->folder . '.' . $tempFile->extension,
+                'unique_filename' => $tempFile->unique_filename,
+                'size' => $tempFile->size,
+                'extension' => $tempFile->extension,
+            ]);
+            $tempFile->delete();
+        }
+
+
         $recipients = $this->getRecipientsForComment($ticket);
         event(new TicketEvent($ticket, 'commented', $recipients, Auth::user(), ['comment_id' => $comment->id]));
 

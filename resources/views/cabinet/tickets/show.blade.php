@@ -417,11 +417,15 @@
                 <form method="POST" id="send_comment_form">
                     @csrf
                     <div class="card-footer pt-4" id="kt_chat_messenger_footer">
-                        <textarea class="form-control form-control-flush mb-3" rows="3" name="text" placeholder="{{trans('tickets.send_comment')}}"></textarea>
+                        <textarea class="form-control form-control-flush mb-3 bg-light rounded" rows="3" name="text" placeholder="{{trans('tickets.send_comment')}}" style="resize: none; width: 100%;"></textarea>
+
+                        <div id="comment_filepond">
+                            <input type="file" class="comment_attach" name="media" multiple />
+                        </div>
+
                         <div class="d-flex flex-stack">
                             <div class="d-flex align-items-center me-2">
-                                <button class="btn btn-sm btn-icon btn-active-light-primary me-1" type="button"
-                                        data-bs-toggle="tooltip" aria-label="{{trans('tickets.add_file')}}" data-bs-original-title="{{trans('tickets.add_file')}}">
+                                <button class="btn btn-sm btn-icon btn-active-light-primary me-1 show-filepond" type="button">
                                     <i class="ki-outline ki-paper-clip fs-3"></i>
                                 </button>
                             </div>
@@ -453,6 +457,11 @@
 
 @push('vendor_css')
     <link href="{{asset('assets/css/plugins/filepond.min.css')}}" rel="stylesheet" type="text/css" />
+    <style>
+        #comment_filepond .filepond--drop-label, #comment_filepond .filepond--panel-root {
+            display: none;
+        }
+    </style>
 @endpush
 
 @push('vendor_js')
@@ -467,6 +476,63 @@
         //filepond
         FilePond.registerPlugin(FilePondPluginFileValidateType);
         FilePond.registerPlugin(FilePondPluginFileValidateSize);
+
+
+        let pond;
+        pond = FilePond.create(document.querySelector('.comment_attach'), {
+            server: {
+                process: {
+                    url: '{{ route('cabinet.files.upload') }}',
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    onload: (response) => {
+                        let responseJson = JSON.parse(response);
+                        console.log(response)
+                        if (responseJson.folder) {
+                            // Получаем существующий массив папок из localStorage
+                            let uploadedFolders = JSON.parse(localStorage.getItem('uploadedFolders')) || [];
+                            // Добавляем новую папку в массив
+                            uploadedFolders.push(responseJson.folder);
+                            // Сохраняем обновленный массив в localStorage
+                            localStorage.setItem('uploadedFolders', JSON.stringify(uploadedFolders));
+                        }
+                    },
+                    onerror: (response) => {
+                        // Обработка ошибки
+                        console.error('Ошибка загрузки файла:', response);
+                    }
+                },
+                revert: {
+                    url: '{{ route('cabinet.files.delete') }}',
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                }
+            },
+            allowMultiple: true,
+            acceptedFileTypes: [
+                'image/png',
+                'image/jpg',
+                'image/jpeg',
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ],
+            labelFileTypeNotAllowed: '{{trans('tickets.create_modal.format_error')}}',
+            maxFileSize: '3MB',
+            labelMaxFileSizeExceeded: '{{trans('tickets.create_modal.size_limit')}}',
+        });
+
+        $('.show-filepond').on('click', function(e) {
+            e.preventDefault();
+            pond.browse();
+        });
+
 
         $('.my-pond').filepond({
             server: {
@@ -500,11 +566,6 @@
                     }
                 }
             },
-            {{--server: {--}}
-                {{--    process: '{{route('cabinet.files.upload')}}',--}}
-                {{--    revert: '{{route('cabinet.files.delete')}}',--}}
-                {{--    headers: {'X-CSRF-TOKEN': '{{csrf_token()}}'}--}}
-                {{--},--}}
             allowMultiple: true,
             acceptedFileTypes: [
                 'image/png',
@@ -610,6 +671,7 @@
                 },
                 complete: function () {
                     removeWait(button);
+                    $('.comment_attach').remove();
                 }
             });
         });

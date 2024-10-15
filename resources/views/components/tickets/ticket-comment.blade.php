@@ -18,5 +18,14 @@
         <div class="p-5 rounded bg-light-{{$comment->user_id === auth()->id() ? 'primary' : 'info'}} text-gray-900 fw-semibold mw-lg-400px text-start">
             {{$comment->text}}
         </div>
+        @if($comment->media->isNotEmpty())
+            <div class="d-flex flex-aligns-center mt-3">
+                @foreach($comment->media as $item)
+                        <a href="{{asset('storage/uploads/comments/'.$comment->id.'/'.$item->filename)}}" class="fs-6 text-hover-primary fw-bold" target="_blank">
+                            <img alt="" class="w-40px ms-3" src="{{asset('assets/media/extensions/'.$item->extension.'.png')}}">
+                        </a>
+                @endforeach
+            </div>
+        @endif
     </div>
 </div>

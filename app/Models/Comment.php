@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\MediaTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Queue\SerializesModels;
 
 class Comment extends Model
 {
-    use SerializesModels;
+    use SerializesModels, MediaTrait;
 
     public function creator(): BelongsTo
     {
