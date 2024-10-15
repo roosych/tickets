@@ -24,7 +24,9 @@ class IndexController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $tickets = Ticket::where('executor_id', $user->id)->get();
+        $tickets = Ticket::with('performer', 'department')
+            ->where('executor_id', $user->id)
+            ->get();
 
         $statusLabels = [];
         foreach (TicketStatusEnum::cases() as $status) {

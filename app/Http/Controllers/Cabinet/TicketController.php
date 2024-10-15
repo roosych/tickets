@@ -34,11 +34,12 @@ class TicketController extends Controller
         }
 
         $user = auth()->user();
+        $departmentId = $user->getDepartmentId();
 
         $tickets = Ticket::query()
-            ->with('priority', 'creator')
+            ->with(['priority', 'creator', 'tags', 'performer'])
             //->whereNot('status', TicketStatusEnum::COMPLETED)
-            ->where('department_id', $user->getDepartmentId())
+            ->where('department_id', $departmentId)
             ->latest()
             ->get();
 
@@ -55,7 +56,9 @@ class TicketController extends Controller
             $statusLabels[$status->value] = $status->label();
         }
         $priorities = Priorities::getCachedPriorities();
-        $tickets = Ticket::query()->where('executor_id', auth()->id())->latest()->get();
+        $tickets = Ticket::query()
+            ->with(['priority', 'creator', 'tags', 'performer'])
+            ->where('executor_id', auth()->id())->latest()->get();
 
         return view('cabinet.tickets.inbox', compact('tickets', 'statusLabels', 'priorities'));
     }
@@ -68,7 +71,7 @@ class TicketController extends Controller
         }
         $priorities = Priorities::getCachedPriorities();
         $departments = Department::where('active', '=', true)->get();
-        $tickets = Ticket::query()->with('department', 'comments')
+        $tickets = Ticket::query()->with(['priority', 'creator', 'department', 'performer', 'comments'])
             ->where('user_id', auth()->id())
             ->get();
         $openTickets = $tickets->where('status', TicketStatusEnum::OPENED);

@@ -11,6 +11,7 @@ use App\Http\Controllers\Cabinet\UserController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\TemporaryFileController;
 use Illuminate\Support\Facades\Route;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 Route::redirect('/', '/cabinet');
 
@@ -77,6 +78,18 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
         Route::get('/users', [ReportController::class, 'users'])->name('users');
         Route::get('/depts', [ReportController::class, 'depts'])->name('depts');
         Route::get('/tags', [ReportController::class, 'tags'])->name('tags');
+    });
+
+    Route::get('/test-telegram', function () {
+        $chatId = config('services.telegram.chat_id');
+        $message = 'Chat ID: ' . $chatId;
+
+        Telegram::sendMessage([
+            'chat_id' => $chatId,
+            'text' => $message,
+        ]);
+
+        return 'Сообщение отправлено!';
     });
 
 });
