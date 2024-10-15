@@ -445,7 +445,7 @@
 @endsection
 
 @push('modals')
-    @include('partials.modals.tickets.create')
+    @include('partials.modals.tickets.create-sub')
     @include('partials.modals.tickets.complete')
     @include('partials.modals.tickets.cancel')
     @include('partials.modals.tickets.attach_user')

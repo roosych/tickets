@@ -52,7 +52,7 @@ class StoreRequest extends FormRequest
 
         if ($this->has('parent_id')) {
             $rules['parent_id'] = ['required', 'exists:tickets,id'];
-            $rules['user'] = ['nullable', 'exists:users,id'];
+            //$rules['user'] = ['nullable', 'exists:users,id'];
         }
 
         return $rules;

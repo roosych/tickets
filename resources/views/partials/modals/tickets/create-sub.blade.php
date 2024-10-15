@@ -27,53 +27,35 @@
                     </div>
 
                     <div class="row g-9 mb-8">
-
-                            <div class="col-md-6 fv-row">
-                                <label class="required fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.department')}}</label>
-                                <select class="form-select form-select-solid"
-                                        data-control="select2"
-                                        data-placeholder="{{trans('tickets.create_modal.select_from_list')}}"
-                                        data-dropdown-parent="#kt_modal_new_ticket"
-                                        data-department-id="{{ auth()->user()->getDepartmentId() }}"
-                                        name="department">
-                                    <option value=""></option>
-                                    @foreach($departments as $item)
-                                        <option value="{{$item->id}}">{{$item->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-md-6 fv-row">
-                                <label class="required fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.priority')}}</label>
-                                <select class="form-select form-select-solid"
-                                        data-control="select2"
-                                        data-hide-search="true"
-                                        data-placeholder="{{trans('tickets.create_modal.select_from_list')}}" name="priority">
-                                    <option value=""></option>
-                                    @foreach($priorities as $item)
-                                        <option value="{{$item->id}}">{{$item->getNameByLocale()}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                    </div>
-
-                    @can('assign', \App\Models\Ticket::class)
-                        <div id="dept_users_list" style="display: none;">
-                            <div class="col-md-12 fv-row">
-                                <label class="fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.performer')}}</label>
-                                <select class="form-select form-select-solid"
-                                        data-control="select2"
-                                        data-placeholder="{{trans('tickets.create_modal.select_from_list')}}"
-                                        data-dropdown-parent="#kt_modal_new_ticket"
-                                        name="user">
-                                    <option value=""></option>
-                                    @foreach(auth()->user()->deptAllUsers() as $item)
-                                        <option value="{{$item->id}}">{{$item->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        <input type="hidden" name="department" value="{{$ticket->department->id}}">
+                        <input type="hidden" name="parent_id" value="{{$ticket->id}}">
+                        <div class="col-md-6 fv-row">
+                            <label class="required fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.performer')}}</label>
+                            <select class="form-select form-select-solid"
+                                    data-control="select2"
+                                    data-hide-search="true"
+                                    data-placeholder="{{trans('tickets.create_modal.select_from_list')}}"
+                                    name="user">
+                                <option value=""></option>
+                                @foreach(auth()->user()->deptAllUsers() as $item)
+                                    <option value="{{$item->id}}">{{$item->name}}</option>
+                                @endforeach
+                            </select>
                         </div>
-                    @endcan
+
+                        <div class="col-md-6 fv-row">
+                            <label class="required fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.priority')}}</label>
+                            <select class="form-select form-select-solid"
+                                    data-control="select2"
+                                    data-hide-search="true"
+                                    data-placeholder="{{trans('tickets.create_modal.select_from_list')}}" name="priority">
+                                <option value=""></option>
+                                @foreach($priorities as $item)
+                                    <option value="{{$item->id}}">{{$item->getNameByLocale()}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
 
                     @php
                         $deptTags = auth()->user()->getDepartment()->tags()->get();
