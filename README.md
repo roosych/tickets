@@ -13,7 +13,7 @@ php artisan migrate
 
 #Import LDAP users
 php artisan ldap:import users --filter "(department=*)" --attributes "cn,samaccountname,mail,title,departme
-nt,distinguishedname,extensionattribute11,manager,mailnickname,mobile,pager"
+nt,distinguishedname,extensionattribute11,manager,mailnickname,mobile,pager,jpegphoto"
 
 
 php artisan app:install

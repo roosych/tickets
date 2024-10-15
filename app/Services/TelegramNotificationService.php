@@ -6,55 +6,26 @@ use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class TelegramNotificationService
 {
-    private string $baseUrl;
-    private string $botToken;
     private string $chatId;
 
-    public function __construct()
+    public function __construct(string $chatId)
     {
-        $this->botToken = config('services.telegram.bot_token');
-        $this->chatId = config('services.telegram.chat_id');
-        $this->baseUrl = "https://api.telegram.org/bot{$this->botToken}";
+        $this->chatId = $chatId;
     }
 
     public function sendMessage(string $message): bool
     {
-        try {
-            // Логируем сообщение перед отправкой для отладки
-            Log::info('Sending Telegram message:', ['message' => $message]);
-
-            $response = Http::get("{$this->baseUrl}/sendMessage", [
-                'chat_id' => $this->chatId,
-                'text' => $message,
-                'parse_mode' => 'HTML',
-                'disable_web_page_preview' => true
-            ]);
-
-            // Логируем ответ от API для отладки
-            Log::info('Telegram API response:', [
-                'status' => $response->status(),
-                'body' => $response->json()
-            ]);
-
-            if (!$response->successful()) {
-                Log::error('Telegram API Error', [
-                    'status' => $response->status(),
-                    'body' => $response->body()
-                ]);
-                return false;
-            }
-
-            return true;
-        } catch (\Exception $e) {
-            Log::error('Telegram Notification Error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return false;
-        }
+        Log::info('Отправка сообщения в Telegram. Chat ID: ' . $this->chatId);
+        Telegram::sendMessage([
+            'chat_id' => $this->chatId,
+            'text' => $message,
+            'parse_mode' => 'HTML',
+        ]);
+        return true;
     }
 
     private function escapeHtml(?string $text): string

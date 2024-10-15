@@ -20,15 +20,6 @@ class TicketEventListener implements ShouldQueue
 
     public function handle(TicketEvent $event): void
     {
-        // Отправляем уведомление в Telegram
-        $message = $this->telegramService->formatTicketMessage(
-            $event->action, // 'created', 'updated', 'status_changed', etc.
-            $event->ticket,
-            $event->initiator
-        );
-        $this->telegramService->sendMessage($message);
-
-
         $delay = 0; // Начальная задержка
         foreach ($event->recipients as $user) {
             // Отправка уведомления с увеличивающейся задержкой
@@ -37,5 +28,13 @@ class TicketEventListener implements ShouldQueue
             // Увеличиваем задержку на 5 секунд для следующего получателя
             $delay += 5;
         }
+
+        // Отправляем уведомление в Telegram
+        $message = $this->telegramService->formatTicketMessage(
+            $event->action, // 'created', 'updated', 'status_changed', etc.
+            $event->ticket,
+            $event->initiator
+        );
+        $this->telegramService->sendMessage($message);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Ticket;
 use App\Observers\TicketObserver;
+use App\Services\TelegramNotificationService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,7 +15,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(TelegramNotificationService::class, function ($app) {
+            return new TelegramNotificationService(config('services.telegram.chat_id'));
+        });
     }
 
     /**
