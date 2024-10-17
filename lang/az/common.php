@@ -81,6 +81,7 @@ return [
         '403_subtitle' => 'Səhifəyə giriş məhdudlaşdırılıb',
         '404_subtitle' => 'Səhifə tapılmadı',
         '500_subtitle' => 'Xəta baş verdi, yenidən cəhd edin',
+        '419_subtitle' => 'Sessiyanın vaxtı bitdi. Yenidən daxil olun',
         'button' => 'Əsas səhifə',
     ],
     'user_menu' => [
