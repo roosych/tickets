@@ -8,8 +8,8 @@ return [
     'index' => [
         'my_tickets' => 'Mənim tiketlərim',
         'opened_tickets' => 'Açıq olan:',
-        'done_tickets' => 'Bitirənlər',
-        'all_time' => 'toplam',
+        'done_tickets' => 'Tamamlanan tiketlər',
+        'all_time' => 'bütün vaxt ərzində',
         'dept_tickets' => 'Şöbənin tiketləri',
         'top_3' => 'Ən yaxşı 3 icraçı',
         'chart_tickets' => 'Tiket sayı',

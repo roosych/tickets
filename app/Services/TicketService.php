@@ -16,9 +16,17 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class TicketService
 {
+    protected TelegramMessageService $telegramMessageService;
+
+    public function __construct(TelegramMessageService $telegramMessageService)
+    {
+        $this->telegramMessageService = $telegramMessageService;
+    }
+
     public function updateTicketStatus(Ticket $ticket, TicketStatusEnum $status, ?string $comment = null): void
     {
         $this->checkTicketStatus(
@@ -47,6 +55,12 @@ class TicketService
             $recipients = $this->getRecipientsForStatusUpdate($ticket);
             event(new TicketEvent($ticket, 'status_updated', $recipients, Auth::user(),
                 ['ticket_history_id' => $ticketHistory->id]));
+
+            Telegram::sendMessage([
+                'chat_id' => config('services.telegram.chat_id'),
+                'text' => $this->telegramMessageService->getTicketStatusChangedMessage($ticket),
+                'parse_mode' => 'HTML',
+            ]);
         });
     }
 
@@ -119,7 +133,6 @@ class TicketService
         }
 
         $this->updateTicketStatus($ticket, TicketStatusEnum::DONE, $comment);
-
     }
 
     /**
@@ -207,6 +220,11 @@ class TicketService
             $tempFile->delete();
         }
 
+        Telegram::sendMessage([
+            'chat_id' => config('services.telegram.chat_id'),
+            'text' => $this->telegramMessageService->getTicketCommentedMessage($ticket, $comment),
+            'parse_mode' => 'HTML',
+        ]);
 
         $recipients = $this->getRecipientsForComment($ticket);
         event(new TicketEvent($ticket, 'commented', $recipients, Auth::user(), ['comment_id' => $comment->id]));
@@ -237,6 +255,12 @@ class TicketService
             'action' => TicketActionEnum::ASSIGN_USER,
             'status' => TicketStatusEnum::OPENED,
             'assign_user' => $user->id,
+        ]);
+
+        Telegram::sendMessage([
+            'chat_id' => config('services.telegram.chat_id'),
+            'text' => $this->telegramMessageService->getTicketAssignedMessage($ticket),
+            'parse_mode' => 'HTML',
         ]);
 
         $recipients = $this->getRecipientsForAssign($ticket);
@@ -341,6 +365,12 @@ class TicketService
                 $tempFile->delete();
             }
             DB::commit();
+
+            Telegram::sendMessage([
+                'chat_id' => config('services.telegram.chat_id'),
+                'text' => $this->telegramMessageService->getTicketCreatedMessage($ticket),
+                'parse_mode' => 'HTML',
+            ]);
 
             $recipients = $this->getRecipientsForCreation($ticket);
             event(new TicketEvent($ticket, 'created', $recipients, Auth::user()));

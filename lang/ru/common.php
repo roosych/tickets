@@ -8,7 +8,7 @@ return [
     'index' => [
         'my_tickets' => 'Мои тикеты',
         'opened_tickets' => 'Открытых тикетов:',
-        'done_tickets' => 'Выполнено тикетов',
+        'done_tickets' => 'Закрыто тикетов',
         'all_time' => 'за всё время',
         'dept_tickets' => 'Тикеты отдела',
         'top_3' => 'Топ 3 исполнителей',
@@ -91,8 +91,14 @@ return [
         'system' => 'Системная',
         'languages' => 'Язык',
         'logout' => 'Выйти',
-        'fast_links' => 'Быстрый переход',
+        'fast_links' => 'Быстрые переходы',
         'link_mail' => 'Почта',
         'link_intranet' => 'Интранет',
-    ]
+    ],
+    'swal' => [
+        'success_title' => 'Все прошло успешно!',
+        'success_text' => '',
+        'error_title' => 'Произошла ошибка!',
+        'error_text' => '',
+    ],
 ];
