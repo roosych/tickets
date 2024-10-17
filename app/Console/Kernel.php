@@ -14,7 +14,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('tickets:report-open')
             ->hourly()
-            ->between('9:00', '18:00');
+            ->between('9:00', '18:00')
+            ->days([1, 2, 3, 4, 5]); // Пн, Вт, Ср, Чт, Пт
     }
 
     /**
