@@ -10,7 +10,7 @@ class ReportController extends Controller
 {
     public function users()
     {
-        $this->authorize('users', ReportPolicy::class);
+        $this->authorize('users', 'report');
         $user = auth()->user();
         $deptUsers = $user->deptAllUsers();
 
@@ -19,13 +19,13 @@ class ReportController extends Controller
 
     public function depts()
     {
-        $this->authorize('depts', ReportPolicy::class);
+        $this->authorize('depts', 'report');
         return view('cabinet.reports.depts');
     }
 
     public function tags()
     {
-        $this->authorize('tags', ReportPolicy::class);
+        $this->authorize('tags', 'report');
         return view('cabinet.reports.tags');
     }
 }

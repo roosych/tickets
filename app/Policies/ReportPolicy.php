@@ -19,7 +19,7 @@ class ReportPolicy
     #[PolicyPermissionNameAttribute(['az' => 'Departametlər', 'en' => 'Departments', 'ru' => 'Департаменты'])]
     public function depts(User $user): bool
     {
-        return $user->hasPermissions('users', 'report');
+        return $user->hasPermissions('depts', 'report');
     }
 
     #[PolicyPermissionNameAttribute(['az' => 'Taqlar', 'en' => 'Tags', 'ru' => 'Теги'])]
