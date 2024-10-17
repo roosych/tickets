@@ -125,6 +125,11 @@ class User extends Authenticatable implements LdapAuthenticatable
             ->count();
     }
 
+    public function getTicketsByStatus(TicketStatusEnum $status): HasMany
+    {
+        return $this->ticketsByExecutor()->where('status', $status->value);
+    }
+
 
     protected $fillable = [
         'name',

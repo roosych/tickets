@@ -28,6 +28,10 @@ class IndexController extends Controller
             ->where('executor_id', $user->id)
             ->get();
 
+        $openedTickets = $tickets->where('status', TicketStatusEnum::OPENED);
+
+        //dd($openedTickets);
+
         $statusLabels = [];
         foreach (TicketStatusEnum::cases() as $status) {
             $statusLabels[$status->value] = $status->label();
@@ -40,7 +44,7 @@ class IndexController extends Controller
         $totalTickets = $data['totalDepartmentTickets'];
 
         return Auth::user()->getDepartment()->active
-            ? view('cabinet.index', compact('priorities', 'departments', 'topPerformers', 'totalTickets', 'tickets'))
+            ? view('cabinet.index', compact('priorities','openedTickets', 'departments', 'topPerformers', 'totalTickets', 'tickets'))
             : view('cabinet.deactive', compact('priorities', 'departments'));
     }
 

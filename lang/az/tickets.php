@@ -25,7 +25,7 @@ return [
         'creator' => 'Yaradan',
         'priority' => 'Prioritet',
         'all_priorities' => 'Bütün prioritetlər',
-        'created_at' => 'Yaradılma tarixi:',
+        'created_at' => 'Yaradılma tarixi',
         'status' => 'Status',
         'all_statuses' => 'Bütün statuslar',
         'performer' => 'İcraçı',
@@ -75,4 +75,5 @@ return [
     'activity' => 'Tarixçə və şərhlər',
     'send_comment' => 'Şərh yaz',
     'add_file' => 'Fayl əlavə et',
+    'my_opened_tickets' => 'Açıq tiketlərim',
 ];

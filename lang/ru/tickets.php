@@ -25,7 +25,7 @@ return [
         'creator' => 'Автор',
         'priority' => 'Приоритет',
         'all_priorities' => 'Все приоритеты',
-        'created_at' => 'Дата создания:',
+        'created_at' => 'Дата создания',
         'status' => 'Статус',
         'all_statuses' => 'Все статусы',
         'performer' => 'Исполнитель',
@@ -75,4 +75,5 @@ return [
     'activity' => 'Активность',
     'send_comment' => 'Оставить комментарий',
     'add_file' => 'Прикрепить файл',
+    'my_opened_tickets' => 'Мои открытые тикеты',
 ];
