@@ -15,6 +15,7 @@ use App\Models\TicketHistory;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
@@ -55,13 +56,18 @@ class TicketService
             $recipients = $this->getRecipientsForStatusUpdate($ticket);
             event(new TicketEvent($ticket, 'status_updated', $recipients, Auth::user(),
                 ['ticket_history_id' => $ticketHistory->id]));
+        });
 
+        // Отправка сообщения в Telegram вне транзакции
+        try {
             Telegram::sendMessage([
                 'chat_id' => config('services.telegram.chat_id'),
                 'text' => $this->telegramMessageService->getTicketStatusChangedMessage($ticket),
                 'parse_mode' => 'HTML',
             ]);
-        });
+        } catch (\Exception $e) {
+            Log::error('Ошибка отправки сообщения в Telegram: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -191,41 +197,51 @@ class TicketService
             abort(403, 'Вы не можете оставлять комментарии к этому тикету.');
         }
 
-        $comment = Comment::create([
-            'ticket_id' => $ticket->id,
-            'user_id' => auth()->id(),
-            'text' => $data['text'],
-        ]);
-
-
-        $tempFiles = TemporaryFile::all();
-
-        foreach ($tempFiles as $tempFile) {
-            Storage::disk('public')->copy(
-                'uploads/tmp/' . $tempFile->folder . '/' . $tempFile->filename,
-                'uploads/comments/' . $comment->id . '/' . $tempFile->folder . '.' . $tempFile->extension
-            );
-
-            Storage::disk('public')->deleteDirectory('uploads/tmp/' . $tempFile->folder);
-
-            Media::create([
-                'mediable_type' => Comment::class,
-                'mediable_id' => $comment->id,
-                'folder' => 'comments/' . $comment->id,
-                'filename' => $tempFile->folder . '.' . $tempFile->extension,
-                'unique_filename' => $tempFile->unique_filename,
-                'size' => $tempFile->size,
-                'extension' => $tempFile->extension,
+        DB::transaction(function () use ($ticket, $data, &$comment) {
+            // Создаем комментарий
+            $comment = Comment::create([
+                'ticket_id' => $ticket->id,
+                'user_id' => auth()->id(),
+                'text' => $data['text'],
             ]);
-            $tempFile->delete();
+
+            // Обрабатываем временные файлы
+            $tempFiles = TemporaryFile::all();
+            foreach ($tempFiles as $tempFile) {
+                Storage::disk('public')->copy(
+                    'uploads/tmp/' . $tempFile->folder . '/' . $tempFile->filename,
+                    'uploads/comments/' . $comment->id . '/' . $tempFile->folder . '.' . $tempFile->extension
+                );
+
+                Storage::disk('public')->deleteDirectory('uploads/tmp/' . $tempFile->folder);
+
+                Media::create([
+                    'mediable_type' => Comment::class,
+                    'mediable_id' => $comment->id,
+                    'folder' => 'comments/' . $comment->id,
+                    'filename' => $tempFile->folder . '.' . $tempFile->extension,
+                    'unique_filename' => $tempFile->unique_filename,
+                    'size' => $tempFile->size,
+                    'extension' => $tempFile->extension,
+                ]);
+
+                // Удаляем временный файл
+                $tempFile->delete();
+            }
+        });
+
+        // Отправляем сообщение в Telegram вне транзакции
+        try {
+            Telegram::sendMessage([
+                'chat_id' => config('services.telegram.chat_id'),
+                'text' => $this->telegramMessageService->getTicketCommentedMessage($ticket, $comment),
+                'parse_mode' => 'HTML',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Ошибка отправки сообщения в Telegram: ' . $e->getMessage());
         }
 
-        Telegram::sendMessage([
-            'chat_id' => config('services.telegram.chat_id'),
-            'text' => $this->telegramMessageService->getTicketCommentedMessage($ticket, $comment),
-            'parse_mode' => 'HTML',
-        ]);
-
+        // Отправляем событие
         $recipients = $this->getRecipientsForComment($ticket);
         event(new TicketEvent($ticket, 'commented', $recipients, Auth::user(), ['comment_id' => $comment->id]));
 
@@ -244,25 +260,36 @@ class TicketService
             'Тикет закрыт или отменен!'
         );
 
-        $ticket->update([
-            'executor_id' => $user->id,
-            'status' => TicketStatusEnum::OPENED,
-        ]);
+        // Выполняем обновление данных в рамках транзакции
+        DB::transaction(function () use ($ticket, $user) {
+            // Обновляем исполнителя и статус тикета
+            $ticket->update([
+                'executor_id' => $user->id,
+                'status' => TicketStatusEnum::OPENED,
+            ]);
 
-        TicketHistory::create([
-            'ticket_id' => $ticket->id,
-            'user_id' => auth()->id(),
-            'action' => TicketActionEnum::ASSIGN_USER,
-            'status' => TicketStatusEnum::OPENED,
-            'assign_user' => $user->id,
-        ]);
+            // Создаем запись в истории тикета
+            TicketHistory::create([
+                'ticket_id' => $ticket->id,
+                'user_id' => auth()->id(),
+                'action' => TicketActionEnum::ASSIGN_USER,
+                'status' => TicketStatusEnum::OPENED,
+                'assign_user' => $user->id,
+            ]);
+        });
 
-        Telegram::sendMessage([
-            'chat_id' => config('services.telegram.chat_id'),
-            'text' => $this->telegramMessageService->getTicketAssignedMessage($ticket),
-            'parse_mode' => 'HTML',
-        ]);
+        // Отправляем сообщение в Telegram вне транзакции
+        try {
+            Telegram::sendMessage([
+                'chat_id' => config('services.telegram.chat_id'),
+                'text' => $this->telegramMessageService->getTicketAssignedMessage($ticket),
+                'parse_mode' => 'HTML',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Ошибка отправки сообщения в Telegram: ' . $e->getMessage());
+        }
 
+        // Отправляем событие после успешного назначения исполнителя
         $recipients = $this->getRecipientsForAssign($ticket);
         event(new TicketEvent($ticket, 'assigned', $recipients, Auth::user(), null));
     }
@@ -332,6 +359,7 @@ class TicketService
     {
         DB::beginTransaction();
         try {
+            // Создание тикета
             $ticket = Ticket::query()->create([
                 'text' => $data['text'],
                 'user_id' => auth()->id(),
@@ -342,10 +370,11 @@ class TicketService
                 'parent_id' => $data['parent_id'] ?? null,
             ]);
 
+            // Синхронизация тегов
             $ticket->tags()->sync($data['tags'] ?? []);
 
+            // Перемещение временных файлов и создание записей в таблице Media
             $tempFiles = TemporaryFile::all();
-
             foreach ($tempFiles as $tempFile) {
                 Storage::disk('public')->copy(
                     'uploads/tmp/' . $tempFile->folder . '/' . $tempFile->filename,
@@ -353,6 +382,7 @@ class TicketService
                 );
 
                 Storage::disk('public')->deleteDirectory('uploads/tmp/' . $tempFile->folder);
+
                 Media::create([
                     'mediable_type' => Ticket::class,
                     'mediable_id' => $ticket->id,
@@ -362,22 +392,32 @@ class TicketService
                     'size' => $tempFile->size,
                     'extension' => $tempFile->extension,
                 ]);
+
                 $tempFile->delete();
             }
+
+            // Фиксируем транзакцию
             DB::commit();
 
-            Telegram::sendMessage([
-                'chat_id' => config('services.telegram.chat_id'),
-                'text' => $this->telegramMessageService->getTicketCreatedMessage($ticket),
-                'parse_mode' => 'HTML',
-            ]);
+            // Отправка сообщений и событий вне транзакции
+            try {
+                Telegram::sendMessage([
+                    'chat_id' => config('services.telegram.chat_id'),
+                    'text' => $this->telegramMessageService->getTicketCreatedMessage($ticket),
+                    'parse_mode' => 'HTML',
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Ошибка отправки сообщения в Telegram: ' . $e->getMessage());
+            }
 
+            // Отправка события о создании тикета
             $recipients = $this->getRecipientsForCreation($ticket);
             event(new TicketEvent($ticket, 'created', $recipients, Auth::user()));
 
             return $ticket;
 
         } catch (\Exception $e) {
+            // Откат транзакции в случае ошибки
             DB::rollBack();
             throw $e;
         }
