@@ -9,6 +9,7 @@ use App\Http\Controllers\Cabinet\TagController;
 use App\Http\Controllers\Cabinet\TicketController;
 use App\Http\Controllers\Cabinet\UserController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\TelegramBotController;
 use App\Http\Controllers\TemporaryFileController;
 use Illuminate\Support\Facades\Route;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -79,19 +80,14 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
         Route::get('/depts', [ReportController::class, 'depts'])->name('depts');
         Route::get('/tags', [ReportController::class, 'tags'])->name('tags');
     });
-
-    Route::get('/test-telegram', function () {
-        $chatId = config('services.telegram.chat_id');
-        $message = 'Chat ID: ' . $chatId;
-
-        Telegram::sendMessage([
-            'chat_id' => $chatId,
-            'text' => $message,
-        ]);
-
-        return 'Сообщение отправлено!';
-    });
-
 });
+
+
+Route::post('bot/'.config('services.telegram.bot_token').'/setwebhook', function () {
+    $response = Telegram::setWebhook(['url' => 'https://f4ec-81-17-91-221.ngrok-free.app/bot/'.config('services.telegram.bot_token').'/webhook']);
+    return $response;
+});
+Route::post('bot/'.config('services.telegram.bot_token').'/webhook', [TelegramBotController::class, 'handleWebhook'])
+    ->name('telegram.webhook');
 
 require __DIR__.'/auth.php';
