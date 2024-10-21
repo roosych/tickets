@@ -12,7 +12,7 @@ class ReportOpenTickets extends Command
 {
     protected $signature = 'tickets:report-open';
     protected $description = 'Report all open tickets grouped by performers';
-    protected $maxMessageLength = 4096; // Максимальная длина сообщения в Telegram
+    protected int $maxMessageLength = 4096; // Максимальная длина сообщения в Telegram
 
     public function handle()
     {
@@ -36,7 +36,7 @@ class ReportOpenTickets extends Command
         $this->info('Отчет по открытым тикетам отправлен в Telegram.');
     }
 
-    private function prepareMessages($ticketsByPerformer)
+    private function prepareMessages($ticketsByPerformer): array
     {
         $messages = [];
         $currentMessage = "Хватит ждать идеального момента — он уже настал! Вперёд за работу, товарищи! 🚀\n\n ⏳ <b>Открытые тикеты:</b>\n\n";
@@ -68,7 +68,7 @@ class ReportOpenTickets extends Command
         return $messages;
     }
 
-    private function addToMessageOrCreateNew($currentMessage, $newSection, &$messages)
+    private function addToMessageOrCreateNew($currentMessage, $newSection, &$messages): string
     {
         if (mb_strlen($currentMessage . $newSection) > $this->maxMessageLength) {
             $messages[] = $currentMessage;
@@ -77,7 +77,7 @@ class ReportOpenTickets extends Command
         return $currentMessage . $newSection;
     }
 
-    private function formatTicketLink($ticketId)
+    private function formatTicketLink($ticketId): string
     {
         $url = "https://tickets.metak.az/cabinet/tickets/{$ticketId}";
         return "<a href='{$url}'>#{$ticketId}</a>";

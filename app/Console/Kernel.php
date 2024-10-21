@@ -16,6 +16,11 @@ class Kernel extends ConsoleKernel
             ->hourly()
             ->between('9:00', '18:00')
             ->days([1, 2, 3, 4, 5]); // Пн, Вт, Ср, Чт, Пт
+
+        $schedule->command('tickets:notify-urgent')
+            ->everyFiveMinutes()
+            ->between('9:00', '18:00')
+            ->days([1, 2, 3, 4, 5]); // Пн, Вт, Ср, Чт, Пт
     }
 
     /**
