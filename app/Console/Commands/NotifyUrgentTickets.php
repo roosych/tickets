@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\Tickets;
+namespace App\Console\Commands;
 
 use App\Enums\TicketStatusEnum;
 use App\Models\Ticket;

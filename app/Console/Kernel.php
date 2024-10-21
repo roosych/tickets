@@ -15,10 +15,13 @@ class Kernel extends ConsoleKernel
         $schedule->command('tickets:report-open')
             ->hourly()
             ->between('9:00', '18:00')
-            ->days([1, 2, 3, 4, 5]); // Пн, Вт, Ср, Чт, Пт
+            ->days([1, 2, 3, 4, 5])
+            ->before(function () {
+                \Log::info('tickets:report-open is about to run');
+            });
 
         $schedule->command('tickets:notify-urgent')
-            ->everyMinute()
+            ->everyFiveMinutes()
             ->between('9:00', '18:00')
             ->days([1, 2, 3, 4, 5])
             ->before(function () {
