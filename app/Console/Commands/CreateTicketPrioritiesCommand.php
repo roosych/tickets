@@ -28,12 +28,12 @@ class CreateTicketPrioritiesCommand extends Command
             [
                 'name' => json_encode(['en' => 'Urgent', 'ru' => 'Срочно', 'az' => 'Təcili']),
                 'class' => 'danger',
-                'minutes' => 10
+                'minutes' => 5
             ],
             [
                 'name' => json_encode(['en' => 'High', 'ru' => 'Высокий', 'az' => 'Yüksək']),
                 'class' => 'warning',
-                'minutes' => 30
+                'minutes' => 20
             ],
             [
                 'name' => json_encode(['en' => 'Normal', 'ru' => 'Нормальный', 'az' => 'Normal']),
