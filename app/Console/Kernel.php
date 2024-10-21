@@ -18,9 +18,12 @@ class Kernel extends ConsoleKernel
             ->days([1, 2, 3, 4, 5]); // Пн, Вт, Ср, Чт, Пт
 
         $schedule->command('tickets:notify-urgent')
-            ->everyFiveMinutes()
+            ->everyMinute()
             ->between('9:00', '18:00')
-            ->days([1, 2, 3, 4, 5]); // Пн, Вт, Ср, Чт, Пт
+            ->days([1, 2, 3, 4, 5])
+            ->before(function () {
+                \Log::info('tickets:notify-urgent is about to run');
+            });
     }
 
     /**
