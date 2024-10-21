@@ -12,6 +12,7 @@ class ReportOpenTickets extends Command
 {
     protected $signature = 'tickets:report-open';
     protected $description = 'Report all open tickets grouped by performers';
+    protected $maxMessageLength = 4096; // Максимальная длина сообщения в Telegram
 
     public function handle()
     {
@@ -26,28 +27,60 @@ class ReportOpenTickets extends Command
 
         $ticketsByPerformer = $openTickets->groupBy('performer.name');
 
-        $message = "Хватит ждать идеального момента — он уже настал! Вперёд за работу, товарищи! 🚀\n\n ⏳ <b>Открытые тикеты:</b>\n\n";
+        $messages = $this->prepareMessages($ticketsByPerformer);
+
+        foreach ($messages as $message) {
+            $this->sendTelegramNotification($message);
+        }
+
+        $this->info('Отчет по открытым тикетам отправлен в Telegram.');
+    }
+
+    private function prepareMessages($ticketsByPerformer)
+    {
+        $messages = [];
+        $currentMessage = "Хватит ждать идеального момента — он уже настал! Вперёд за работу, товарищи! 🚀\n\n ⏳ <b>Открытые тикеты:</b>\n\n";
 
         // Сначала обрабатываем тикеты без исполнителя
         if ($ticketsByPerformer->has('')) {
-            $unassignedTickets = $ticketsByPerformer['']->pluck('id')->map(function($id) {
-                return "#" . $id;
+            $unassignedTickets = $ticketsByPerformer['']->map(function($ticket) {
+                return $this->formatTicketLink($ticket->id);
             })->implode(', ');
-            $message .= "Без исполнителя - {$unassignedTickets}\n\n";
+            $unassignedSection = "Без исполнителя - {$unassignedTickets}\n\n";
+            $currentMessage = $this->addToMessageOrCreateNew($currentMessage, $unassignedSection, $messages);
             $ticketsByPerformer->forget('');
         }
 
         // Затем обрабатываем остальные тикеты
         foreach ($ticketsByPerformer as $performerName => $tickets) {
-            $ticketNumbers = $tickets->pluck('id')->map(function($id) {
-                return "#" . $id;
+            $ticketLinks = $tickets->map(function($ticket) {
+                return $this->formatTicketLink($ticket->id);
             })->implode(', ');
 
-            $message .= "<b>{$performerName}</b> \n {$ticketNumbers}\n\n";
+            $performerSection = "<b>{$performerName}</b> \n {$ticketLinks}\n\n";
+            $currentMessage = $this->addToMessageOrCreateNew($currentMessage, $performerSection, $messages);
         }
 
-        $this->sendTelegramNotification($message);
-        $this->info('Отчет по открытым тикетам отправлен в Telegram.');
+        if (!empty($currentMessage)) {
+            $messages[] = $currentMessage;
+        }
+
+        return $messages;
+    }
+
+    private function addToMessageOrCreateNew($currentMessage, $newSection, &$messages)
+    {
+        if (mb_strlen($currentMessage . $newSection) > $this->maxMessageLength) {
+            $messages[] = $currentMessage;
+            return $newSection;
+        }
+        return $currentMessage . $newSection;
+    }
+
+    private function formatTicketLink($ticketId)
+    {
+        $url = "https://tickets.metak.az/cabinet/tickets/{$ticketId}";
+        return "<a href='{$url}'>#{$ticketId}</a>";
     }
 
     private function sendTelegramNotification($message)
