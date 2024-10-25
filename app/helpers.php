@@ -1,4 +1,8 @@
 <?php
+
+use App\Enums\TicketStatusEnum;
+use Illuminate\Support\Carbon;
+
 if (! function_exists('active_link')) {
     function active_link(array $route, string $active = 'here show'): string
     {
@@ -54,3 +58,45 @@ if (!function_exists('generateDepartmentCode')) {
         return "#{$abbreviation}-{$formattedTicketId}";
     }
 }
+
+if (!function_exists('pluralize')) {
+    function pluralize($number, $words): string
+    {
+        $forms = explode('|', $words);
+        $form = $number % 10 === 1 && $number % 100 !== 11 ? $forms[0]
+            : ($number % 10 >= 2 && $number % 10 <= 4 && ($number % 100 < 12 || $number % 100 > 14) ? $forms[1] : $forms[2]);
+
+        return "{$number} {$form}";
+    }
+}
+
+if (!function_exists('formatTimeDifference')) {
+    function formatTimeDifference($difference): string
+    {
+        $timeString = '';
+        // Добавляем часы, если они больше 0
+        if ($difference->h > 0) {
+            $timeString .= pluralize($difference->h, 'ч|ч|ч') . ' ';
+        }
+        // Добавляем минуты
+        $timeString .= pluralize($difference->i, 'мин|мин|мин');
+        return trim($timeString); // Убираем лишний пробел
+    }
+}
+
+if (!function_exists('calculateTimeDifference')) {
+    function calculateTimeDifference($startTime, $endTime): \DateInterval
+    {
+        return $startTime->diff(Carbon::parse($endTime));
+    }
+}
+
+if (!function_exists('getStatusChangeTime'))
+{
+    function getStatusChangeTime ($statuses, TicketStatusEnum $status) {
+        return isset($statuses[$status->value])
+            ? $statuses[$status->value]->first()->created_at
+            : null;
+    };
+}
+

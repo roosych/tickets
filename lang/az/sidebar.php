@@ -36,6 +36,10 @@ return [
     ],
     'stats' => [
         'title' => 'Statistika',
+        'tickets' => [
+            'text' => 'Tiketlər üzrə',
+            'hint' => 'Şöbənizin tiketləri üzrə',
+        ],
         'users' => [
             'text' => 'Əmakdaşlar üzrə',
             'hint' => 'Şöbənizin əməkdaşları üzrə',

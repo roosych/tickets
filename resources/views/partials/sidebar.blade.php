@@ -127,17 +127,17 @@
                                 </div>
                             </div>
                             <div class="menu-item">
-                                <a class="menu-link" href="{{route('cabinet.reports.users')}}"
-                                   title="{{trans('sidebar.stats.users.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <a class="menu-link" href="{{route('cabinet.reports.tickets')}}"
+                                   title="{{trans('sidebar.stats.tickets.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
                                     <span class="menu-title">
-                                        {{trans('sidebar.stats.users.text')}}
+                                        {{trans('sidebar.stats.tickets.text')}}
                                     </span>
                                 </a>
                             </div>
-                            <div class="menu-item">
+                            {{--<div class="menu-item">
                                 <a class="menu-link" href="{{route('cabinet.reports.depts')}}"
                                    title="{{trans('sidebar.stats.dept.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
@@ -158,7 +158,7 @@
                                         {{trans('sidebar.stats.tags.text')}}
                                     </span>
                                 </a>
-                            </div>
+                            </div>--}}
                         </div>
                     </div>
                 @endif

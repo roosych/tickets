@@ -25,7 +25,7 @@ return [
         'creator' => 'Yaradan',
         'priority' => 'Prioritet',
         'all_priorities' => 'Bütün prioritetlər',
-        'created_at' => 'Yaradılma tarixi',
+        'created_at' => 'Yaradılıb',
         'status' => 'Status',
         'all_statuses' => 'Bütün statuslar',
         'performer' => 'İcraçı',

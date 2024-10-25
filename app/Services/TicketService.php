@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Enums\FilterGroupingEnum;
 use App\Enums\TicketActionEnum;
 use App\Enums\TicketStatusEnum;
 use App\Events\TicketEvent;
 use App\Exceptions\TicketAccessException;
+use App\Http\Filters\TicketFilter;
 use App\Models\Comment;
 use App\Models\Media;
 use App\Models\Tag;
@@ -17,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Spatie\QueryBuilder\QueryBuilder;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class TicketService
@@ -538,5 +541,47 @@ class TicketService
         if ($user->getDepartmentId() !== $ticket->department_id) {
             throw new TicketAccessException('Вы не принадлежите к департаменту, ответственному за этот тикет!');
         }
+    }
+
+    //
+    public function getFilteredAndGroupedTickets(array $data)
+    {
+        $tickets = QueryBuilder::for(Ticket::class)
+            ->allowedFilters(TicketFilter::filter())
+            ->when(isset($data['date_range']), function ($query) use ($data) {
+                return $query->filterByDateRange($data['date_range']);
+            })
+            ->with(['tags', 'performer', 'priority'])
+            ->where('tickets.department_id', auth()->user()->getDepartmentId())
+            ->whereNotNull('executor_id')
+            ->get();
+
+        // Вызываем метод группировки и возвращаем результаты
+        return $this->groupTickets($tickets, request('grouping', FilterGroupingEnum::USER->value));
+    }
+
+    private function groupTickets($tickets, ?string $grouping)
+    {
+        return match (FilterGroupingEnum::tryFrom($grouping)) {
+            FilterGroupingEnum::TAG => $tickets
+                ->flatMap(function ($ticket) {
+                    return $ticket->tags->map(function ($tag) use ($ticket) {
+                        return ['tag' => $tag, 'ticket' => $ticket];
+                    });
+                })
+                ->groupBy('tag.id')
+                ->map(function ($groupedTickets) {
+                    // Вернем тег и связанные тикеты для каждого id тега
+                    $tag = $groupedTickets->first()['tag'];
+                    $tickets = $groupedTickets->pluck('ticket');
+
+                    return [
+                        'tag' => $tag,
+                        'tickets' => $tickets,
+                    ];
+                }),
+            FilterGroupingEnum::PRIORITY => $tickets->groupBy('priorities_id'),
+            default => $tickets->groupBy('executor_id'), // Группировка по исполнителю по умолчанию
+        };
     }
 }

@@ -76,7 +76,7 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
     );
 
     Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('/users', [ReportController::class, 'users'])->name('users');
+        Route::get('/tickets', [ReportController::class, 'tickets'])->name('tickets');
         Route::get('/depts', [ReportController::class, 'depts'])->name('depts');
         Route::get('/tags', [ReportController::class, 'tags'])->name('tags');
     });

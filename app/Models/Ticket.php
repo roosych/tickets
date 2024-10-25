@@ -4,12 +4,13 @@ namespace App\Models;
 
 use App\Enums\TicketStatusEnum;
 use App\Traits\MediaTrait;
-use DateInterval;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 
 class Ticket extends Model
 {
@@ -96,6 +97,41 @@ class Ticket extends Model
             ->sortByDesc('created_at')
             ->first()
             ?->comment;
+    }
+
+    public function scopeFilterByDateRange(Builder $query, string $dateRange): Builder
+    {
+        $dates = explode(' - ', $dateRange);
+        if (count($dates) === 2) {
+            return $query->whereBetween('tickets.created_at', [
+                Carbon::parse($dates[0])->startOfDay(),
+                Carbon::parse($dates[1])->endOfDay()
+            ]);
+        }
+        return $query;
+    }
+
+    // Метод для получения времени последнего изменения статуса для конкретного пользователя
+//    public function getLastStatusChangeTime(TicketStatusEnum $status, int $userId)
+//    {
+//        // Получаем последнюю запись статуса для указанного assign_user
+//        $lastHistory = $this->histories()
+//            ->where('status', $status)
+//            ->where('assign_user', $userId)
+//            ->orderBy('created_at', 'desc')
+//            ->first();
+//
+//        return $lastHistory?->created_at;
+//    }
+
+    public function getLastStatusChangeTimes(int $userId): Collection
+    {
+        // Получаем все записи статусов для указанного assign_user
+        return $this->histories()
+            ->where('assign_user', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('status'); // Группируем по статусу
     }
 
     protected $fillable = [

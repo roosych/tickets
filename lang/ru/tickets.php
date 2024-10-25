@@ -25,7 +25,7 @@ return [
         'creator' => 'Автор',
         'priority' => 'Приоритет',
         'all_priorities' => 'Все приоритеты',
-        'created_at' => 'Дата создания',
+        'created_at' => 'Создан',
         'status' => 'Статус',
         'all_statuses' => 'Все статусы',
         'performer' => 'Исполнитель',
