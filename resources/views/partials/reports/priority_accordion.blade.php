@@ -83,7 +83,7 @@
                             </td>
                             <td>
                                 @if($ticket->parent)
-                                    <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold" target="_blank">#{{$ticket->id}}</a>
+                                    <a href="{{route('cabinet.tickets.show', $ticket->parent->id)}}" class="text-gray-800 text-hover-primary fw-bold" target="_blank">#{{$ticket->parent->id}}</a>
                                 @else
                                     {{trans('tickets.table.no_parent')}}
                                 @endif
