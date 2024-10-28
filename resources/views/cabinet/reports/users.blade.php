@@ -28,6 +28,7 @@
                                     name="filter[executor_id]"
                                     data-control="select2"
                                     data-placeholder="Все сотрудники"
+                                    data-allow-clear="true"
                                     data-hide-search="false">
                                 <option value=""></option>
                                 @foreach($deptUsers as $user)
