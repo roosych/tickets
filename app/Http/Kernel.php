@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\LanguageCookieMiddleware;
 use App\Http\Middleware\LanguageHeaderMiddleware;
 use App\Http\Middleware\LanguageRouteMiddleware;
@@ -72,5 +73,7 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+
+        'admin' => AdminMiddleware::class,
     ];
 }

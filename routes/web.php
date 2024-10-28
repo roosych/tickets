@@ -9,6 +9,7 @@ use App\Http\Controllers\Cabinet\TagController;
 use App\Http\Controllers\Cabinet\TicketController;
 use App\Http\Controllers\Cabinet\UserController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TelegramBotController;
 use App\Http\Controllers\TemporaryFileController;
 use Illuminate\Support\Facades\Route;
@@ -79,6 +80,10 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
         Route::get('/tickets', [ReportController::class, 'tickets'])->name('tickets');
         Route::get('/depts', [ReportController::class, 'depts'])->name('depts');
         Route::get('/tags', [ReportController::class, 'tags'])->name('tags');
+    });
+
+    Route::prefix('settings')->name('settings.')->middleware('admin')->group(function () {
+        Route::get('/users', [SettingsController::class, 'users'])->name('users');
     });
 });
 
