@@ -59,7 +59,7 @@
 
                         <div class="mb-5">
                             <label class="fs-6 form-label fw-bold text-gray-900">Период</label>
-                            <input class="form-control form-control-solid w-100 mw-250px"
+                            <input class="form-control form-control-solid w-100"
                                    name="date_range"
                                    placeholder="За всё время"
                                    id="users_report_period"
