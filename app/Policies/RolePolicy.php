@@ -21,7 +21,7 @@ class RolePolicy
     {
         // если роль относится к департаменту (через менеджера)
         // и есть ли у роли юзера доступ (через трейт HasPermissions)
-        return $role->department_id === $user->head->getDepartmentId()
+        return $role->department_id === $user->getDepartmentId()
             && $user->hasPermissions('show', Role::class);
     }
 

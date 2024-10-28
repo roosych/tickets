@@ -73,7 +73,7 @@
                 </div>
 
                 @if(auth()->user()->getDepartment()->active)
-                    <div data-kt-menu-trigger="{default: 'click', lg: 'click'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.dept*', 'cabinet.users*'])}} py-2">
+                    <div data-kt-menu-trigger="{default: 'click', lg: 'click'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.dept*', 'cabinet.users*', 'cabinet.reports*'])}} py-2">
                     <span class="menu-link menu-center">
                         <span class="menu-icon me-0">
                             <i class="ki-outline ki-flag fs-2x"></i>
@@ -109,10 +109,24 @@
                                     </span>
                                 </a>
                             </div>
+                            @can('users', 'report')
+                                <div class="menu-item">
+                                    <a class="menu-link" href="{{route('cabinet.reports.tickets')}}"
+                                       title="{{trans('sidebar.dept.reports.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                        <span class="menu-title">
+                                        {{trans('sidebar.dept.reports.text')}}
+                                    </span>
+                                    </a>
+                                </div>
+                            @endcan
+
                         </div>
                     </div>
 
-                    <div data-kt-menu-trigger="{default: 'click', lg: 'click'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.reports*', 'cabinet.reports*'])}} py-2">
+                    {{--<div data-kt-menu-trigger="{default: 'click', lg: 'click'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.reports*', 'cabinet.reports*'])}} py-2">
                     <span class="menu-link menu-center">
                         <span class="menu-icon me-0">
                             <i class="ki-outline ki-chart-line-up fs-2x"></i>
@@ -126,18 +140,8 @@
                                     </span>
                                 </div>
                             </div>
-                            <div class="menu-item">
-                                <a class="menu-link" href="{{route('cabinet.reports.tickets')}}"
-                                   title="{{trans('sidebar.stats.tickets.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                    <span class="menu-title">
-                                        {{trans('sidebar.stats.tickets.text')}}
-                                    </span>
-                                </a>
-                            </div>
-                            {{--<div class="menu-item">
+
+                            --}}{{--<div class="menu-item">
                                 <a class="menu-link" href="{{route('cabinet.reports.depts')}}"
                                    title="{{trans('sidebar.stats.dept.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-bullet">
@@ -158,9 +162,9 @@
                                         {{trans('sidebar.stats.tags.text')}}
                                     </span>
                                 </a>
-                            </div>--}}
+                            </div>--}}{{--
                         </div>
-                    </div>
+                    </div>--}}
                 @endif
             </div>
         </div>

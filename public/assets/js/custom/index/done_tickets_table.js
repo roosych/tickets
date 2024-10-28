@@ -1,9 +1,9 @@
 "use strict";
-let DeptTickets = (function () {
+let DeptDoneTickets = (function () {
     let t, e;
     return {
         init: function () {
-            (t = document.querySelector("#my_open_tickets_table")) &&
+            (t = document.querySelector("#done_tickets_table")) &&
             ((e = $(t).DataTable({
                     info: !1,
                     paging: true,
@@ -23,6 +23,6 @@ let DeptTickets = (function () {
     };
 })();
 KTUtil.onDOMContentLoaded(function () {
-    DeptTickets.init();
+    DeptDoneTickets.init();
 });
 

@@ -33,6 +33,10 @@ return [
             'text' => 'Vəzifə və icazələr',
             'hint' => 'Şöbəniziz əməkdaşlarının icazə dərəcələri',
         ],
+        'reports' => [
+            'text' => 'Hesabatlar',
+            'hint' => 'Şöbənizin tiketləri üzrə',
+        ],
     ],
     'stats' => [
         'title' => 'Statistika',

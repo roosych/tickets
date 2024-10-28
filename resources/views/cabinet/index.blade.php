@@ -63,6 +63,95 @@
                 </div>
             </div>
 
+            @can('close', \App\Models\Ticket::class)
+                @if(count($doneTickets))
+                    <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
+                        <div class="col-xl-12">
+                            <div class="card card-flush">
+                                <div class="card-header flex-nowrap pt-5">
+                                    <h3 class="card-title align-items-start flex-column">
+                                <span class="card-label fw-bold text-gray-900">
+                                    {{trans('tickets.done_tickets')}}
+                                </span>
+                                    </h3>
+                                </div>
+                                <div class="card-body pt-0">
+                                    <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="done_tickets_table">
+                                        <thead>
+                                        <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                            <th class="">{{trans('tickets.table.ticket')}}</th>
+                                            <th class="min-w-125px">{{trans('tickets.table.performer')}}</th>
+                                            <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
+                                            <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
+                                            <th>{{trans('tickets.table.ticket')}}</th>
+                                            <th class="text-end min-w-100px"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody class="fw-semibold text-gray-600">
+                                        @foreach($doneTickets as $ticket)
+                                            <tr class="position_row_{{$ticket->id}}">
+                                                <td class="ps-3">
+                                                    <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
+                                                </td>
+                                                <td class="d-flex align-items-center border-bottom-0">
+                                                    <div class="symbol symbol-circle symbol-40px overflow-hidden me-3">
+                                                        <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank">
+                                                            @if($ticket->performer->avatar)
+                                                                <div class="symbol-label">
+                                                                    <img src="{{$ticket->performer->avatar}}" alt="{{$ticket->performer->name}}" class="w-100" />
+                                                                </div>
+                                                            @else
+                                                                <div class="symbol-label fs-3 bg-light-dark text-dark">
+                                                                    {{get_initials($ticket->performer->name)}}
+                                                                </div>
+                                                            @endif
+                                                        </a>
+                                                    </div>
+                                                    <div class="d-flex flex-column">
+                                                        <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
+                                                            {{$ticket->performer->name}}
+                                                        </a>
+                                                        <span>{{$ticket->performer->department}}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                <span class="badge badge-light-{{$ticket->priority->class}} fw-bold fs-7">
+                                                    {{$ticket->priority->getNameByLocale()}}
+                                                </span>
+                                                </td>
+                                                <td>
+                                                    {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
+                                                </td>
+                                                <td>
+                                                    @if($ticket->parent)
+                                                        <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold" target="_blank">#{{$ticket->id}}</a>
+                                                    @else
+                                                        {{trans('tickets.table.no_parent')}}
+                                                    @endif
+                                                </td>
+                                                <td class="text-end pe-2">
+                                                    <div class="my-3 ms-9">
+                                                        <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
+                                        <span data-bs-toggle="tooltip"
+                                              data-bs-trigger="hover"
+                                              aria-label="{{trans('tickets.table.more')}}"
+                                              data-bs-original-title="{{trans('tickets.table.more')}}">
+                                            <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
+                                        </span>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endcan
+
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card card-flush">
@@ -290,6 +379,7 @@
 @push('custom_js')
     <script src="{{asset('assets/js/custom/tickets/create.js')}}"></script>
     <script src="{{asset('assets/js/custom/index/opened_tickets_table.js')}}"></script>
+    <script src="{{asset('assets/js/custom/index/done_tickets_table.js')}}"></script>
     <script>
         //filepond
         FilePond.registerPlugin(FilePondPluginFileValidateType);

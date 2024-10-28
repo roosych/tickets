@@ -23,7 +23,7 @@ class TicketPolicy
 //    }
 
     #[PolicyPermissionNameAttribute(['az' => 'Bağlamaq', 'en' => 'Close', 'ru' => 'Закрытие'])]
-    public function close(User $user, Ticket $ticket): bool
+    public function close(User $user): bool
     {
         return $user->hasPermissions('close', Ticket::class);
     }

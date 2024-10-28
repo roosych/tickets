@@ -102,6 +102,9 @@
                             <th class="text-end min-w-75px">{{trans('users.tickets_statuses.done')}}</th>
                             <th class="text-end min-w-100px">{{trans('users.tickets_statuses.completed')}}</th>
                             <th class="text-end min-w-100px">{{trans('users.tickets_statuses.cancelled')}}</th>
+                            @can('users', 'report')
+                                <th></th>
+                            @endcan
                         </tr>
                         </thead>
                         <tbody class="fw-semibold text-gray-600">
@@ -140,6 +143,18 @@
                                 <td class="text-end">
                                     {{$user->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::CANCELED)}}
                                 </td>
+                                @can('users', 'report')
+                                    <td class="text-end">
+                                        <a href="{{ route('cabinet.reports.tickets', ['filter' => ['executor_id' => $user->id]]) }}"
+                                           class="btn btn-icon btn-active-light-primary"
+                                           target="_blank"
+                                           data-bs-toggle="tooltip"
+                                           data-kt-menu-placement="bottom-end"
+                                           data-bs-original-title="{{trans('sidebar.dept.reports.text')}}">
+                                            <i class="ki-outline ki-chart-simple fs-3"></i>
+                                        </a>
+                                    </td>
+                                @endcan
                             </tr>
                         @empty
                         {{trans('users.users_empty')}}
