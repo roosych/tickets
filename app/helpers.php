@@ -74,12 +74,16 @@ if (!function_exists('formatTimeDifference')) {
     function formatTimeDifference($difference): string
     {
         $timeString = '';
+        // Добавляем дни, если они больше 0
+        if ($difference->d > 0) {
+            $timeString .= pluralize($difference->d, 'д|д|д') . ' ';
+        }
         // Добавляем часы, если они больше 0
         if ($difference->h > 0) {
             $timeString .= pluralize($difference->h, 'ч|ч|ч') . ' ';
         }
         // Добавляем минуты
-        $timeString .= pluralize($difference->i, 'мин|мин|мин');
+        $timeString .= pluralize($difference->i, 'м|м|м');
         return trim($timeString); // Убираем лишний пробел
     }
 }
