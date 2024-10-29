@@ -5,7 +5,8 @@
                 {{Str::limit($ticket->department->name, 40)}}
             </div>
             <div>
-                @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE))
+                @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE)
+                    && $ticket->creator->id === auth()->id())
                     <button type="button" class="btn btn-sm btn-icon btn-color-light-dark btn-active-light-success close_ticket"
                             data-id="{{$ticket->id}}"
                     >
@@ -13,11 +14,16 @@
                     </button>
                 @endif
 
-                <button type="button" class="btn btn-sm btn-icon btn-color-light-dark btn-active-light-danger cancel_ticket"
-                        data-id="{{$ticket->id}}"
-                >
+                @if($ticket->creator->id === auth()->id())
+                    <button type="button" class="btn btn-sm btn-icon btn-color-light-dark btn-active-light-danger cancel-ticket-btn"
+                            data-ticket_id="{{$ticket->id}}"
+                            data-id="{{$ticket->id}}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#cancel_ticket_modal">
                     <i class="ki-outline ki-cross-square fs-2"></i>
-                </button>
+                    </button>
+                @endif
+
             </div>
         </div>
 
@@ -45,7 +51,7 @@
             @else
                 <div>
                     <span class="text-gray-500 border border-gray-300 border-dashed rounded py-1 px-3">
-                        Нет исполнителей
+                        {{trans('tickets.sent.performer_empty')}}
                     </span>
                 </div>
             @endif

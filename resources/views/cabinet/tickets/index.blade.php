@@ -270,11 +270,11 @@
                 success: function (response) {
                     if(response.status === 'success') {
                         removeWait($('body'));
-                        Swal.fire('Все прошло успешно!', '{{trans('common.swal.success_text')}}', 'success');
+                        Swal.fire('{{trans('common.swal.success_title')}}', '{{trans('common.swal.success_text')}}', 'success');
                         window.location.href = '{{route('cabinet.tickets.index')}}';
                     } else {
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
                 error: function (response) {
@@ -286,7 +286,7 @@
                         }
                     }
                     removeWait($('body'));
-                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                    Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                 },
             });
         });
@@ -314,7 +314,7 @@
                     });
                 },
                 error: function() {
-                    Swal.fire('Произошла ошибка!', 'Попробуйте еще раз.', 'error');
+                    Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.try_again')}}', 'error');
                     modal.find('.user-radio').removeClass('d-none');
                     modal.find('.spinner-border').addClass('d-none');
                 }
@@ -339,7 +339,7 @@
                         performersSymbols.html(response.html);
                         $('#attach_users_modal').modal('toggle');
                     } else {
-                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
                 error: function (response) {
@@ -350,9 +350,9 @@
                             errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
                         }
                     } else if (response.status === 403) {
-                        Swal.fire('Произошла ошибка!', response.responseJSON.message, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', response.responseJSON.message, 'error');
                     } else {
-                        Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                     }
                 },
                 complete: function () {

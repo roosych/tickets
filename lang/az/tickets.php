@@ -50,6 +50,11 @@ return [
         'format_error' => 'Format dəstəklənmir',
         'size_limit' => 'Fayl çox böyükdür',
     ],
+    'cancel_modal' => [
+        'title' => 'Ləğv etmək',
+        'comment_label' => 'Şərh',
+        'comment_placeholder' => 'Mətni daxil edin',
+    ],
     'buttons' => [
         'close' => 'Bağla',
         'create' => 'Əlavə et',

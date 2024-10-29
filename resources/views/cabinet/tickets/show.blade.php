@@ -38,7 +38,7 @@
                     @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED) && !$ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED))
                         @if($ticket->creator->id === auth()->id())
                             @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED)
-                                                && (!$ticket->parent || !$ticket->parent->status->is(\App\Enums\TicketStatusEnum::CANCELED)))
+                                && (!$ticket->parent || !$ticket->parent->status->is(\App\Enums\TicketStatusEnum::CANCELED)))
                                 <button class="btn btn-sm btn-light-danger btn-active-danger me-2 cancel-ticket-btn"
                                         data-ticket_id="{{$ticket->id}}"
                                         data-id="{{$ticket->id}}"
@@ -612,11 +612,11 @@
                 success: function (response) {
                     if(response.status === 'success') {
                         removeWait($('body'));
-                        Swal.fire('Все прошло успешно!', '{{trans('common.swal.success_text')}}', 'success');
+                        Swal.fire('{{trans('common.swal.success_title')}}', '{{trans('common.swal.success_text')}}', 'success');
                         window.location.href = '{{route('cabinet.tickets.show', $ticket->id)}}';
                     } else {
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
                 error: function (response) {
@@ -628,7 +628,7 @@
                         }
                     }
                     removeWait($('body'));
-                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                    Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                 },
             });
         });
@@ -656,7 +656,7 @@
                         scrollToBottom();
                         form.find('textarea').val('');
                     } else {
-                        Swal.fire('Произошла ошибка!', response.error, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', response.error, 'error');
                     }
                 },
                 error: function (response) {
@@ -666,11 +666,11 @@
                         for (const key in errors) {
                             errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
                         }
-                        Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                     } else if (response.status === 403) {
-                        Swal.fire('Произошла ошибка!', response.responseJSON.message, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', response.responseJSON.message, 'error');
                     } else {
-                        Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                     }
                 },
                 complete: function () {
@@ -701,12 +701,12 @@
                         button.html('<i class="ki-outline ki-timer fs-2"></i> {{trans('tickets.buttons.done_ticket')}}');
                         button.blur();
                         button.prop('disabled', false);
-                        button.attr('data-bs-original-title', 'Закончить выполнение');
+                        button.attr('data-bs-original-title', '{{trans('tickets.buttons.done_ticket')}}');
                         button.attr('data-bs-toggle', 'modal');
                         button.attr('data-bs-target', '#complete_ticket_modal');
                     } else {
                         button.html('<i class="ki-outline ki-timer fs-2"></i>{{trans('tickets.buttons.start_ticket')}}').prop('disabled', false);
-                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
                 error: function (response) {
@@ -718,7 +718,7 @@
                         }
                     }
                     button.html('<i class="ki-outline ki-timer fs-2"></i>{{trans('tickets.buttons.done_ticket')}}').prop('disabled', false);
-                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                    Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                 },
                 complete: function () {
                     removeWait($('body'));
@@ -732,12 +732,12 @@
             const ticketId = parseInt(button.data('ticket-id'));
 
             Swal.fire({
-                html: `Вернуть тикет исполнителю?`,
+                html: `{{trans('common.swal.reject_ticket')}}`,
                 icon: "info",
                 buttonsStyling: false,
                 showCancelButton: true,
-                confirmButtonText: "Да",
-                cancelButtonText: 'Нет',
+                confirmButtonText: "{{trans('common.swal.yes')}}",
+                cancelButtonText: '{{trans('common.swal.no')}}',
                 customClass: {
                     confirmButton: "btn fw-bold btn-danger",
                     cancelButton: 'btn fw-bold btn-active-light-primary'
@@ -759,7 +759,7 @@
                                     window.location.reload()
                                 } else {
                                     removeWait($('body'));
-                                    Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                                    Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                                 }
                             },
                             error: function (response) {
@@ -771,12 +771,12 @@
                                     }
                                 }
                                 removeWait($('body'));
-                                Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                                Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                             },
                         });
                     } catch (error) {
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 }
             });
@@ -800,9 +800,9 @@
                     if(response.success) {
                         removeWait($('body'));
                         window.location.href = '{{route('cabinet.tickets.index')}}';
-                        Swal.fire('Все прошло успешно!', '{{trans('common.swal.success_text')}}', 'success');
+                        Swal.fire('{{trans('common.swal.success_title')}}', '{{trans('common.swal.success_text')}}', 'success');
                     } else {
-                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
                 error: function (response) {
@@ -814,9 +814,9 @@
                         }
                     } else if (response.status === 403) {
                         errorMessage = `<p class="mb-0">${response.responseJSON.message}</p>`;
-                        Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                     }
-                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                    Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                 },
                 complete: function () {
                     removeWait($('body'));
@@ -842,9 +842,9 @@
                     if(response.success) {
                         removeWait($('body'));
                         window.location.reload();
-                        Swal.fire('Все прошло успешно!', '{{trans('common.swal.success_text')}}', 'success');
+                        Swal.fire('{{trans('common.swal.success_title')}}', '{{trans('common.swal.success_text')}}', 'success');
                     } else {
-                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
                 error: function (response) {
@@ -856,9 +856,9 @@
                         }
                     } else if (response.status === 403) {
                         errorMessage = `<p class="mb-0">${response.responseJSON.message}</p>`;
-                        Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                     }
-                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                    Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                 },
                 complete: function () {
                     removeWait($('body'));
@@ -889,7 +889,7 @@
                     });
                 },
                 error: function() {
-                    Swal.fire('Произошла ошибка!', 'Попробуйте еще раз.', 'error');
+                    Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.try_again')}}', 'error');
                     modal.find('.user-radio').removeClass('d-none');
                     modal.find('.spinner-border').addClass('d-none');
                 }
@@ -917,7 +917,7 @@
                         // $('#attach_users_modal').modal('toggle');
                     } else {
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
                 error: function (response) {
@@ -928,13 +928,13 @@
                             errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
                         }
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                     } else if (response.status === 403) {
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', response.responseJSON.message, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', response.responseJSON.message, 'error');
                     } else {
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                     }
                 }
             });
@@ -959,7 +959,7 @@
                         removeWait($('body'));
                     } else {
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 },
                 error: function (response) {
@@ -971,10 +971,10 @@
                         }
                     } else if (response.status === 403) {
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', response.responseJSON.message, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', response.responseJSON.message, 'error');
                     } else {
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                     }
                 },
                 complete: function () {
@@ -987,12 +987,12 @@
         $(document).on('click', '.closed-ticket-btn', function(e) {
             e.preventDefault();
             Swal.fire({
-                html: `Уверены что хотите закрыть тикет?`,
+                html: `{{trans('common.swal.close_ticket')}}`,
                 icon: "info",
                 buttonsStyling: false,
                 showCancelButton: true,
-                confirmButtonText: "Да",
-                cancelButtonText: 'Нет',
+                confirmButtonText: "{{trans('common.swal.yes')}}",
+                cancelButtonText: '{{trans('common.swal.no')}}',
                 customClass: {
                     confirmButton: "btn fw-bold btn-danger",
                     cancelButton: 'btn fw-bold btn-active-light-primary'
@@ -1013,7 +1013,7 @@
                                     window.location.reload();
                                 } else {
                                     removeWait($('body'));
-                                    Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                                    Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                                 }
                             },
                             error: function (response) {
@@ -1026,15 +1026,15 @@
                                 } else if(response.status === 403) {
                                     removeWait($('body'));
                                     errorMessage = `<p class="mb-0">${response.responseJSON.message}</p>`;
-                                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                                    Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                                 }
                                 removeWait($('body'));
-                                Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                                Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                             }
                         });
                     } catch (error) {
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', '{{trans('common.swal.error_text')}}', 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 }
             });

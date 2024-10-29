@@ -50,6 +50,11 @@ return [
         'format_error' => 'Не поддерживаемый тип файла',
         'size_limit' => 'Файл слишком большой',
     ],
+    'cancel_modal' => [
+        'title' => 'Отменить тикет',
+        'comment_label' => 'Комментарий',
+        'comment_placeholder' => 'Введите текст',
+    ],
     'buttons' => [
         'close' => 'Закрыть',
         'create' => 'Создать',

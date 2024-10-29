@@ -5,13 +5,17 @@
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
         <li class="breadcrumb-item text-muted">
-            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">Главная</a>
+            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">
+                {{trans('common.mainpage')}}
+            </a>
         </li>
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
         </li>
         <li class="breadcrumb-item text-muted">
-            <a href="{{route('cabinet.dept.users.index')}}" class="text-muted text-hover-primary">Сотрудники отдела</a>
+            <a href="{{route('cabinet.dept.users.index')}}" class="text-muted text-hover-primary">
+                Сотрудники отдела
+            </a>
         </li>
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
@@ -31,7 +35,6 @@
 
                     <div class="card-toolbar">
                         <button type="button" class="btn btn-sm btn-light-primary">
-{{--                            <i class="ki-outline ki-cloud-download fs-3"></i>--}}
                             Посмотреть все
                         </button>
                     </div>
@@ -43,13 +46,14 @@
                             @forelse($user->ticketHistories->take(10) as $item)
                                 <tr>
                                     <td class="min-w-400px">
-                                        Тикет <a href="{{route('cabinet.tickets.show', $item->ticket->id)}}" class="fw-bold text-gray-900 text-hover-primary" target="_blank">
+                                        <a href="{{route('cabinet.tickets.show', $item->ticket->id)}}" class="fw-bold text-gray-900 text-hover-primary" target="_blank">
                                             #{{$item->ticket->id}}
-                                        </a>.
-                                        {{$item->action->label()}} <span class="badge badge-light-{{$item->status->color()}}">{{$item->status->label()}}</span>
+                                        </a> -
+                                        {{$item->action->label()}}
+                                        <span class="badge badge-light-{{$item->status->color()}}">{{$item->status->label()}}</span>
                                     </td>
                                     <td class="pe-0 text-gray-600 text-end min-w-200px">
-                                        {{\Carbon\Carbon::parse($item->created_at)->isoFormat('D MMMM Y, HH:mm')}}
+                                        {{\Carbon\Carbon::parse($item->created_at)->isoFormat('D MMM Y, HH:mm')}}
                                     </td>
                                 </tr>
                             @empty
@@ -68,125 +72,124 @@
                 </div>
             </div>
 
-{{--Проверка на редактирование юзера <br>--}}
 @can('accesses', $user)
     @if(auth()->user()->getDepartmentId() === $user->getDepartmentId())
-                    <div class="card card-flush pt-4 mb-6 mb-xl-9">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <h2 class="mb-0">Разрешения</h2>
-                            </div>
-                        </div>
-                        <div class="card-body pt-0">
-                            <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x border-transparent fs-4 fw-semibold mb-5">
-                                <li class="nav-item">
-                                    <a class="nav-link text-active-primary d-flex align-items-center pb-5 active"
-                                       data-bs-toggle="tab" href="#user_roles">
-                                        Роли
+        <div class="card card-flush pt-4 mb-6 mb-xl-9">
+            <div class="card-header">
+                <div class="card-title">
+                    <h2 class="mb-0">Разрешения</h2>
+                </div>
+            </div>
+            <div class="card-body pt-0">
+                <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x border-transparent fs-4 fw-semibold mb-5">
+                    <li class="nav-item">
+                        <a class="nav-link text-active-primary d-flex align-items-center pb-5 active"
+                           data-bs-toggle="tab" href="#user_roles">
+                            Роли
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-active-primary d-flex align-items-center pb-5"
+                           data-bs-toggle="tab" href="#user_permissions">
+                            Прямые полномочия
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="user_roles" role="tabpanel">
+                        <form id="attach_roles_form" method="POST">
+                            @csrf
+                            <div class="pt-5">
+                                @forelse(auth()->user()->getDepartment()->roles as $item)
+                                    <div class="mb-5">
+                                        <label class="form-check form-check-custom form-check-solid align-items-start">
+                                            <input class="form-check-input me-3 mt-1" type="checkbox" name="roles[]" value="{{$item->id}}"
+                                                {{ is_array($user->roles->pluck('id')->toArray())
+                                                 &&
+                                                 in_array($item->id, $user->roles->pluck('id')->toArray())
+                                                  ? 'checked' : '' }}
+                                            >
+                                            <span class="form-check-label d-flex flex-column align-items-start">
+                                    <a href="{{route('cabinet.dept.roles.show', $item)}}" class="fw-bold text-gray-800 text-hover-primary fs-5 mb-0" target="_blank">
+                                        {{$item->name}}
                                     </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-active-primary d-flex align-items-center pb-5"
-                                       data-bs-toggle="tab" href="#user_permissions">
-                                        Прямые полномочия
-                                    </a>
-                                </li>
-                            </ul>
-                            <div class="tab-content" id="myTabContent">
-                                <div class="tab-pane fade show active" id="user_roles" role="tabpanel">
-                                    <form id="attach_roles_form" method="POST">
-                                        @csrf
-                                        <div class="pt-5">
-                                            @forelse(auth()->user()->getDepartment()->roles as $item)
-                                                <div class="mb-5">
-                                                    <label class="form-check form-check-custom form-check-solid align-items-start">
-                                                        <input class="form-check-input me-3 mt-1" type="checkbox" name="roles[]" value="{{$item->id}}"
-                                                            {{ is_array($user->roles->pluck('id')->toArray())
-                                                             &&
-                                                             in_array($item->id, $user->roles->pluck('id')->toArray())
-                                                              ? 'checked' : '' }}
-                                                        >
-                                                        <span class="form-check-label d-flex flex-column align-items-start">
-                                                <a href="{{route('cabinet.dept.roles.show', $item)}}" class="fw-bold text-gray-800 text-hover-primary fs-5 mb-0" target="_blank">
-                                                    {{$item->name}}
-                                                </a>
-                                            <span class="text-muted fs-6">
-                                                Разрешений: {{count($item->permissions)}}
-                                            </span>
-                                        </span>
-                                                    </label>
-                                                </div>
-                                            @empty
-                                                <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed  p-6">
-                                                    <div class="d-flex flex-stack flex-grow-1 ">
-                                                        <div class=" fw-semibold">
-                                                            <div class="fs-6 text-gray-700">
-                                                                Вы можете присваивать сотруднику роль, но у Вашего отдела еще нет созданных ролей.
-                                                                Для создания перейдите по
-                                                                <a href="{{route('cabinet.dept.roles')}}" class="fw-bold" target="_blank">ссылке</a>.
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endforelse
-                                        </div>
-                                        <div class="pt-5">
-                                            <button id="attach_roles_submit" type="submit" class="btn btn-primary">Сохранить</button>
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="tab-pane fade" id="user_permissions" role="tabpanel">
-                                    <form id="attach_permissions_form" method="POST">
-                                        @csrf
-                                        <div class="fv-row">
-                                            <div class="table-responsive">
-                                                <table class="table align-middle table-row-dashed fs-6 gy-5">
-                                                    <tbody class="text-gray-600 fw-semibold">
-                                                    <tr>
-                                                        <td class="fs-5 fw-bold text-gray-800">Полный доступ
-                                                            <span class="ms-2" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content="Доступ на все имеющиеся функции">
-                                                    <i class="ki-outline ki-information-5 fs-7"></i>
-                                            </span></td>
-                                                        <td>
-                                                            <label class="form-check form-check-custom form-check-sm form-check-solid me-9">
-                                                                <input class="form-check-input" type="checkbox" value="" id="select_all_permissions">
-                                                                <span class="form-check-label">Выбрать все</span>
-                                                            </label>
-                                                        </td>
-                                                    </tr>
-                                                    @foreach($groupedPermissions as $permission => $items)
-                                                        <tr>
-                                                            <td class="text-gray-800">{{$permission}}</td>
-                                                            <td>
-                                                                <div class="d-flex">
-                                                                    @foreach($items as $item)
-                                                                        <label class="form-check form-check-sm form-check-custom form-check-solid me-5 me-lg-20">
-                                                                            <input class="form-check-input permission_checkbox" type="checkbox" value="{{$item->id}}" name="permissions[]"
-                                                                                {{ is_array($user->permissions->pluck('id')->toArray())
-                                                                                 &&
-                                                                                 in_array($item->id, $user->permissions->pluck('id')->toArray())
-                                                                                  ? 'checked' : '' }}
-                                                                            />
-                                                                            <span class="form-check-label">{{$item->name}}</span>
-                                                                        </label>
-                                                                    @endforeach
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    @endforeach
-                                                    </tbody>
-                                                </table>
-                                                <div class="pt-5">
-                                                    <button id="attach_permissions_submit" type="submit" class="btn btn-primary">Сохранить</button>
+                                <span class="text-muted fs-6">
+                                    Разрешений: {{count($item->permissions)}}
+                                </span>
+                            </span>
+                                        </label>
+                                    </div>
+                                @empty
+                                    <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed  p-6">
+                                        <div class="d-flex flex-stack flex-grow-1 ">
+                                            <div class=" fw-semibold">
+                                                <div class="fs-6 text-gray-700">
+                                                    Вы можете присваивать сотруднику роль, но у Вашего отдела еще нет созданных ролей.
+                                                    Для создания перейдите по
+                                                    <a href="{{route('cabinet.dept.roles')}}" class="fw-bold" target="_blank">ссылке</a>.
                                                 </div>
                                             </div>
                                         </div>
-                                    </form>
+                                    </div>
+                                @endforelse
+                            </div>
+                            <div class="pt-5">
+                                <button id="attach_roles_submit" type="submit" class="btn btn-primary">Сохранить</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="user_permissions" role="tabpanel">
+                        <form id="attach_permissions_form" method="POST">
+                            @csrf
+                            <div class="fv-row">
+                                <div class="table-responsive">
+                                    <table class="table align-middle table-row-dashed fs-6 gy-5">
+                                        <tbody class="text-gray-600 fw-semibold">
+                                        <tr>
+                                            <td class="fs-5 fw-bold text-gray-800">Полный доступ
+                                                <span class="ms-2" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content="Доступ на все имеющиеся функции">
+                                        <i class="ki-outline ki-information-5 fs-7"></i>
+                                </span></td>
+                                            <td>
+                                                <label class="form-check form-check-custom form-check-sm form-check-solid me-9">
+                                                    <input class="form-check-input" type="checkbox" value="" id="select_all_permissions">
+                                                    <span class="form-check-label">Выбрать все</span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        @foreach($groupedPermissions as $permission => $items)
+                                            <tr>
+                                                <td class="text-gray-800">{{$permission}}</td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        @foreach($items as $item)
+                                                            <label class="form-check form-check-sm form-check-custom form-check-solid me-5 me-lg-20">
+                                                                <input class="form-check-input permission_checkbox" type="checkbox" value="{{$item->id}}" name="permissions[]"
+                                                                    {{ is_array($user->permissions->pluck('id')->toArray())
+                                                                     &&
+                                                                     in_array($item->id, $user->permissions->pluck('id')->toArray())
+                                                                      ? 'checked' : '' }}
+                                                                />
+                                                                <span class="form-check-label">{{$item->name}}</span>
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                    <div class="pt-5">
+                                        <button id="attach_permissions_submit" type="submit" class="btn btn-primary">Сохранить</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
-                @endif
+                </div>
+            </div>
+        </div>
+    @endif
 @endcan
 
         </div>

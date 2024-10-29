@@ -101,5 +101,10 @@ return [
         'success_text' => '',
         'error_title' => 'Произошла ошибка!',
         'error_text' => '',
+        'yes' => 'Да',
+        'no' => 'Нет',
+        'reject_ticket' => 'Вернуть тикет исполнителю?',
+        'close_ticket' => 'Закрыть тикет ?',
+        'try_again' => 'Попробуйте еще раз',
     ],
 ];
