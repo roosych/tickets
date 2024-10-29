@@ -95,5 +95,16 @@ return [
         'fast_links' => 'Keçidlər',
         'link_mail' => 'Mail',
         'link_intranet' => 'İntranet',
-    ]
+    ],
+    'swal' => [
+        'success_title' => 'Uğurlü əməliyyat!',
+        'success_text' => '',
+        'error_title' => 'Xəta baş verdi!',
+        'error_text' => '',
+        'yes' => 'Bəli',
+        'no' => 'Xeyr',
+        'reject_ticket' => 'Tiket icraçıya qaytarılsın?',
+        'close_ticket' => 'Tiketi bağlansın ?',
+        'try_again' => 'Yenidən cəhd edin',
+    ],
 ];
