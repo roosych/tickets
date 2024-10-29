@@ -61,17 +61,21 @@
                                 </button>
                             @endif
                         @endcan
-                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED) && $ticket->performer && $ticket->performer->id === auth()->id())
-                            <button class="btn btn-sm btn-light-warning btn-active-warning me-2 start-task-btn"
-                                    data-ticket_id="{{$ticket->id}}"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    title="{{trans('tickets.buttons.start_ticket')}}">
-                                <i class="ki-outline ki-timer fs-2"></i>
-                                {{trans('tickets.buttons.start_ticket')}}
-                            </button>
-                        @endif
-                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS) && $ticket->performer && $ticket->performer->id === auth()->id())
+                            @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED))
+                                @if(!$ticket->performer || $ticket->performer->id === auth()->id())
+                                    <button class="btn btn-sm btn-light-warning btn-active-warning me-2 start-task-btn"
+                                            data-ticket_id="{{$ticket->id}}"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="{{ trans('tickets.buttons.start_ticket') }}">
+                                        <i class="ki-outline ki-timer fs-2"></i>
+                                        {{ trans('tickets.buttons.start_ticket') }}
+                                    </button>
+                                @endif
+                            @endif
+                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS)
+                            && $ticket->performer
+                            && $ticket->performer->id === auth()->id())
                             <button class="btn btn-sm btn-light-primary btn-active-primary me-2"
                                     data-ticket_id="{{$ticket->id}}"
                                     data-id="{{$ticket->id}}"
