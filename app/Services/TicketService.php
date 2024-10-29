@@ -65,6 +65,7 @@ class TicketService
         try {
             Telegram::sendMessage([
                 'chat_id' => config('services.telegram.chat_id'),
+                'message_thread_id' => config('services.telegram.topics.tickets_notifications'),
                 'text' => $this->telegramMessageService->getTicketStatusChangedMessage($ticket),
                 'parse_mode' => 'HTML',
             ]);
@@ -237,6 +238,7 @@ class TicketService
         try {
             Telegram::sendMessage([
                 'chat_id' => config('services.telegram.chat_id'),
+                'message_thread_id' => config('services.telegram.topics.tickets_notifications'),
                 'text' => $this->telegramMessageService->getTicketCommentedMessage($ticket, $comment),
                 'parse_mode' => 'HTML',
             ]);
@@ -285,6 +287,7 @@ class TicketService
         try {
             Telegram::sendMessage([
                 'chat_id' => config('services.telegram.chat_id'),
+                'message_thread_id' => config('services.telegram.topics.tickets_notifications'),
                 'text' => $this->telegramMessageService->getTicketAssignedMessage($ticket),
                 'parse_mode' => 'HTML',
             ]);
@@ -406,6 +409,7 @@ class TicketService
             try {
                 Telegram::sendMessage([
                     'chat_id' => config('services.telegram.chat_id'),
+                    'message_thread_id' => config('services.telegram.topics.tickets_notifications'),
                     'text' => $this->telegramMessageService->getTicketCreatedMessage($ticket),
                     'parse_mode' => 'HTML',
                 ]);
