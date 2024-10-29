@@ -77,6 +77,7 @@
                         <th>{{trans('tickets.table.status')}}</th>
                         <th>{{trans('tickets.table.performer')}}</th>
                         <th>{{trans('tickets.table.tags')}}</th>
+                        <th>{{trans('tickets.create_modal.description')}}</th>
                         <th class="text-end">{{trans('tickets.table.actions')}}</th>
                     </tr>
                     </thead>
@@ -141,6 +142,13 @@
                                       data-bs-html="true"
                                       data-bs-original-title="{{ $tagsHtml }}"
                                 >{{count($ticket->tags)}}</span>
+                            </td>
+                            <td>
+                                <span class="cursor-help"
+                                      data-bs-toggle="tooltip"
+                                      data-bs-html="true"
+                                      data-bs-original-title="<p class='fs-6 fw-bold mb-0'>{{$ticket->text}}</p>"
+                                >{{Str::limit($ticket->text, 20)}}</span>
                             </td>
                             <td class="text-end pe-2">
                                 <div class="my-3 ms-9">

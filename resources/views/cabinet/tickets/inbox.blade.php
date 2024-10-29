@@ -131,7 +131,11 @@
                                 >{{count($ticket->tags)}}</span>
                             </td>
                             <td>
-                                {{Str::limit($ticket->text, 80)}}
+                                <span class="cursor-help"
+                                      data-bs-toggle="tooltip"
+                                      data-bs-html="true"
+                                      data-bs-original-title="<p class='fs-6 fw-bold mb-0'>{{$ticket->text}}</p>"
+                                >{{Str::limit($ticket->text, 20)}}</span>
                             </td>
                             <td class="text-end pe-2">
                                 <div class="my-3 ms-9">
