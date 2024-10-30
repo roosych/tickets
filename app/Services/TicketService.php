@@ -33,6 +33,11 @@ class TicketService
 
     public function updateTicketStatus(Ticket $ticket, TicketStatusEnum $status, ?string $comment = null): void
     {
+        // Пропускаем проверку если тикет уже в нужном статусе
+        if ($ticket->status->is($status)) {
+            return;
+        }
+
         $this->checkTicketStatus(
             $ticket,
             [TicketStatusEnum::CANCELED, TicketStatusEnum::COMPLETED],
@@ -173,8 +178,9 @@ class TicketService
         if ($ticket->allChildren()->exists()) {
             $ticketChildren = $ticket->allChildren()->get();
 
+            // Отменяем только те подтикеты, которые не в статусе COMPLETED и не в статусе CANCELED
             foreach ($ticketChildren as $child) {
-                if (!$child->status->is(TicketStatusEnum::COMPLETED)) {
+                if (!$child->status->is(TicketStatusEnum::COMPLETED) && !$child->status->is(TicketStatusEnum::CANCELED)) {
                     $this->updateTicketStatus($child, TicketStatusEnum::CANCELED);
                 }
             }

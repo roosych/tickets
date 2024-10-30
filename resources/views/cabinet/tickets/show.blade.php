@@ -280,25 +280,24 @@
                 </div>
             </div>
             @if($ticket->department->id === auth()->user()->getDepartmentId())
-                <div class="d-flex flex-wrap flex-stack my-6">
-                    <h3 class="fw-bold my-2">
-                        {{$ticket->allChildren->isNotEmpty() ? trans('tickets.children_title') : trans('tickets.children_title_empty')}}
-                    </h3>
+                @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
+                    && !$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
+                    <div class="d-flex flex-wrap flex-stack my-6">
+                        <h3 class="fw-bold my-2">
+                            {{$ticket->allChildren->isNotEmpty() ? trans('tickets.children_title') : trans('tickets.children_title_empty')}}
+                        </h3>
 
-                    <div class="d-flex align-items-center my-2">
-                        <button class="btn btn-success"
-                                @if($ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
-                                || $ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
-                                    disabled
-                                @endif
-                                data-bs-toggle="modal"
-                                data-bs-target="#kt_modal_new_ticket">
-                            <i class="ki-outline ki-plus-square fs-2"></i>
-                            {{trans('tickets.buttons.create')}}
-                        </button>
+                        <div class="d-flex align-items-center my-2">
+                            <button class="btn btn-success"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#kt_modal_new_ticket">
+                                <i class="ki-outline ki-plus-square fs-2"></i>
+                                {{trans('tickets.buttons.create')}}
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
+                @endif
+                <div class="row my-6">
                     @foreach($ticket->allChildren as $item)
                         <div class="col-lg-6">
                             <div class="card mb-6 mb-xl-9">
@@ -418,42 +417,43 @@
                     </div>
                 </div>
 
-                <form method="POST" id="send_comment_form">
-                    @csrf
-                    <div class="card-footer pt-4" id="kt_chat_messenger_footer">
-                        <textarea class="form-control form-control-flush mb-3 bg-light rounded" rows="3" name="text" placeholder="{{trans('tickets.send_comment')}}" style="resize: none; width: 100%;"></textarea>
+                @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
+                    && !$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
+                    <form method="POST" id="send_comment_form">
+                        @csrf
+                        <div class="card-footer pt-4" id="kt_chat_messenger_footer">
+                            <textarea class="form-control form-control-flush mb-3 bg-light rounded" rows="3" name="text" placeholder="{{trans('tickets.send_comment')}}" style="resize: none; width: 100%;"></textarea>
 
-                        <div id="comment_filepond">
-                            <input type="file" class="comment_attach" name="media" multiple />
-                        </div>
+                            <div id="comment_filepond">
+                                <input type="file" class="comment_attach" name="media" multiple />
+                            </div>
 
-                        <div class="d-flex flex-stack">
-                            <div class="d-flex align-items-center me-2">
-                                <button class="btn btn-sm btn-icon btn-active-light-primary me-1 show-filepond" type="button">
-                                    <i class="ki-outline ki-paper-clip fs-3"></i>
+                            <div class="d-flex flex-stack">
+                                <div class="d-flex align-items-center me-2">
+                                    <button class="btn btn-sm btn-icon btn-active-light-primary me-1 show-filepond" type="button">
+                                        <i class="ki-outline ki-paper-clip fs-3"></i>
+                                    </button>
+                                </div>
+                                <button id="send_comment_btn"
+                                        class="btn btn-primary"
+                                        type="submit">
+                                    <i class="ki-outline ki-send fs-2"></i>
+                                    {{trans('tickets.buttons.send')}}
                                 </button>
                             </div>
-                            <button id="send_comment_btn"
-                                    @if($ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
-                                    || $ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
-                                        disabled
-                                    @endif
-                                    class="btn btn-primary"
-                                    type="submit">
-                                <i class="ki-outline ki-send fs-2"></i>
-                                {{trans('tickets.buttons.send')}}
-                            </button>
                         </div>
-                    </div>
-                </form>
-
+                    </form>
+                @endif
             </div>
         </div>
     </div>
 @endsection
 
 @push('modals')
-    @include('partials.modals.tickets.create-sub')
+    @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
+        && !$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
+        @include('partials.modals.tickets.create-sub')
+    @endif
     @include('partials.modals.tickets.complete')
     @include('partials.modals.tickets.cancel')
     @include('partials.modals.tickets.attach_user')
@@ -828,7 +828,7 @@
         $('#cancel_ticket_submit').click(function (e) {
             e.preventDefault();
             let button = $(this);
-            console.log(button)
+            console.log({{$ticket->id}})
             $('#cancel_ticket_id').val({{$ticket->id}});
             applyWait($('body'));
             $.ajax({
