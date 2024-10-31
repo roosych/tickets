@@ -24,7 +24,7 @@ enum TicketStatusEnum :string
     public function color(): string
     {
         return match($this) {
-            self::OPENED => 'dark',
+            self::OPENED => 'secondary',
             self::IN_PROGRESS => 'warning',
             self::DONE => 'primary',
             self::COMPLETED => 'success',

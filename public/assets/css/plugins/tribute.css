@@ -1,37 +1,53 @@
+:root,[data-bs-theme=light] {
+    --background-color: #fff;
+    --text-color: #000;
+    --border-color: #F1F1F4;
+    --highlight-color: #f9f9f9;
+}
+
+[data-bs-theme=dark] {
+    --background-color: #1B1C22;
+    --text-color: #fff; /* Белый текст */
+    --border-color: #1E2027; /* Темный бордер */
+    --highlight-color: #3a3a3a; /* Темный цвет выделения */
+}
+
 .tribute-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: auto;
-  overflow: auto;
-  display: block;
-  z-index: 999999;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: auto;
+    overflow: auto;
+    display: block;
+    z-index: 999999;
     border-radius: .85rem;
     box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.03);
-    border: 1px solid #F1F1F4;
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--text-color);
 }
+
 .tribute-container ul {
-  margin: 0;
-  margin-top: 2px;
-  padding: .775rem 1rem;
-  border-radius: .85rem;
-  list-style: none;
-  background: #fff;
+    margin: 2px 0 0;
+    padding: .775rem 1rem;
+    border-radius: .85rem;
+    list-style: none;
+    background: var(--background-color);
 }
 .tribute-container li {
-  padding: 5px 5px;
+    padding: 5px 5px;
     border-radius: .85rem;
-  cursor: pointer;
+    cursor: pointer;
 }
 .tribute-container li.highlight {
-  background: #f9f9f9;
+    background: var(--highlight-color);
 }
 .tribute-container li span {
-  font-weight: bold;
+    font-weight: bold;
 }
 .tribute-container li.no-match {
-  cursor: default;
+    cursor: default;
 }
 .tribute-container .menu-highlighted {
-  font-weight: bold;
+    font-weight: bold;
 }
