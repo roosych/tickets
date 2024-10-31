@@ -2,7 +2,7 @@
     <div class="d-flex justify-content-start mb-4">
         <div class="pe-3">
             <div class="fs-6 fw-semibold mb-1">
-                <a href="{{ route('cabinet.tickets.show', $mention->comment->ticket_id) }}" class="fw-bold text-gray-800">
+                <a href="{{ route('cabinet.tickets.show', $mention->comment->ticket_id) }}" class="fw-bold text-gray-800" target="_blank">
                     {{ $mention->comment->creator->name }} {{trans('common.mentions.text')}}
                     <span class="text-primary">#{{ $mention->comment->ticket_id }}</span>
                 </a>

@@ -43,6 +43,7 @@
                         <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
                         <th class="min-w-125px">{{trans('tickets.table.status')}}</th>
                         <th>{{trans('tickets.table.ticket')}}</th>
+                        <th>{{trans('tickets.table.tags')}}</th>
                         <th class="text-end min-w-100px"></th>
                     </tr>
                     </thead>
@@ -87,6 +88,23 @@
                                 @else
                                     {{trans('tickets.table.no_parent')}}
                                 @endif
+                            </td>
+                            <td>
+                                @php
+                                    $tagsHtml = '';
+                                       if ($ticket->tags->isNotEmpty()) {
+                                        $tagsHtml = '<div>';
+                                        foreach ($ticket->tags as $tag) {
+                                            $tagsHtml .= "<p class='fs-6 fw-bold mb-0'>{$tag->text}</p>";
+                                        }
+                                        $tagsHtml .= '</div>';
+                                    }
+                                @endphp
+                                <span class="badge badge-light-secondary badge-circle cursor-help fw-bold fs-7"
+                                      data-bs-toggle="tooltip"
+                                      data-bs-html="true"
+                                      data-bs-original-title="{{ $tagsHtml }}"
+                                >{{count($ticket->tags)}}</span>
                             </td>
                             <td class="text-end pe-2">
                                 <div class="my-3 ms-9">
