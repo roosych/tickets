@@ -17,6 +17,7 @@ use App\Models\Priorities;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\TicketService;
+use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
@@ -90,11 +91,14 @@ class TicketController extends Controller
         );
     }
 
-    public function show(Ticket $ticket)
+    public function show(Request $request, Ticket $ticket)
     {
         abort_unless(auth()->user()->getDepartmentId() === $ticket->department_id,
             403,
             'Вы не можете просматривать тикеты другого отдела');
+
+        $backUrl = $request->query('back') ?? url()->previous();
+
         // Отмечаем упоминания как прочитанные
         Mention::query()
             ->whereHas('comment', function ($query) use ($ticket) {
@@ -124,7 +128,7 @@ class TicketController extends Controller
         })->toJson();
         //dd($mentions);
 
-        return view('cabinet.tickets.show', compact('ticket', 'departments', 'priorities', 'activities', 'departmentTags', 'mentions'));
+        return view('cabinet.tickets.show', compact('ticket', 'departments', 'priorities', 'activities', 'departmentTags', 'mentions', 'backUrl'));
     }
 
 

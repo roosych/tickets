@@ -28,7 +28,7 @@
             <div class="card">
                 <div class="card-header align-items-center py-5 gap-5">
                     <div class="d-flex">
-                        <a href="{{url()->previous()}}" class="btn btn-sm btn-icon btn-clear btn-active-light-primary me-3"
+                        <a href="{{$backUrl}}" class="btn btn-sm btn-icon btn-clear btn-active-light-primary me-3"
                            data-bs-toggle="tooltip" data-bs-placement="top" title="{{trans('common.back')}}">
                             <i class="ki-outline ki-arrow-left fs-1 m-0"></i>
                         </a>
