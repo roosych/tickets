@@ -54,7 +54,7 @@
         <img src="{{auth()->user()->avatar}}" alt="user" />
     </div>
     <div class="d-none d-lg-block ms-4">
-        <p class="text-gray-800 fs-4 fw-bold mb-0">
+        <p class="text-gray-800 fs-4 fw-bold mb-0 me-2">
             {{auth()->user()->name}}
         </p>
     </div>

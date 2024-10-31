@@ -124,7 +124,7 @@
                                         $tagsHtml .= '</div>';
                                     }
                                 @endphp
-                                <span class="badge badge-light-dark badge-circle cursor-help fw-bold fs-7"
+                                <span class="badge badge-light-secondary badge-circle cursor-help fw-bold fs-7"
                                       data-bs-toggle="tooltip"
                                       data-bs-html="true"
                                       data-bs-original-title="{{ $tagsHtml }}"
