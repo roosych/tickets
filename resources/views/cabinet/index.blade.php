@@ -94,7 +94,7 @@
                                                     <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
                                                 </td>
                                                 <td class="d-flex align-items-center border-bottom-0">
-                                                    <div class="symbol symbol-circle symbol-40px overflow-hidden me-3">
+                                                    <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
                                                         <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank">
                                                             @if($ticket->performer->avatar)
                                                                 <div class="symbol-label">
@@ -182,7 +182,7 @@
                                                 <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
                                             </td>
                                             <td class="d-flex align-items-center border-bottom-0">
-                                                <div class="symbol symbol-circle symbol-40px overflow-hidden me-3">
+                                                <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
                                                     <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank">
                                                         @if($ticket->creator->avatar)
                                                             <div class="symbol-label">
