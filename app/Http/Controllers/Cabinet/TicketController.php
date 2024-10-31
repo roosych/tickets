@@ -12,6 +12,7 @@ use App\Http\Requests\Tickets\CompleteRequest;
 use App\Http\Requests\Tickets\StoreCommentRequest;
 use App\Http\Requests\Tickets\StoreRequest;
 use App\Models\Department;
+use App\Models\Mention;
 use App\Models\Priorities;
 use App\Models\Ticket;
 use App\Models\User;
@@ -94,6 +95,14 @@ class TicketController extends Controller
         abort_unless(auth()->user()->getDepartmentId() === $ticket->department_id,
             403,
             'Вы не можете просматривать тикеты другого отдела');
+        // Отмечаем упоминания как прочитанные
+        Mention::query()
+            ->whereHas('comment', function ($query) use ($ticket) {
+                $query->where('ticket_id', $ticket->id);
+            })
+            ->where('user_id', auth()->id())
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
 
         $ticket = $ticket->load(['comments.creator', 'histories', 'tags']);
 
@@ -104,7 +113,18 @@ class TicketController extends Controller
         $departmentTags = auth()->user()->getDepartment()->tags;
         $activities = $comments->concat($histories)->sortBy('created_at');
 
-        return view('cabinet.tickets.show', compact('ticket', 'departments', 'priorities', 'activities', 'departmentTags'));
+        $deptUsers = auth()->user()->deptAllUsers();
+        $mentions = $deptUsers->push($ticket->creator)->unique('id')->values();
+        $mentions = $mentions->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'key' => $user->name,
+                'value' => $user->username,
+            ];
+        })->toJson();
+        //dd($mentions);
+
+        return view('cabinet.tickets.show', compact('ticket', 'departments', 'priorities', 'activities', 'departmentTags', 'mentions'));
     }
 
 
@@ -145,11 +165,6 @@ class TicketController extends Controller
         $this->ticketService->cancelTicket($ticket, $data['cancelled_comment']);
 
         return response()->json(['success' => true]);
-    }
-
-    public function reject()
-    {
-
     }
 
     /**
@@ -201,8 +216,8 @@ class TicketController extends Controller
     public function storeComment(StoreCommentRequest $request, Ticket $ticket)
     {
         //$this->authorize('show', $ticket);
-
         $data = $request->validated();
+        //dd($data);
         $comment = $this->ticketService->addComment($ticket, $data);
         $comment->load('creator');
         return response()->json([

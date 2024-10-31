@@ -57,6 +57,22 @@
                             </div>
                     </div>
 
+                    <div id="all_users_list" class="mb-8" style="display: none;">
+                        <div class="col-md-12 fv-row">
+                            <label class="fs-6 fw-semibold mb-2">Заказчик</label>
+                            <select class="form-select form-select-solid"
+                                    data-control="select2"
+                                    data-placeholder="{{trans('tickets.create_modal.select_from_list')}}"
+                                    data-dropdown-parent="#kt_modal_new_ticket"
+                                    name="client">
+                                <option value=""></option>
+                                @foreach(auth()->user()->deptAllUsers() as $item)
+                                    <option value="{{$item->id}}">{{$item->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
                     @can('assign', \App\Models\Ticket::class)
                         <div id="dept_users_list" style="display: none;">
                             <div class="col-md-12 fv-row">
@@ -127,11 +143,13 @@
                 if (selectedDepartmentId === userDepartmentId?.toString()) {
                     $('#tagsSelect').show(300);
                     $('#dept_users_list').show(300);
+                    $('#all_users_list').show(300);
                 } else {
                     $('#tagsSelect').hide(300);
                     $('#dept_users_list').hide(300);
                     $('select[name="tags[]"]').val([]).trigger('change');
                     $('select[name="user"]').val([]).trigger('change');
+                    $('select[name="client"]').val([]).trigger('change');
                 }
             });
         });

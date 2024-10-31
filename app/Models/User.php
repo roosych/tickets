@@ -130,6 +130,12 @@ class User extends Authenticatable implements LdapAuthenticatable
         return $this->ticketsByExecutor()->where('status', $status->value);
     }
 
+    public function unreadMentions(): HasMany
+    {
+        return $this->hasMany(Mention::class)
+            ->whereNull('read_at');
+    }
+
 
     protected $fillable = [
         'name',

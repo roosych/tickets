@@ -422,7 +422,10 @@
                     <form method="POST" id="send_comment_form">
                         @csrf
                         <div class="card-footer pt-4" id="kt_chat_messenger_footer">
-                            <textarea class="form-control form-control-flush mb-3 bg-light rounded" rows="3" name="text" placeholder="{{trans('tickets.send_comment')}}" style="resize: none; width: 100%;"></textarea>
+                            <textarea id="tribute" class="form-control form-control-flush mb-3 bg-light rounded" rows="3" name="text" placeholder="{{trans('tickets.send_comment')}}" style="resize: none; width: 100%;"></textarea>
+                            <div class="fs-7 text-muted">
+                                 {{trans('tickets.mention_hint')}}
+                            </div>
 
                             <div id="comment_filepond">
                                 <input type="file" class="comment_attach" name="media" multiple />
@@ -461,6 +464,7 @@
 
 @push('vendor_css')
     <link href="{{asset('assets/css/plugins/filepond.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{asset('assets/css/plugins/tribute.css')}}" rel="stylesheet" type="text/css" />
     <style>
         #comment_filepond .filepond--drop-label, #comment_filepond .filepond--panel-root {
             display: none;
@@ -473,9 +477,49 @@
     <script src="{{asset('assets/js/plugins/filepond.jquery.js')}}"></script>
     <script src="{{asset('assets/js/plugins/filepond-plugin-file-validate-type.js')}}"></script>
     <script src="{{asset('assets/js/plugins/filepond-plugin-file-validate-size.js')}}"></script>
+    <script src="{{asset('assets/js/plugins/tribute.js')}}"></script>
 @endpush
 
 @push('custom_js')
+    <script>
+        let mentions = {!! $mentions !!};
+        let tribute = new Tribute({
+            values: mentions
+        });
+
+        let selectedUsers = [];
+        let tributeInput = document.getElementById('tribute');
+        tribute.attach(tributeInput);
+        tributeInput.addEventListener('tribute-replaced', (event) => {
+            const selectedUser = event.detail.item.original;
+            selectedUsers.push({
+                id: selectedUser.id,
+                marker: `@${selectedUser.value}`
+            });
+            //console.log('Added:', selectedUsers);
+        });
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Проверяем удаление упоминаний при изменении текста
+        tributeInput.addEventListener('input', debounce((event) => {
+            const currentText = tributeInput.value;
+            selectedUsers = selectedUsers.filter(user =>
+                currentText.includes(user.marker)
+            );
+            //console.log('Updated:', selectedUsers);
+        }, 300));
+    </script>
     <script>
         //filepond
         FilePond.registerPlugin(FilePondPluginFileValidateType);
@@ -642,10 +686,11 @@
             $.ajax({
                 url: "{{route('cabinet.tickets.comment.store', $ticket)}}",
                 method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': token
+                data: {
+                    _token: '{{csrf_token()}}',
+                    text: $('#tribute').val(),
+                    mentions: selectedUsers.map(user => user.id)
                 },
-                data: form.serialize(),
                 success: function (response) {
                     console.log(response)
                     if(response.status === 'success') {
@@ -655,6 +700,7 @@
                         newMessage.fadeIn('slow');
                         scrollToBottom();
                         form.find('textarea').val('');
+                        selectedUsers = [];
                     } else {
                         Swal.fire('{{trans('common.swal.error_title')}}', response.error, 'error');
                     }

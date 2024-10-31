@@ -112,7 +112,7 @@ class TicketService
         }
 
         if ($hasUncompleted) {
-            abort(403, 'У тикета есть невыполненные подтикеты');
+            abort(403, 'У тикета есть незакрытые подтикеты');
         }
 
         $this->updateTicketStatus($ticket, TicketStatusEnum::COMPLETED);
@@ -215,6 +215,23 @@ class TicketService
                 'text' => $data['text'],
             ]);
 
+            // Обрабатываем упоминания
+            if (!empty($data['mentions'])) {
+                $mentions = collect($data['mentions'])
+                    ->unique()
+                    ->map(function ($userId) use ($comment) {
+                        return [
+                            'user_id' => $userId,
+                            'comment_id' => $comment->id,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    })
+                    ->all();
+
+                $comment->mentions()->insert($mentions);
+            }
+
             // Обрабатываем временные файлы
             $tempFiles = TemporaryFile::all();
             foreach ($tempFiles as $tempFile) {
@@ -254,9 +271,11 @@ class TicketService
 
         // Отправляем событие
         $recipients = $this->getRecipientsForComment($ticket);
-        event(new TicketEvent($ticket, 'commented', $recipients, Auth::user(), ['comment_id' => $comment->id]));
+        event(new TicketEvent($ticket, 'commented', $recipients, Auth::user(), [
+            'comment_id' => $comment->id
+        ]));
 
-        return $comment;
+        return $comment->load('mentions');
     }
 
     /**

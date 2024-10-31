@@ -79,6 +79,7 @@
     <script src="{{asset('assets/js/plugins/plugins.bundle.js')}}"></script>
     <script src="{{asset('assets/js/scripts.bundle.js')}}"></script>
     <script src="{{asset('assets/js/plugins/waitMe.min.js')}}"></script>
+    <script src="{{asset('assets/js/custom/main.js')}}"></script>
     <script>
         $(window).on('load', function() {
             $('.preloader').fadeOut('slow');

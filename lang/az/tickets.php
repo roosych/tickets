@@ -81,4 +81,5 @@ return [
     'send_comment' => 'Şərh yaz',
     'add_file' => 'Fayl əlavə et',
     'my_opened_tickets' => 'Açıq tiketlərim',
+    'mention_hint' => 'əməkdaşı qeyd etmək üçün "@" ilə başlayın',
 ];

@@ -107,4 +107,9 @@ return [
         'close_ticket' => 'Tiketi bağlansın ?',
         'try_again' => 'Yenidən cəhd edin',
     ],
+    'mentions' => [
+        'title' => 'Qeydlər',
+        'text' => 'sizi qeyd edib. Tiket ',
+        'empty' => 'Yeni qeydlər yoxdur',
+    ],
 ];

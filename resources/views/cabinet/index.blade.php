@@ -124,7 +124,7 @@
                                                 </td>
                                                 <td>
                                                     @if($ticket->parent)
-                                                        <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold" target="_blank">#{{$ticket->id}}</a>
+                                                        <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold" target="_blank">#{{$ticket->parent->id}}</a>
                                                     @else
                                                         {{trans('tickets.table.no_parent')}}
                                                     @endif
@@ -132,12 +132,12 @@
                                                 <td class="text-end pe-2">
                                                     <div class="my-3 ms-9">
                                                         <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
-                                        <span data-bs-toggle="tooltip"
-                                              data-bs-trigger="hover"
-                                              aria-label="{{trans('tickets.table.more')}}"
-                                              data-bs-original-title="{{trans('tickets.table.more')}}">
-                                            <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
-                                        </span>
+                                                            <span data-bs-toggle="tooltip"
+                                                                  data-bs-trigger="hover"
+                                                                  aria-label="{{trans('tickets.table.more')}}"
+                                                                  data-bs-original-title="{{trans('tickets.table.more')}}">
+                                                                <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
+                                                            </span>
                                                         </a>
                                                     </div>
                                                 </td>
