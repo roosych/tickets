@@ -467,10 +467,11 @@ class TicketService
             $recipients[] = $ticket->parent->creator;
         }
         // Удаляем пользователя кто сменил статус из списка получателей
-        $recipients = array_filter($recipients, function ($user) {
+        $recipients = array_filter($recipients, function ($user) use ($ticket) {
             return $user
                 && $user->id !== Auth::id()
-                && $user->email_notify === true;  // Это условие отсеет всех у кого email_notify = false
+                && $user->email_notify === true  // Это условие отсеет всех у кого email_notify = false
+                && $user->id !== $ticket->executor_id; // Исключаем, если создатель и исполнитель совпадают
         });
 
         return array_unique($recipients, SORT_REGULAR);
@@ -484,10 +485,11 @@ class TicketService
             $recipients[] = $ticket->performer;
         }
         // Удаляем создателя комментария из списка получателей
-        $recipients = array_filter($recipients, function ($user) {
+        $recipients = array_filter($recipients, function ($user) use ($ticket) {
             return $user
                 && $user->id !== Auth::id()
-                && $user->email_notify === true;  // Это условие отсеет всех у кого email_notify = false
+                && $user->email_notify === true  // Это условие отсеет всех у кого email_notify = false
+                && $user->id !== $ticket->executor_id; // Исключаем, если создатель и исполнитель совпадают
         });
         return array_unique($recipients, SORT_REGULAR);
     }
@@ -512,10 +514,11 @@ class TicketService
             }
         }
         // Удаляем создателя тикета из списка получателей
-        $recipients = array_filter($recipients, function ($user) {
+        $recipients = array_filter($recipients, function ($user) use ($ticket) {
             return $user
                 && $user->id !== Auth::id()
-                && $user->email_notify === true;  // Это условие отсеет всех у кого email_notify = false
+                && $user->email_notify === true  // Это условие отсеет всех у кого email_notify = false
+                && $user->id !== $ticket->executor_id; // Исключаем, если создатель и исполнитель совпадают
         });
 
         return array_unique($recipients, SORT_REGULAR);
@@ -527,10 +530,11 @@ class TicketService
             $recipients[] = $ticket->performer;
         }
 
-        $recipients = array_filter($recipients, function ($user) {
+        $recipients = array_filter($recipients, function ($user) use ($ticket) {
             return $user
                 && $user->id !== Auth::id()
-                && $user->email_notify === true;  // Это условие отсеет всех у кого email_notify = false
+                && $user->email_notify === true  // Это условие отсеет всех у кого email_notify = false
+            && $user->id !== $ticket->executor_id; // Исключаем, если создатель и исполнитель совпадают
         });
 
         return array_unique($recipients, SORT_REGULAR);
