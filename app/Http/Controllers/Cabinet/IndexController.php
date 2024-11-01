@@ -24,7 +24,7 @@ class IndexController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $tickets = Ticket::with('performer', 'department')->get();
+        $tickets = Ticket::with('performer', 'department', 'creator')->get();
 
         $openedTickets = $tickets
             ->where('executor_id', $user->id)

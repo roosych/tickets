@@ -88,60 +88,72 @@
                                         </tr>
                                         </thead>
                                         <tbody class="fw-semibold text-gray-600">
+                                        @php
+                                            // Создаем массив ID тикетов, у которых есть выполненные подтикеты
+                                            $ticketsWithDoneChildren = [];
+                                            foreach($doneTickets as $ticket) {
+                                                if($ticket->parent) {
+                                                    $ticketsWithDoneChildren[] = $ticket->parent->id;
+                                                }
+                                            }
+                                        @endphp
+
                                         @foreach($doneTickets as $ticket)
-                                            <tr class="position_row_{{$ticket->id}}">
-                                                <td class="ps-3">
-                                                    <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
-                                                </td>
-                                                <td class="d-flex align-items-center border-bottom-0">
-                                                    <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
-                                                        <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank">
-                                                            @if($ticket->performer->avatar)
-                                                                <div class="symbol-label">
-                                                                    <img src="{{$ticket->performer->avatar}}" alt="{{$ticket->performer->name}}" class="w-100" />
-                                                                </div>
-                                                            @else
-                                                                <div class="symbol-label fs-3 bg-light-dark text-dark">
-                                                                    {{get_initials($ticket->performer->name)}}
-                                                                </div>
-                                                            @endif
-                                                        </a>
-                                                    </div>
-                                                    <div class="d-flex flex-column">
-                                                        <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
-                                                            {{$ticket->performer->name}}
-                                                        </a>
-                                                        <span>{{$ticket->performer->department}}</span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                <span class="badge badge-light-{{$ticket->priority->class}} fw-bold fs-7">
-                                                    {{$ticket->priority->getNameByLocale()}}
-                                                </span>
-                                                </td>
-                                                <td>
-                                                    {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
-                                                </td>
-                                                <td>
-                                                    @if($ticket->parent)
-                                                        <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold" target="_blank">#{{$ticket->parent->id}}</a>
-                                                    @else
-                                                        {{trans('tickets.table.no_parent')}}
-                                                    @endif
-                                                </td>
-                                                <td class="text-end pe-2">
-                                                    <div class="my-3 ms-9">
-                                                        <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
-                                                            <span data-bs-toggle="tooltip"
-                                                                  data-bs-trigger="hover"
-                                                                  aria-label="{{trans('tickets.table.more')}}"
-                                                                  data-bs-original-title="{{trans('tickets.table.more')}}">
-                                                                <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
-                                                            </span>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            @if(!in_array($ticket->id, $ticketsWithDoneChildren))
+                                                <tr class="position_row_{{$ticket->id}}">
+                                                    <td class="ps-3">
+                                                        <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
+                                                    </td>
+                                                    <td class="d-flex align-items-center border-bottom-0">
+                                                        <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
+                                                            <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank">
+                                                                @if($ticket->performer->avatar)
+                                                                    <div class="symbol-label">
+                                                                        <img src="{{$ticket->performer->avatar}}" alt="{{$ticket->performer->name}}" class="w-100" />
+                                                                    </div>
+                                                                @else
+                                                                    <div class="symbol-label fs-3 bg-light-dark text-dark">
+                                                                        {{get_initials($ticket->performer->name)}}
+                                                                    </div>
+                                                                @endif
+                                                            </a>
+                                                        </div>
+                                                        <div class="d-flex flex-column">
+                                                            <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
+                                                                {{$ticket->performer->name}}
+                                                            </a>
+                                                            <span>{{$ticket->performer->department}}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                <span class="badge badge-light-{{$ticket->priority->class}} fw-bold fs-7">
+                    {{$ticket->priority->getNameByLocale()}}
+                </span>
+                                                    </td>
+                                                    <td>
+                                                        {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
+                                                    </td>
+                                                    <td>
+                                                        @if($ticket->parent)
+                                                            <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold" target="_blank">#{{$ticket->parent->id}}</a>
+                                                        @else
+                                                            {{trans('tickets.table.no_parent')}}
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-end pe-2">
+                                                        <div class="my-3 ms-9">
+                                                            <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
+                        <span data-bs-toggle="tooltip"
+                              data-bs-trigger="hover"
+                              aria-label="{{trans('tickets.table.more')}}"
+                              data-bs-original-title="{{trans('tickets.table.more')}}">
+                            <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
+                        </span>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endif
                                         @endforeach
                                         </tbody>
                                     </table>
