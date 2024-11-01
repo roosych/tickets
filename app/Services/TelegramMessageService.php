@@ -25,6 +25,7 @@ class TelegramMessageService
 
     public function getTicketCommentedMessage(Ticket $ticket, Comment $comment): string
     {
+        $comment->text = str_replace('@', "@\u{200B}", $comment->text ?? 'Комментарий отсутствует');
         return View::make('telegram-messages.tickets.commented', ['ticket' => $ticket, 'comment' => $comment])->render();
     }
 }
