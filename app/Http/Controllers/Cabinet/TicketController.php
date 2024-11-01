@@ -42,6 +42,7 @@ class TicketController extends Controller
             ->with(['priority', 'creator', 'tags', 'performer', 'client'])
             //->whereNot('status', TicketStatusEnum::COMPLETED)
             ->where('department_id', $departmentId)
+            ->whereColumn('user_id', '!=', 'executor_id')
             ->latest()
             ->get();
 
@@ -74,6 +75,7 @@ class TicketController extends Controller
         $priorities = Priorities::getCachedPriorities();
         $departments = Department::where('active', '=', true)->get();
         $tickets = Ticket::query()->with(['priority', 'creator', 'department', 'performer', 'comments'])
+            ->whereColumn('user_id', '!=', 'executor_id')
             ->where('user_id', auth()->id())
             ->get();
         $openTickets = $tickets->where('status', TicketStatusEnum::OPENED);

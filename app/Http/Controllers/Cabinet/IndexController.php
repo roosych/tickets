@@ -24,7 +24,9 @@ class IndexController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $tickets = Ticket::with('performer', 'department', 'creator')->get();
+        $tickets = Ticket::with('performer', 'department', 'creator')
+            ->whereColumn('user_id', '!=', 'executor_id')
+            ->get();
 
         $openedTickets = $tickets
             ->where('executor_id', $user->id)
@@ -57,14 +59,18 @@ class IndexController extends Controller
     {
         $departmentId = Auth::user()->getDepartmentId();
 
-        $totalTickets = Ticket::where('department_id', $departmentId)->count();
+        $totalTickets = Ticket::where('department_id', $departmentId)
+            ->whereColumn('user_id', '!=', 'executor_id')
+            ->count();
 
         $topPerformers = User::select('users.*')
             ->join('tickets', 'users.id', '=', 'tickets.executor_id')
             ->where('tickets.department_id', $departmentId)
+            ->whereColumn('tickets.user_id', '!=', 'tickets.executor_id') // Исключаем тикеты, где user_id == executor_id
             ->groupBy('users.id')
             ->withCount(['tickets as ticket_count' => function ($query) use ($departmentId) {
-                $query->where('department_id', $departmentId);
+                $query->where('department_id', $departmentId)
+                    ->whereColumn('user_id', '!=', 'executor_id'); // Применяем то же условие в withCount
             }])
             ->orderBy('ticket_count', 'desc')
             ->limit(3)
@@ -82,6 +88,7 @@ class IndexController extends Controller
 
         $data = Ticket::where('status', TicketStatusEnum::COMPLETED)
             ->where('executor_id', $user->id)
+            ->where('user_id', '!=', 'executor_id')
             ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as count'))
             ->groupBy('month')
             ->orderBy('month')

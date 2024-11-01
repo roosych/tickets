@@ -594,6 +594,7 @@ class TicketService
             })
             ->with(['tags', 'performer', 'priority'])
             ->where('tickets.department_id', auth()->user()->getDepartmentId())
+            ->whereColumn('user_id', '!=', 'executor_id')
             ->whereNotNull('executor_id')
             ->get();
 

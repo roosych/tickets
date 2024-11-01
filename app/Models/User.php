@@ -122,6 +122,7 @@ class User extends Authenticatable implements LdapAuthenticatable
     {
         return $this->ticketsByExecutor()
             ->where('status', $status->value)
+            ->whereColumn('user_id', '!=', 'executor_id')
             ->count();
     }
 
