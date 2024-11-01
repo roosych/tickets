@@ -21,6 +21,11 @@ class Ticket extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'client_id');
+    }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
@@ -143,6 +148,7 @@ class Ticket extends Model
         'executor_id',
         'priorities_id',
         'status',
+        'client_id',
     ];
 
     protected $casts = [

@@ -145,6 +145,10 @@ class User extends Authenticatable implements LdapAuthenticatable
         'department_id',
         'last_login',
         'telegram_id',
+        'visible',
+        'active',
+        'tg_notify',
+        'email_notify',
     ];
 
     protected $hidden = [

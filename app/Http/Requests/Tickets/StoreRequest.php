@@ -54,6 +54,9 @@ class StoreRequest extends FormRequest
             $rules['parent_id'] = ['required', 'exists:tickets,id'];
             //$rules['user'] = ['nullable', 'exists:users,id'];
         }
+        if ($this->has('client')) {
+            $rules['client'] = ['nullable', 'exists:users,id'];
+        }
 
         return $rules;
     }
@@ -61,8 +64,8 @@ class StoreRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'text.required' => 'Заполните описание Вашей проблемы',
-            'text.max' => 'Описание проблемы не может содержать более 10000 символов',
+            'text.required' => 'Заполните описание тикета',
+            'text.max' => 'Описание не может содержать более 10000 символов',
 
             'priority.required' => 'Выберите приоритет',
             'priority.exists' => 'Приоритет не существует',

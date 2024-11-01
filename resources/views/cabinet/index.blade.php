@@ -126,9 +126,9 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                <span class="badge badge-light-{{$ticket->priority->class}} fw-bold fs-7">
-                    {{$ticket->priority->getNameByLocale()}}
-                </span>
+                                                        <span class="badge badge-light-{{$ticket->priority->class}} fw-bold fs-7">
+                                                            {{$ticket->priority->getNameByLocale()}}
+                                                        </span>
                                                     </td>
                                                     <td>
                                                         {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
@@ -143,12 +143,12 @@
                                                     <td class="text-end pe-2">
                                                         <div class="my-3 ms-9">
                                                             <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
-                        <span data-bs-toggle="tooltip"
-                              data-bs-trigger="hover"
-                              aria-label="{{trans('tickets.table.more')}}"
-                              data-bs-original-title="{{trans('tickets.table.more')}}">
-                            <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
-                        </span>
+                                                                <span data-bs-toggle="tooltip"
+                                                                      data-bs-trigger="hover"
+                                                                      aria-label="{{trans('tickets.table.more')}}"
+                                                                      data-bs-original-title="{{trans('tickets.table.more')}}">
+                                                                    <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
+                                                                </span>
                                                             </a>
                                                         </div>
                                                     </td>

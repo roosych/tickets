@@ -393,7 +393,7 @@ class TicketService
             // Создание тикета
             $ticket = Ticket::query()->create([
                 'text' => $data['text'],
-                'user_id' => auth()->id(),
+                'user_id' => $data['client'] ?? auth()->id(),
                 'priorities_id' => $data['priority'],
                 'department_id' => $data['department'],
                 'status' => TicketStatusEnum::OPENED,
@@ -468,7 +468,9 @@ class TicketService
         }
         // Удаляем пользователя кто сменил статус из списка получателей
         $recipients = array_filter($recipients, function ($user) {
-            return $user->id !== Auth::id();
+            return $user
+                && $user->id !== Auth::id()
+                && $user->email_notify === true;  // Это условие отсеет всех у кого email_notify = false
         });
 
         return array_unique($recipients, SORT_REGULAR);
@@ -483,7 +485,9 @@ class TicketService
         }
         // Удаляем создателя комментария из списка получателей
         $recipients = array_filter($recipients, function ($user) {
-            return $user->id !== Auth::id();
+            return $user
+                && $user->id !== Auth::id()
+                && $user->email_notify === true;  // Это условие отсеет всех у кого email_notify = false
         });
         return array_unique($recipients, SORT_REGULAR);
     }
@@ -509,7 +513,9 @@ class TicketService
         }
         // Удаляем создателя тикета из списка получателей
         $recipients = array_filter($recipients, function ($user) {
-            return $user->id !== Auth::id();
+            return $user
+                && $user->id !== Auth::id()
+                && $user->email_notify === true;  // Это условие отсеет всех у кого email_notify = false
         });
 
         return array_unique($recipients, SORT_REGULAR);
@@ -520,6 +526,12 @@ class TicketService
         if ($ticket->performer) {
             $recipients[] = $ticket->performer;
         }
+
+        $recipients = array_filter($recipients, function ($user) {
+            return $user
+                && $user->id !== Auth::id()
+                && $user->email_notify === true;  // Это условие отсеет всех у кого email_notify = false
+        });
 
         return array_unique($recipients, SORT_REGULAR);
     }

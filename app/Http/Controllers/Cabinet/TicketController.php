@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Cabinet;
 use App\Enums\TicketStatusEnum;
 use App\Exceptions\TicketAccessException;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Ticket\CancelRequest;
 use App\Http\Requests\Tickets\AttachTagsRequest;
 use App\Http\Requests\Tickets\AttachUserRequest;
+use App\Http\Requests\Tickets\CancelRequest;
 use App\Http\Requests\Tickets\CompleteRequest;
 use App\Http\Requests\Tickets\StoreCommentRequest;
 use App\Http\Requests\Tickets\StoreRequest;
@@ -39,7 +39,7 @@ class TicketController extends Controller
         $departmentId = $user->getDepartmentId();
 
         $tickets = Ticket::query()
-            ->with(['priority', 'creator', 'tags', 'performer'])
+            ->with(['priority', 'creator', 'tags', 'performer', 'client'])
             //->whereNot('status', TicketStatusEnum::COMPLETED)
             ->where('department_id', $departmentId)
             ->latest()

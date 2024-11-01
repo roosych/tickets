@@ -42,6 +42,7 @@ return [
         'description_placeholder' => 'Tiketin təsviri',
         'department' => 'Şöbə',
         'performer' => 'Əməkdaş',
+        'client' => 'Sifarişçi',
         'tags' => 'taqlər',
         'priority' => 'Prioritet',
         'select_from_list' => 'Siyahıdan seçin...',

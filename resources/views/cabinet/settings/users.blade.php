@@ -28,11 +28,14 @@
                 <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                     <th class="min-w-100px">Сотрудник</th>
                     <th class="text-end min-w-75px">Департамент</th>
-                    <th class="text-end min-w-75px">HEAD</th>
                     <th class="text-end min-w-75px">Позиция</th>
-                    <th class="text-end min-w-75px">Менеджер</th>
+                    <th class="text-end min-w-75px">HEAD</th>
                     <th class="text-end min-w-100px">3CX</th>
                     <th class="text-end min-w-100px">Учетка</th>
+                    <th class="text-end">Видимый</th>
+                    <th class="text-end">Активный</th>
+                    <th class="text-end">Email notify</th>
+                    <th class="text-end">TG notify</th>
                 </tr>
                 </thead>
                 <tbody class="fw-semibold text-gray-600">
@@ -53,17 +56,15 @@
                             <div class="d-flex flex-column">
                                 <p class="text-gray-800 mb-1">
                                     {{$user->name}}
+                                    @if($user->is_manager)
+                                        <i class="ki-solid ki-star fs-3 text-warning"></i>
+                                    @endif
                                 </p>
                                 <span>{{$user->email}}</span>
                             </div>
                         </td>
                         <td class="text-end pe-0">
                             {{$user->department}}
-                        </td>
-                        <td class="text-end pe-0">
-                            @if($user->is_manager)
-                                <i class="ki-outline ki-check-circle fs-2 text-success"></i>
-                            @endif
                         </td>
                         <td class="text-end pe-0">
                             {{$user->position}}
@@ -78,6 +79,50 @@
                         </td>
                         <td class="text-end">
                             {{$user->username}}
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-end">
+                                <div class="form-check form-check-solid form-check-custom form-switch">
+                                    <input class="form-check-input w-35px h-20px"
+                                           type="checkbox"
+                                           id="visibleSwitch"
+                                        {{$user->visible ? 'checked' : ''}}>
+                                    <label class="form-check-label" for="visibleSwitch"></label>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-end">
+                                <div class="form-check form-check-solid form-check-custom form-switch">
+                                    <input class="form-check-input w-35px h-20px"
+                                           type="checkbox"
+                                           id="activeSwitch"
+                                        {{$user->active ? 'checked' : ''}}>
+                                    <label class="form-check-label" for="activeSwitch"></label>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-end">
+                                <div class="form-check form-check-solid form-check-custom form-switch">
+                                    <input class="form-check-input w-35px h-20px"
+                                           type="checkbox"
+                                           id="emailSwitch"
+                                        {{$user->email_notify ? 'checked' : ''}}>
+                                    <label class="form-check-label" for="emailSwitch"></label>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-end">
+                                <div class="form-check form-check-solid form-check-custom form-switch">
+                                    <input class="form-check-input w-35px h-20px"
+                                           type="checkbox"
+                                           id="tgSwitch"
+                                        {{$user->tg_notify ? 'checked' : ''}}>
+                                    <label class="form-check-label" for="tgSwitch"></label>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @empty

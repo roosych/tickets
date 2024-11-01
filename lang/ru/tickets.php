@@ -42,6 +42,7 @@ return [
         'description_placeholder' => 'Опишите ситуацию, задачу или проблему',
         'department' => 'Отдел',
         'performer' => 'Сотрудник',
+        'client' => 'Заказчик',
         'tags' => 'Теги',
         'priority' => 'Приоритет',
         'select_from_list' => 'Выберите из списка...',

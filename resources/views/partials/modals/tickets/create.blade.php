@@ -1,3 +1,6 @@
+@php
+    $visibleUsers = \App\Models\User::query()->where('visible', true)->get();
+@endphp
 <div class="modal fade" id="kt_modal_new_ticket" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered mw-750px">
         <div class="modal-content rounded">
@@ -59,14 +62,16 @@
 
                     <div id="all_users_list" class="mb-8" style="display: none;">
                         <div class="col-md-12 fv-row">
-                            <label class="fs-6 fw-semibold mb-2">Заказчик</label>
+                            <label class="fs-6 fw-semibold mb-2">
+                                {{trans('tickets.create_modal.client')}}
+                            </label>
                             <select class="form-select form-select-solid"
                                     data-control="select2"
                                     data-placeholder="{{trans('tickets.create_modal.select_from_list')}}"
                                     data-dropdown-parent="#kt_modal_new_ticket"
                                     name="client">
                                 <option value=""></option>
-                                @foreach(auth()->user()->deptAllUsers() as $item)
+                                @foreach($visibleUsers as $item)
                                     <option value="{{$item->id}}">{{$item->name}}</option>
                                 @endforeach
                             </select>
