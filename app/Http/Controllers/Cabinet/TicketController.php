@@ -42,7 +42,10 @@ class TicketController extends Controller
             ->with(['priority', 'creator', 'tags', 'performer', 'client'])
             //->whereNot('status', TicketStatusEnum::COMPLETED)
             ->where('department_id', $departmentId)
-            ->whereColumn('user_id', '!=', 'executor_id')
+            ->where(function ($query) {
+                $query->whereColumn('user_id', '!=', 'executor_id')
+                    ->orWhereNull('executor_id'); // Добавляем условие для NULL
+            })
             ->latest()
             ->get();
 
