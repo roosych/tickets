@@ -17,6 +17,7 @@ use App\Models\Priorities;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\TicketService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 
 class TicketController extends Controller
@@ -78,7 +79,10 @@ class TicketController extends Controller
         $priorities = Priorities::getCachedPriorities();
         $departments = Department::where('active', '=', true)->get();
         $tickets = Ticket::query()->with(['priority', 'creator', 'department', 'performer', 'comments'])
-            ->whereColumn('user_id', '!=', 'executor_id')
+            ->where(function ($query) {
+                $query->whereColumn('user_id', '!=', 'executor_id')
+                    ->orWhereNull('executor_id'); // Добавляем условие для NULL
+            })
             ->where('user_id', auth()->id())
             ->get();
         $openTickets = $tickets->where('status', TicketStatusEnum::OPENED);
@@ -98,9 +102,13 @@ class TicketController extends Controller
 
     public function show(Request $request, Ticket $ticket)
     {
-        abort_unless(auth()->user()->getDepartmentId() === $ticket->department_id,
+        //auth()->loginUsingId(151);
+        abort_unless(
+            auth()->user()->getDepartmentId() === $ticket->department_id
+                    || auth()->id() === $ticket->creator->id,
             403,
-            'Вы не можете просматривать тикеты другого отдела');
+            'Вы не можете просматривать тикеты другого отдела'
+        );
 
         $backUrl = $request->query('back') ?? url()->previous();
 
@@ -124,6 +132,10 @@ class TicketController extends Controller
 
         $deptUsers = auth()->user()->deptAllUsers();
         $mentions = $deptUsers->push($ticket->creator)->unique('id')->values();
+        // Если $ticket->performer не равен null, добавляем его тоже
+        if ($ticket->performer) {
+            $mentions->push($ticket->performer);
+        }
         $mentions = $mentions->map(function ($user) {
             return [
                 'id' => $user->id,
@@ -209,22 +221,27 @@ class TicketController extends Controller
      */
     public function close(Ticket $ticket)
     {
+        try {
+            $this->authorize('close', $ticket);
+        } catch (AuthorizationException $e) {
+            throw new AuthorizationException('У вас нет прав на закрытие этого тикета!');
+        }
+
         $this->ticketService->closeTicket($ticket);
         return response()->json(['success' => true,]);
     }
-
-//    public function done(Ticket $ticket)
-//    {
-//        $this->ticketService->doneTicket($ticket);
-//        return response()->json(['success' => true,]);
-//    }
 
     /**
      * @throws TicketAccessException
      */
     public function storeComment(StoreCommentRequest $request, Ticket $ticket)
     {
-        //$this->authorize('show', $ticket);
+        try {
+            $this->authorize('comment', $ticket);
+        } catch (AuthorizationException $e) {
+            throw new AuthorizationException('У вас нет прав комментировать этот тикет!');
+        }
+
         $data = $request->validated();
         //dd($data);
         $comment = $this->ticketService->addComment($ticket, $data);
@@ -245,7 +262,11 @@ class TicketController extends Controller
         $ticket = Ticket::find($data['ticket_id']);
         $performer = User::find($data['performer_id']);
 
-        //$this->authorize('show', $ticket);
+        try {
+            $this->authorize('assign', $ticket);
+        } catch (AuthorizationException $e) {
+            throw new AuthorizationException('У вас нет прав назначения сотрудника на тикет!');
+        }
 
         $this->ticketService->attachUsers($ticket, $performer ?? null);
 

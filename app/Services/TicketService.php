@@ -84,11 +84,6 @@ class TicketService
      */
     public function closeTicket(Ticket $ticket): void
     {
-        $user = Auth::user();
-        if ($user->id !== $ticket->creator->id && $user->getDepartmentId() !== $ticket->department->id) {
-            abort(403, 'У вас нет прав на закрытие этого тикета');
-        }
-
         $this->checkTicketStatus(
             $ticket,
             [TicketStatusEnum::CANCELED, TicketStatusEnum::COMPLETED],
@@ -156,15 +151,15 @@ class TicketService
     public function cancelTicket(Ticket $ticket, string $comment): void
     {
         $user = Auth::user();
-        // Проверяем, есть ли у тикета исполнитель
+// Проверяем, есть ли у тикета исполнитель
         if ($ticket->performer === null) {
-            // Если исполнителя нет, проверяем только принадлежность к отделу
-            if ($user->getDepartmentId() !== $ticket->department->id) {
+            // Если исполнителя нет, проверяем только принадлежность к отделу или являемся ли мы создателем тикета
+            if ($user->getDepartmentId() !== $ticket->department->id && $user->id !== $ticket->creator->id) {
                 abort(403, 'У вас нет прав на закрытие этого тикета');
             }
         } else {
-            // Если исполнитель есть, проверяем и исполнителя, и отдел
-            if ($user->id !== $ticket->performer->id && $user->getDepartmentId() !== $ticket->department->id) {
+            // Если исполнитель есть, проверяем исполнителя, отдел и являемся ли мы создателем тикета
+            if ($user->id !== $ticket->performer->id && $user->getDepartmentId() !== $ticket->department->id && $user->id !== $ticket->creator->id) {
                 abort(403, 'У вас нет прав на закрытие этого тикета');
             }
         }
@@ -199,13 +194,6 @@ class TicketService
             [TicketStatusEnum::CANCELED, TicketStatusEnum::COMPLETED],
             'Нельзя комментировать закрытый или отмененный тикет!'
         );
-
-        // Проверяем, является ли текущий пользователь создателем, исполнителем или начальником департамента
-        if ((!$ticket->creator || $ticket->creator->id !== auth()->id())
-            && (!$ticket->performer || $ticket->performer->id !== auth()->id())
-            && !$this->isDepartmentHead($ticket)) {
-            abort(403, 'Вы не можете оставлять комментарии к этому тикету.');
-        }
 
         DB::transaction(function () use ($ticket, $data, &$comment) {
             // Создаем комментарий

@@ -49,20 +49,22 @@
                                 </button>
                             @endif
                         @endif
-                        @can('close', $ticket)
-                            @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE) || auth()->user()->id === $ticket->creator->id)
-                                <button class="btn btn-sm btn-light-success btn-active-success me-2 closed-ticket-btn"
-                                        data-ticket_id="{{$ticket->id}}"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="{{trans('tickets.buttons.close_ticket')}}">
-                                    <i class="ki-outline ki-check-square fs-2"></i>
-                                    {{trans('tickets.buttons.close_ticket')}}
-                                </button>
+
+                            @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE))
+                                @can('close', $ticket)
+                                    <button class="btn btn-sm btn-light-success btn-active-success me-2 closed-ticket-btn"
+                                            data-ticket_id="{{$ticket->id}}"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="{{trans('tickets.buttons.close_ticket')}}">
+                                        <i class="ki-outline ki-check-square fs-2"></i>
+                                        {{trans('tickets.buttons.close_ticket')}}
+                                    </button>
+                                @endcan
                             @endif
-                        @endcan
+
                             @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED))
-                                @if(!$ticket->performer || $ticket->performer->id === auth()->id())
+                                @if((!$ticket->performer || $ticket->performer->id === auth()->id()) && auth()->user()->getDepartmentId() === $ticket->department->id)
                                     <button class="btn btn-sm btn-light-warning btn-active-warning me-2 start-task-btn"
                                             data-ticket_id="{{$ticket->id}}"
                                             data-bs-toggle="tooltip"
@@ -106,21 +108,15 @@
                                 <div class="ticket_status_label">
                                     <x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge>
                                 </div>
-                                @can('close', $ticket)
-                                    @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE))
-                                        <a href="javascript:void(0);" class="reject_ticket" data-ticket-id="{{$ticket->id}}">
-                                            <i class="ki-outline ki-arrow-circle-left text-gray-800 fs-2 ms-2"></i>
-                                        </a>
-                                    @endif
-                                @endcan
-                            </div>
 
-                            {{--<div class="ticket-status">
-                                <div class="text-gray-800 fw-bold fs-12 me-5">
-                                    Статус:
-                                </div>
-                                <x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge>
-                            </div>--}}
+                                    @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE))
+                                        @can('close', $ticket)
+                                            <a href="javascript:void(0);" class="reject_ticket" data-ticket-id="{{$ticket->id}}">
+                                                <i class="ki-outline ki-arrow-circle-left text-gray-800 fs-2 ms-2"></i>
+                                            </a>
+                                        @endcan
+                                    @endif
+                            </div>
                         </div>
                     </div>
 

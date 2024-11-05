@@ -253,7 +253,7 @@
             e.preventDefault();
             let button = $(this);
             console.log(button)
-            $('#cancel_ticket_id').val({{$ticket->id}});
+            $('#cancel_ticket_id').val();
             applyWait($('body'));
             $.ajax({
                 url: "{{route('cabinet.tickets.cancel')}}",
