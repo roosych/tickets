@@ -18,12 +18,6 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 
 Route::redirect('/', '/cabinet');
 
-Route::get('mail', [\App\Http\Controllers\MailController::class, 'index']);
-
-//Route::get('/cabinet', function () {
-//    return view('cabinet.index');
-//})->middleware(['auth'])->name('cabinet');
-
 Route::get('lang/{language}', LanguageController::class)->name('language');
 
 Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function () {
