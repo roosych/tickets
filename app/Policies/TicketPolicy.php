@@ -33,6 +33,11 @@ class TicketPolicy
     #[PolicyPermissionNameAttribute(['az' => 'Təyinat', 'en' => 'Assign', 'ru' => 'Назначение'])]
     public function assign(User $user, Ticket $ticket): bool
     {
+        // Для нового тикета проверяем только permissions
+        if (!$ticket->exists) {
+            return $user->hasPermissions('assign', Ticket::class);
+        }
+
         return $ticket->department // Проверка, что департамент не null
             && $user->getDepartmentId() === $ticket->department->id
             && $user->hasPermissions('assign', Ticket::class);
