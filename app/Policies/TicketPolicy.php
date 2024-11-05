@@ -14,17 +14,17 @@ class TicketPolicy
     public function close(User $user, Ticket $ticket): bool
     {
         // Создатель тикета может закрыть
-        if ($ticket->creator->id === $user->id) {
+        if ($ticket->creator && $ticket->creator->id === $user->id) {
             return true;
         }
 
         // Пользователи из департамента создателя с разрешением на закрытие
-        if ($ticket->creator->getDepartmentId() === $user->getDepartmentId()) {
+        if ($ticket->creator && $ticket->creator->getDepartmentId() === $user->getDepartmentId()) {
             return $user->hasPermissions('close', Ticket::class);
         }
 
         // Пользователи из департамента тикета с разрешением на закрытие
-        if ($ticket->department->id === $user->getDepartmentId()) {
+        if ($ticket->department && $ticket->department->id === $user->getDepartmentId()) {
             return $user->hasPermissions('close', Ticket::class);
         }
         return false;
@@ -33,7 +33,8 @@ class TicketPolicy
     #[PolicyPermissionNameAttribute(['az' => 'Təyinat', 'en' => 'Assign', 'ru' => 'Назначение'])]
     public function assign(User $user, Ticket $ticket): bool
     {
-        return $user->getDepartmentId() === $ticket->department->id
+        return $ticket->department // Проверка, что департамент не null
+            && $user->getDepartmentId() === $ticket->department->id
             && $user->hasPermissions('assign', Ticket::class);
     }
 

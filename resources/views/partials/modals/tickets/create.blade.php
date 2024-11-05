@@ -78,7 +78,7 @@
                         </div>
                     </div>
 
-                    @can('assign', \App\Models\Ticket::class)
+                    @can('assign', new \App\Models\Ticket())
                         <div id="dept_users_list" style="display: none;">
                             <div class="col-md-12 fv-row">
                                 <label class="fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.performer')}}</label>

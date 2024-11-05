@@ -63,7 +63,7 @@
                 </div>
             </div>
 
-            @can('close', \App\Models\Ticket::class)
+            @can('close', new \App\Models\Ticket())
                 @if(count($doneTickets))
                     <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
                         <div class="col-xl-12">
