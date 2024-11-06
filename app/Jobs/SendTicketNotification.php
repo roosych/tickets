@@ -15,6 +15,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class SendTicketNotification implements ShouldQueue
 {
@@ -23,7 +25,7 @@ class SendTicketNotification implements ShouldQueue
     private User $user;
     private Ticket $ticket;
     private string $action;
-    private ?array $additionalData = null;
+    private ?array $additionalData;
 
     public function __construct(User $user, Ticket $ticket, string $action, ?array $additionalData = null)
     {

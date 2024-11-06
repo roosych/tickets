@@ -11,6 +11,8 @@ class Department extends Model
 {
     protected $fillable = [
         'name',
+        'tg_chat_id',
+        'tg_topic_id',
     ];
 
     public function users(): HasMany

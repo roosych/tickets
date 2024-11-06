@@ -15,22 +15,14 @@ use App\Models\TemporaryFile;
 use App\Models\Ticket;
 use App\Models\TicketHistory;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\QueryBuilder\QueryBuilder;
-use Telegram\Bot\Laravel\Facades\Telegram;
 
 class TicketService
 {
-    protected TelegramMessageService $telegramMessageService;
-
-    public function __construct(TelegramMessageService $telegramMessageService)
-    {
-        $this->telegramMessageService = $telegramMessageService;
-    }
-
     public function updateTicketStatus(Ticket $ticket, TicketStatusEnum $status, ?string $comment = null): void
     {
         // Пропускаем проверку если тикет уже в нужном статусе
@@ -65,23 +57,8 @@ class TicketService
             event(new TicketEvent($ticket, 'status_updated', $recipients, Auth::user(),
                 ['ticket_history_id' => $ticketHistory->id]));
         });
-
-        // Отправка сообщения в Telegram вне транзакции
-        try {
-            Telegram::sendMessage([
-                'chat_id' => config('services.telegram.chat_id'),
-                'message_thread_id' => config('services.telegram.topics.tickets_notifications'),
-                'text' => $this->telegramMessageService->getTicketStatusChangedMessage($ticket),
-                'parse_mode' => 'HTML',
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Ошибка отправки сообщения в Telegram: ' . $e->getMessage());
-        }
     }
 
-    /**
-     * @throws TicketAccessException
-     */
     public function closeTicket(Ticket $ticket): void
     {
         $this->checkTicketStatus(
@@ -145,13 +122,10 @@ class TicketService
         $this->updateTicketStatus($ticket, TicketStatusEnum::DONE, $comment);
     }
 
-    /**
-     * @throws TicketAccessException
-     */
     public function cancelTicket(Ticket $ticket, string $comment): void
     {
         $user = Auth::user();
-// Проверяем, есть ли у тикета исполнитель
+        // Проверяем, есть ли у тикета исполнитель
         if ($ticket->performer === null) {
             // Если исполнителя нет, проверяем только принадлежность к отделу или являемся ли мы создателем тикета
             if ($user->getDepartmentId() !== $ticket->department->id && $user->id !== $ticket->creator->id) {
@@ -184,9 +158,6 @@ class TicketService
         $this->updateTicketStatus($ticket, TicketStatusEnum::CANCELED, $comment);
     }
 
-    /**
-     * @throws TicketAccessException
-     */
     public function addComment(Ticket $ticket, array $data): Comment
     {
         $this->checkTicketStatus(
@@ -245,20 +216,10 @@ class TicketService
             }
         });
 
-        // Отправляем сообщение в Telegram вне транзакции
-        try {
-            Telegram::sendMessage([
-                'chat_id' => config('services.telegram.chat_id'),
-                'message_thread_id' => config('services.telegram.topics.tickets_notifications'),
-                'text' => $this->telegramMessageService->getTicketCommentedMessage($ticket, $comment),
-                'parse_mode' => 'HTML',
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Ошибка отправки сообщения в Telegram: ' . $e->getMessage());
-        }
+        // Получатели уведомлений
+        $recipients = $this->getRecipientsForComment($ticket, $comment);
 
-        // Отправляем событие
-        $recipients = $this->getRecipientsForComment($ticket);
+        // Вызов события
         event(new TicketEvent($ticket, 'commented', $recipients, Auth::user(), [
             'comment_id' => $comment->id
         ]));
@@ -295,18 +256,6 @@ class TicketService
                 'assign_user' => $user->id,
             ]);
         });
-
-        // Отправляем сообщение в Telegram вне транзакции
-        try {
-            Telegram::sendMessage([
-                'chat_id' => config('services.telegram.chat_id'),
-                'message_thread_id' => config('services.telegram.topics.tickets_notifications'),
-                'text' => $this->telegramMessageService->getTicketAssignedMessage($ticket),
-                'parse_mode' => 'HTML',
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Ошибка отправки сообщения в Telegram: ' . $e->getMessage());
-        }
 
         // Отправляем событие после успешного назначения исполнителя
         $recipients = $this->getRecipientsForAssign($ticket);
@@ -418,18 +367,6 @@ class TicketService
             // Фиксируем транзакцию
             DB::commit();
 
-            // Отправка сообщений и событий вне транзакции
-            try {
-                Telegram::sendMessage([
-                    'chat_id' => config('services.telegram.chat_id'),
-                    'message_thread_id' => config('services.telegram.topics.tickets_notifications'),
-                    'text' => $this->telegramMessageService->getTicketCreatedMessage($ticket),
-                    'parse_mode' => 'HTML',
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Ошибка отправки сообщения в Telegram: ' . $e->getMessage());
-            }
-
             // Отправка события о создании тикета
             $recipients = $this->getRecipientsForCreation($ticket);
             event(new TicketEvent($ticket, 'created', $recipients, Auth::user()));
@@ -444,88 +381,93 @@ class TicketService
     }
 
     // получатели уведомлений
-    private function getRecipientsForStatusUpdate(Ticket $ticket): array
+    private function getRecipientsForStatusUpdate(Ticket $ticket): Collection
     {
-        $recipients = [$ticket->creator];
+        $recipients = collect();
+        $recipients->push($ticket->creator);
+
         if ($ticket->performer) {
-            $recipients[] = $ticket->performer;
+            $recipients->push($ticket->performer);
         }
+
         // Если у тикета есть родитель, добавляем создателя родительского тикета
         if ($ticket->parent) {
-            $recipients[] = $ticket->parent->creator;
+            $recipients->push($ticket->parent->creator);
         }
-        // Удаляем пользователя кто сменил статус из списка получателей
-        $recipients = array_filter($recipients, function ($user) use ($ticket) {
+
+        // Фильтруем получателей по условиям
+        $recipients = $recipients->filter(function ($user) use ($ticket) {
             return $user
-                && $user->id !== Auth::id()
-                && $user->email_notify === true  // Это условие отсеет всех у кого email_notify = false
-                && $user->id !== $ticket->executor_id; // Исключаем, если создатель и исполнитель совпадают
+                && $user->id !== Auth::id() //todo сделать без фасада Auth
+                && $user->email_notify == true;
         });
 
-        return array_unique($recipients, SORT_REGULAR);
+        // Удаляем дубликаты
+        return $recipients->unique('id');
     }
 
-    private function getRecipientsForComment(Ticket $ticket): array
+    private function getRecipientsForComment(Ticket $ticket, Comment $comment): Collection
     {
-        $recipients = [$ticket->creator];
-        // Добавляем исполнителя тикета, если он есть
+        $recipients = collect();
+        $recipients->push($ticket->creator);
+
         if ($ticket->performer) {
-            $recipients[] = $ticket->performer;
+            $recipients->push($ticket->performer);
         }
-        // Удаляем создателя комментария из списка получателей
-        $recipients = array_filter($recipients, function ($user) use ($ticket) {
+
+        // Фильтруем получателей по условиям
+        $recipients = $recipients->filter(function ($user) use ($comment) {
             return $user
-                && $user->id !== Auth::id()
-                && $user->email_notify === true  // Это условие отсеет всех у кого email_notify = false
-                && $user->id !== $ticket->executor_id; // Исключаем, если создатель и исполнитель совпадают
+                && $user->id !== $comment->creator->id // исключаем создателя комментария
+                && $user->email_notify == true;
         });
-        return array_unique($recipients, SORT_REGULAR);
+
+        // Удаляем дубликаты
+        return $recipients->unique('id');
     }
 
-    private function getRecipientsForCreation(Ticket $ticket): array
+    private function getRecipientsForCreation(Ticket $ticket): Collection
     {
-        $recipients = [];
+        $recipients = collect();
 
         // Проверяем, назначен ли перформер
         if ($ticket->performer) {
             // Если перформер назначен, добавляем его к получателям
-            $recipients[] = $ticket->performer;
+            $recipients->push($ticket->performer);
         } else {
             // Если перформер не назначен, получаем всех сотрудников департамента
-            $recipients = User::where('manager', $ticket->department->manager->distinguishedname)
-                ->get()
-                ->all();
+            $departmentUsers = $recipients->merge(
+                User::where('manager', $ticket->department->manager->distinguishedname)
+                    ->get()
+            );
+
+            $recipients = $recipients->merge($departmentUsers);
 
             // Добавляем менеджера департамента, если он существует
             if ($ticket->department->manager) {
-                $recipients[] = $ticket->department->manager;
+                $recipients->push($ticket->department->manager);
             }
         }
-        // Удаляем создателя тикета из списка получателей
-        $recipients = array_filter($recipients, function ($user) use ($ticket) {
+        // Фильтруем получателей по условиям
+        $recipients = $recipients->filter(function ($user) use ($ticket) {
             return $user
-                && $user->id !== Auth::id()
-                && $user->email_notify === true  // Это условие отсеет всех у кого email_notify = false
-                && $user->id !== $ticket->executor_id; // Исключаем, если создатель и исполнитель совпадают
+                && $user->id !== $ticket->creator->id
+                && $user->email_notify == true;
         });
 
-        return array_unique($recipients, SORT_REGULAR);
+        // Удаляем дубликаты
+        return $recipients->unique('id');
     }
 
-    private function getRecipientsForAssign(Ticket $ticket): array
+    private function getRecipientsForAssign(Ticket $ticket): Collection
     {
-        if ($ticket->performer) {
-            $recipients[] = $ticket->performer;
+        $recipients = collect();
+
+        if ($ticket->performer && $ticket->performer->email_notify) {
+            $recipients->push($ticket->performer);
         }
 
-        $recipients = array_filter($recipients, function ($user) use ($ticket) {
-            return $user
-                && $user->id !== Auth::id()
-                && $user->email_notify === true  // Это условие отсеет всех у кого email_notify = false
-            && $user->id !== $ticket->executor_id; // Исключаем, если создатель и исполнитель совпадают
-        });
-
-        return array_unique($recipients, SORT_REGULAR);
+        return $recipients->unique('id');
     }
 
     // вспомогательные проверки
