@@ -16,7 +16,7 @@ class TicketEvent implements ShouldDispatchAfterCommit
     public function __construct(
         public Ticket $ticket,
         public string $action,
-        public Collection $recipients,
+        public array $recipients,
         public ?User $initiator,
         public ?array $additionalData = null
     )
