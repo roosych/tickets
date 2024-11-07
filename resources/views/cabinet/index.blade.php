@@ -463,11 +463,11 @@
                 success: function (response) {
                     if(response.status === 'success') {
                         removeWait($('body'));
-                        Swal.fire('Все прошло успешно!', '{{trans('common.swal.success_text')}}', 'success');
+                        Swal.fire('{{trans('common.swal.success_title')}}', '{{trans('common.swal.success_text')}}', 'success');
                         window.location.href = '{{route('cabinet.tickets.sent')}}';
                     } else {
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', 'common.swal.error_text', 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', '', 'error');
                     }
                 },
                 error: function (response) {
@@ -479,7 +479,7 @@
                         }
                     }
                     removeWait($('body'));
-                    Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                    Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                 },
             });
         });

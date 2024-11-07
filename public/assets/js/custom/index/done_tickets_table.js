@@ -7,7 +7,7 @@ let DeptDoneTickets = (function () {
             ((e = $(t).DataTable({
                     info: !1,
                     paging: true,
-                    pageLength: 5,
+                    pageLength: 10,
                     lengthMenu: [5, 10, 15, 20],
                     order: [],
                     columnDefs: [

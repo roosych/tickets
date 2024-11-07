@@ -149,15 +149,15 @@
                         ])
                     @endif
 
-                        <div class="badge badge-lg badge-light-dark mb-4">
+                        <div class="badge badge-lg badge-light-secondary mb-4">
                             <div class="d-flex align-items-center flex-wrap">
                                 @if($ticket->parent)
-                                    Тикет: <a href="{{route('cabinet.tickets.show', $ticket->parent->id)}}" class="text-dark text-hover-primary ms-1" target="_blank">
+                                    Тикет: <a href="{{route('cabinet.tickets.show', $ticket->parent->id)}}" class="text-dgray-800 text-hover-primary ms-1" target="_blank">
                                         #{{$ticket->parent_id}}
                                     </a>
                                 @else
                                     {{$ticket->creator->department}}
-                                    <i class="ki-outline ki-right fs-2 text-dark mx-1"></i>
+                                    <i class="ki-outline ki-right fs-2 text-gray-800 mx-1"></i>
                                     {{$ticket->department->name}}
                                 @endif
                             </div>
@@ -172,7 +172,7 @@
                                                 <img src="{{$ticket->creator->avatar}}" alt="{{$ticket->creator->name}}" class="w-100" />
                                             </div>
                                         @else
-                                            <div class="symbol-label fs-3 bg-light-dark text-dark">
+                                            <div class="symbol-label fs-3 bg-light-dark text-gray-800">
                                                 {{get_initials($ticket->creator->name)}}
                                             </div>
                                         @endif

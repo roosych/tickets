@@ -212,7 +212,7 @@
                                 {{$user->name}}
                             </p>
                             <div class="mb-3">
-                                <div class="badge badge-lg badge-light-dark d-inline">
+                                <div class="badge badge-lg badge-light-secondary d-inline">
                                     {{$user->position}}
                                 </div>
                             </div>
