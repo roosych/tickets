@@ -154,17 +154,12 @@ class TicketController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        //$this->authorize('create', Ticket::class);
-
         $data = $request->validated();
         $ticket = $this->ticketService->createTicket($data);
 
         return response()->json(['status' => 'success', 'data' => $ticket], 201);
     }
 
-    /**
-     * @throws TicketAccessException
-     */
     public function complete(CompleteRequest $request)
     {
         $data = $request->validated();
@@ -183,19 +178,21 @@ class TicketController extends Controller
     {
         $data = $request->validated();
         $ticket = Ticket::findOrFail($data['ticket_id']);
+
+        try {
+            $this->authorize('cancel', $ticket);
+        } catch (AuthorizationException $e) {
+            throw new AuthorizationException('У вас нет прав на отмену этого тикета!');
+        }
+
         $this->ticketService->cancelTicket($ticket, $data['cancelled_comment']);
 
         return response()->json(['success' => true]);
     }
 
-    /**
-     * @throws TicketAccessException
-     */
     public function inprogress(int $id)
     {
         $ticket = Ticket::findOrFail($id);
-        //$this->authorize('show', $ticket);
-
         $this->ticketService->updateTicketStatus($ticket, TicketStatusEnum::IN_PROGRESS);
 
         $html = view('components.tickets.ticket-status-badge', [
@@ -216,9 +213,6 @@ class TicketController extends Controller
         ]);
     }
 
-    /**
-     * @throws TicketAccessException
-     */
     public function close(Ticket $ticket)
     {
         try {
@@ -231,9 +225,6 @@ class TicketController extends Controller
         return response()->json(['success' => true,]);
     }
 
-    /**
-     * @throws TicketAccessException
-     */
     public function storeComment(StoreCommentRequest $request, Ticket $ticket)
     {
         try {
@@ -243,7 +234,6 @@ class TicketController extends Controller
         }
 
         $data = $request->validated();
-        //dd($data);
         $comment = $this->ticketService->addComment($ticket, $data);
         $comment->load('creator');
         return response()->json([

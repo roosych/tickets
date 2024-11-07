@@ -36,7 +36,7 @@
                 <div>
 
                     @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED) && !$ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED))
-                        @if($ticket->creator->id === auth()->id() || (auth()->user()->is_admin && auth()->user()->getDepartmentId() === $ticket->department->id))
+                        @can('cancel', $ticket)
                             @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED)
                                 && (!$ticket->parent || !$ticket->parent->status->is(\App\Enums\TicketStatusEnum::CANCELED)))
                                 <button class="btn btn-sm btn-light-danger btn-active-danger me-2 cancel-ticket-btn"
@@ -48,7 +48,7 @@
                                     {{trans('tickets.buttons.cancel_ticket')}}
                                 </button>
                             @endif
-                        @endif
+                        @endcan
 
                             @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE))
                                 @can('close', $ticket)

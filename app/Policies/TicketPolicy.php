@@ -60,4 +60,24 @@ class TicketPolicy
         return $user->hasPermissions('comment', Ticket::class)
             && $user->getDepartmentId() === $ticket->department->id;
     }
+
+    #[PolicyPermissionNameAttribute(['az' => 'Ləğv etmək', 'en' => 'Cancel', 'ru' => 'Отмена'])]
+    public function cancel(User $user, Ticket $ticket): bool
+    {
+        // Создатель тикета может отменить
+        if ($ticket->creator && $ticket->creator->id === $user->id) {
+            return true;
+        }
+
+        // Пользователи из департамента создателя с разрешением на отмену
+        if ($ticket->creator && $ticket->creator->getDepartmentId() === $user->getDepartmentId()) {
+            return $user->hasPermissions('cancel', Ticket::class);
+        }
+
+        // Пользователи из департамента тикета с разрешением на отмену
+        if ($ticket->department && $ticket->department->id === $user->getDepartmentId()) {
+            return $user->hasPermissions('cancel', Ticket::class);
+        }
+        return false;
+    }
 }
