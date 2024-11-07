@@ -125,16 +125,19 @@ class TicketService
     public function cancelTicket(Ticket $ticket, string $comment): void
     {
         $user = Auth::user();
-        // Проверяем, есть ли у тикета исполнитель
-        if ($ticket->performer === null) {
-            // Если исполнителя нет, проверяем только принадлежность к отделу или являемся ли мы создателем тикета
-            if ($user->getDepartmentId() !== $ticket->department->id && $user->id !== $ticket->creator->id) {
-                abort(403, 'У вас нет прав на закрытие этого тикета');
-            }
-        } else {
-            // Если исполнитель есть, проверяем исполнителя, отдел и являемся ли мы создателем тикета
-            if ($user->id !== $ticket->performer->id && $user->getDepartmentId() !== $ticket->department->id && $user->id !== $ticket->creator->id) {
-                abort(403, 'У вас нет прав на закрытие этого тикета');
+        // Если пользователь админ - разрешаем отмену без дополнительных проверок
+        if (!$user->is_admin) {
+            // Проверяем, есть ли у тикета исполнитель
+            if ($ticket->performer === null) {
+                // Если исполнителя нет, проверяем только принадлежность к отделу или являемся ли мы создателем тикета
+                if ($user->getDepartmentId() !== $ticket->department->id && $user->id !== $ticket->creator->id) {
+                    abort(403, 'У вас нет прав на закрытие этого тикета');
+                }
+            } else {
+                // Если исполнитель есть, проверяем исполнителя, отдел и являемся ли мы создателем тикета
+                if ($user->id !== $ticket->performer->id && $user->getDepartmentId() !== $ticket->department->id && $user->id !== $ticket->creator->id) {
+                    abort(403, 'У вас нет прав на закрытие этого тикета');
+                }
             }
         }
 
