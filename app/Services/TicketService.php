@@ -67,24 +67,27 @@ class TicketService
             'Тикет уже закрыт или отменен!'
         );
 
-
         // Проверка статуса самого тикета
         if (!$ticket->status->is(TicketStatusEnum::DONE)) {
             abort(403, 'Тикет еще не выполнен');
         }
 
-        $ticketChildren = $ticket->allChildren()->get();
-        $hasUncompleted = false;
+        if ($ticket->allChildren()->exists()) {
+            $ticketChildren = $ticket->allChildren()->get();
 
-        foreach ($ticketChildren as $child) {
-            if (!$child->status->is(TicketStatusEnum::COMPLETED)) {
-                $hasUncompleted = true;
-                break;
+            foreach ($ticketChildren as $child) {
+                // Проверяем есть ли тикеты не в статусе DONE или COMPLETED
+                if (!$child->status->is(TicketStatusEnum::DONE) && !$child->status->is(TicketStatusEnum::COMPLETED)) {
+                    abort(403, 'У тикета есть невыполненные подтикеты');
+                }
             }
-        }
 
-        if ($hasUncompleted) {
-            abort(403, 'У тикета есть незакрытые подтикеты');
+            // Закрываем все подтикеты в статусе DONE
+            foreach ($ticketChildren as $child) {
+                if ($child->status->is(TicketStatusEnum::DONE)) {
+                    $this->updateTicketStatus($child, TicketStatusEnum::COMPLETED);
+                }
+            }
         }
 
         $this->updateTicketStatus($ticket, TicketStatusEnum::COMPLETED);
