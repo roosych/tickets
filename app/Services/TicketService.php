@@ -392,7 +392,7 @@ class TicketService
         });
 
         // Удаляем дубликаты
-        return $recipients->unique('id')->toArray();
+        return $recipients->unique('id')->pluck('id')->toArray();
     }
 
     private function getRecipientsForComment(Ticket $ticket, Comment $comment): array
@@ -412,7 +412,7 @@ class TicketService
         });
 
         // Удаляем дубликаты
-        return $recipients->unique('id')->toArray();
+        return $recipients->unique('id')->pluck('id')->toArray();
     }
 
     private function getRecipientsForCreation(Ticket $ticket): array
@@ -445,7 +445,7 @@ class TicketService
         });
 
         // Удаляем дубликаты
-        return $recipients->unique('id')->toArray();
+        return $recipients->unique('id')->pluck('id')->toArray();
     }
 
     private function getRecipientsForAssign(Ticket $ticket): array
@@ -456,7 +456,7 @@ class TicketService
             $recipients->push($ticket->performer);
         }
 
-        return $recipients->unique('id')->toArray();
+        return $recipients->unique('id')->pluck('id')->toArray();
     }
 
     // вспомогательные проверки

@@ -13,9 +13,14 @@ class TicketEventListener implements ShouldQueue
     public function handle(TicketEvent $event): void
     {
         // Отправка на почту
-        foreach ($event->recipients as $recipient) {
-            $user = User::find($recipient['id']);
-            SendTicketNotification::dispatch($user, $event->ticket, $event->action, $event->additionalData);
+        // Проверяем, что список получателей не пуст
+        if (!empty($event->recipients)) {
+            foreach ($event->recipients as $recipientId) {
+                $user = User::find($recipientId);
+                if ($user) {
+                    SendTicketNotification::dispatch($user, $event->ticket, $event->action, $event->additionalData);
+                }
+            }
         }
 
         // Отправка в тг группу
