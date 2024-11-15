@@ -9,7 +9,7 @@ class SettingsController extends Controller
 {
     public function users()
     {
-        $users = User::all();
+        $users = User::excludeFired()->get();
         return view('cabinet.settings.users', compact('users'));
     }
 }

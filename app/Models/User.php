@@ -137,6 +137,10 @@ class User extends Authenticatable implements LdapAuthenticatable
             ->whereNull('read_at');
     }
 
+    public function scopeExcludeFired($query)
+    {
+        return $query->where('distinguishedname', 'NOT LIKE', '%Fired_Employees%');
+    }
 
     protected $fillable = [
         'name',
