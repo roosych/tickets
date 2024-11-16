@@ -24,8 +24,11 @@ class IndexController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $tickets = Ticket::with('performer', 'department', 'creator')
-            ->whereColumn('user_id', '!=', 'executor_id')
+        $tickets = Ticket::with('performer', 'department', 'creator', 'priority', 'parent')
+            ->where(function ($query) {
+                $query->whereColumn('user_id', '!=', 'executor_id')
+                    ->orWhereNull('executor_id'); // Добавляем условие для null
+            })
             ->get();
 
         $openedTickets = $tickets
@@ -36,6 +39,9 @@ class IndexController extends Controller
             ->where('department_id', Auth::user()->getDepartmentId())
             ->where('status', TicketStatusEnum::DONE)
             ->where('executor_id', '!=', auth()->id());
+
+        $sentTickets = $tickets
+            ->where('user_id', auth()->id());
 
         //dd($openedTickets);
 
@@ -51,7 +57,7 @@ class IndexController extends Controller
         $totalTickets = $data['totalDepartmentTickets'];
 
         return Auth::user()->getDepartment()->active
-            ? view('cabinet.index', compact('priorities','openedTickets', 'departments', 'topPerformers', 'totalTickets', 'tickets', 'doneTickets'))
+            ? view('cabinet.index', compact('priorities','openedTickets', 'departments', 'topPerformers', 'totalTickets', 'tickets', 'doneTickets', 'sentTickets'))
             : view('cabinet.deactive', compact('priorities', 'departments'));
     }
 

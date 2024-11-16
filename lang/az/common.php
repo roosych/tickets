@@ -112,4 +112,10 @@ return [
         'text' => 'sizi qeyd edib. Tiket ',
         'empty' => 'Yeni qeydlər yoxdur',
     ],
+    'event_types' => [
+        'task' => 'Tapşırıq',
+        'note' => 'Qeyd',
+        'meeting' => 'Görüş',
+        'trip' => 'Səyahət',
+    ],
 ];

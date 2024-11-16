@@ -21,6 +21,7 @@ return [
     'table' => [
         'search' => 'Axtar...',
         'ticket' => 'Tiket',
+        'main_ticket' => 'Əsas tiket',
         'create_ticket' => 'Yeni tiket',
         'creator' => 'Yaradan',
         'priority' => 'Prioritet',
@@ -33,7 +34,7 @@ return [
         'actions' => 'Əməlliyatlar',
         'more' => 'Ətraflı',
         'empty' => 'Tiket yoxdur',
-        'no_parent' => 'əsas tiket',
+        'no_parent' => 'yoxdur',
     ],
     'create_modal' => [
         'title' => 'Yeni tiket',
@@ -82,5 +83,10 @@ return [
     'send_comment' => 'Şərh yaz',
     'add_file' => 'Fayl əlavə et',
     'my_opened_tickets' => 'Açıq tiketlərim',
+    'done_tickets' => '',
     'mention_hint' => 'əməkdaşı qeyd etmək üçün "@" ilə başlayın',
+    'my_open' => 'Mənim açıq tiketlərim',
+    'wait_close' => 'Bağlanmağı gözləyənlər',
+    'empty_out' => 'Siz heç bir tiket açmamısız',
+    'empty_wait_close' => 'Bağlanmağı gözləyən tiketlər yoxdur',
 ];
