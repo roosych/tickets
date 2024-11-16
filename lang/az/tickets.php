@@ -89,4 +89,5 @@ return [
     'wait_close' => 'Bağlanmağı gözləyənlər',
     'empty_out' => 'Siz heç bir tiket açmamısız',
     'empty_wait_close' => 'Bağlanmağı gözləyən tiketlər yoxdur',
+    'has_children' => 'Alt tiketlər mövcuddur',
 ];

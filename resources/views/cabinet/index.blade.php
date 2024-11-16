@@ -118,6 +118,11 @@
                                                 <tr class="position_row_{{$ticket->id}}">
                                                     <td class="ps-3">
                                                         <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
+                                                        @if($ticket->allChildren()->exists())
+                                                            <div class="ms-2" data-bs-toggle="tooltip" aria-label="{{trans('tickets.has_children')}}" data-bs-original-title="{{trans('tickets.has_children')}}">
+                                                                <i class="ki-outline ki-note-2 fs-2"></i>
+                                                            </div>
+                                                        @endif
                                                     </td>
                                                     <td class="d-flex align-items-center border-bottom-0">
                                                         <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
@@ -203,6 +208,11 @@
                                                 <tr class="position_row_{{$ticket->id}}">
                                                     <td class="ps-3">
                                                         <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
+                                                        @if($ticket->allChildren()->exists())
+                                                            <div class="ms-2" data-bs-toggle="tooltip" aria-label="{{trans('tickets.has_children')}}" data-bs-original-title="{{trans('tickets.has_children')}}">
+                                                                <i class="ki-outline ki-note-2 fs-2"></i>
+                                                            </div>
+                                                        @endif
                                                     </td>
                                                     <td class="d-flex align-items-center border-bottom-0">
                                                         <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
@@ -312,6 +322,11 @@
                                                         <tr class="position_row_{{$ticket->id}}">
                                                             <td class="ps-3">
                                                                 <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
+                                                                @if($ticket->allChildren()->exists())
+                                                                    <div class="ms-2" data-bs-toggle="tooltip" aria-label="{{trans('tickets.has_children')}}" data-bs-original-title="{{trans('tickets.has_children')}}">
+                                                                        <i class="ki-outline ki-note-2 fs-2"></i>
+                                                                    </div>
+                                                                @endif
                                                             </td>
                                                             <td class="d-flex align-items-center border-bottom-0">
                                                                 <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
