@@ -63,66 +63,178 @@
                 </div>
             </div>
 
-            @if(auth()->user()->hasPermissions('close', \App\Models\Ticket::class))
-                @if(count($doneTickets))
-                    <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
-                        <div class="col-xl-12">
-                            <div class="card card-flush">
-                                <div class="card-header flex-nowrap pt-5">
-                                    <h3 class="card-title align-items-start flex-column">
-                                <span class="card-label fw-bold text-gray-900">
-                                    {{trans('tickets.done_tickets')}}
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card card-flush mb-5 mb-xl-10">
+                        <div class="card-header flex-nowrap pt-5">
+                            <h3 class="card-title align-items-start flex-column">
+                                <span class="card-label fw-bold text-gray-800">
+                                    Тикеты
                                 </span>
-                                    </h3>
-                                </div>
-                                <div class="card-body pt-0">
-                                    <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="done_tickets_table">
-                                        <thead>
-                                        <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="">{{trans('tickets.table.ticket')}}</th>
-                                            <th class="min-w-125px">{{trans('tickets.table.performer')}}</th>
-                                            <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
-                                            <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
-                                            <th>{{trans('tickets.table.ticket')}}</th>
-                                            <th class="text-end min-w-100px"></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody class="fw-semibold text-gray-600">
-                                        @php
-                                            // Создаем массив ID тикетов, у которых есть выполненные подтикеты
-                                            $ticketsWithDoneChildren = [];
-                                            foreach($doneTickets as $ticket) {
-                                                if($ticket->parent) {
-                                                    $ticketsWithDoneChildren[] = $ticket->parent->id;
-                                                }
-                                            }
-                                        @endphp
+                            </h3>
+                        </div>
+                        <div class="card-body pb-4 pt-0">
+                            <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x border-transparent fs-4 fw-semibold mb-5">
+                                <li class="nav-item">
+                                    <a class="nav-link text-active-primary d-flex align-items-center pb-5 active"
+                                       data-bs-toggle="tab" href="#my_opened">
+                                        {{trans('tickets.my_open')}} (<span class="text-gray-800">{{count($openedTickets)}}</span>)
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-active-primary d-flex align-items-center pb-5"
+                                       data-bs-toggle="tab" href="#my_out">
+                                        {{trans('sidebar.tickets.sent.text')}} (<span class="text-gray-800">{{count($sentTickets)}}</span>)
+                                    </a>
+                                </li>
 
-                                        @foreach($doneTickets as $ticket)
-                                            @if(!in_array($ticket->id, $ticketsWithDoneChildren))
+                                @if(auth()->user()->hasPermissions('close', \App\Models\Ticket::class))
+                                    <li class="nav-item">
+                                        <a class="nav-link text-active-primary d-flex align-items-center pb-5"
+                                           data-bs-toggle="tab" href="#wait_closed">
+                                            {{trans('tickets.wait_close')}} (<span class="text-gray-800">{{count($doneTickets)}}</span>)
+                                        </a>
+                                    </li>
+                                @endif
+
+                            </ul>
+
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="my_opened" role="tabpanel">
+                                    @if(count($openedTickets))
+                                        <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="my_open_tickets_table">
+                                            <thead>
+                                            <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                                <th class="">{{trans('tickets.table.ticket')}}</th>
+                                                <th class="min-w-125px">{{trans('tickets.table.creator')}}</th>
+                                                <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
+                                                <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
+                                                <th>{{trans('tickets.table.main_ticket')}}</th>
+                                                <th class="text-end min-w-100px"></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="fw-semibold text-gray-600">
+                                            @foreach($openedTickets as $ticket)
                                                 <tr class="position_row_{{$ticket->id}}">
                                                     <td class="ps-3">
                                                         <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
                                                     </td>
                                                     <td class="d-flex align-items-center border-bottom-0">
                                                         <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
-                                                            <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank">
-                                                                @if($ticket->performer->avatar)
+                                                            <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank">
+                                                                @if($ticket->creator->avatar)
                                                                     <div class="symbol-label">
-                                                                        <img src="{{$ticket->performer->avatar}}" alt="{{$ticket->performer->name}}" class="w-100" />
+                                                                        <img src="{{$ticket->creator->avatar}}" alt="{{$ticket->creator->name}}" class="w-100" />
                                                                     </div>
                                                                 @else
                                                                     <div class="symbol-label fs-3 bg-light-dark text-dark">
-                                                                        {{get_initials($ticket->performer->name)}}
+                                                                        {{get_initials($ticket->creator->name)}}
                                                                     </div>
                                                                 @endif
                                                             </a>
                                                         </div>
                                                         <div class="d-flex flex-column">
-                                                            <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
-                                                                {{$ticket->performer->name}}
+                                                            <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
+                                                                {{$ticket->creator->name}}
                                                             </a>
-                                                            <span>{{$ticket->performer->department}}</span>
+                                                            <span>{{$ticket->creator->department}}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                <span class="badge badge-light-{{$ticket->priority->class}} fw-bold fs-7">
+                                                    {{$ticket->priority->getNameByLocale()}}
+                                                </span>
+                                                    </td>
+                                                    <td>
+                                                        {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
+                                                    </td>
+                                                    <td>
+                                                        @if($ticket->parent)
+                                                            <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold" target="_blank">#{{$ticket->id}}</a>
+                                                        @else
+                                                            {{trans('tickets.table.no_parent')}}
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-end pe-2">
+                                                        <div class="my-3 ms-9">
+                                                            <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
+                                        <span data-bs-toggle="tooltip"
+                                              data-bs-trigger="hover"
+                                              aria-label="{{trans('tickets.table.more')}}"
+                                              data-bs-original-title="{{trans('tickets.table.more')}}">
+                                            <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
+                                        </span>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    @else
+                                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-6 my-5">
+                                            <i class="ki-outline ki-information fs-2tx text-warning me-4"></i>
+                                            <div class="d-flex flex-stack flex-grow-1 ">
+                                                <div class=" fw-semibold">
+                                                    <h4 class="text-gray-900 fw-bold mb-0">{{trans('tickets.table.empty')}}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="tab-pane fade" id="my_out" role="tabpanel">
+
+                                    @if(count($sentTickets))
+                                        <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="sent_tickets_table">
+                                            <thead>
+                                            <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                                <th class="">{{trans('tickets.table.ticket')}}</th>
+                                                <th class="min-w-125px">{{trans('tickets.table.performer')}}</th>
+                                                <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
+                                                <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
+                                                <th>{{trans('tickets.table.main_ticket')}}</th>
+                                                <th class="text-end min-w-100px"></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="fw-semibold text-gray-600">
+
+                                            @foreach($sentTickets as $ticket)
+                                                <tr class="position_row_{{$ticket->id}}">
+                                                    <td class="ps-3">
+                                                        <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
+                                                    </td>
+                                                    <td class="d-flex align-items-center border-bottom-0">
+                                                        <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
+                                                            @if($ticket->performer)
+                                                                <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank">
+                                                                    @if($ticket->performer->avatar)
+                                                                        <div class="symbol-label">
+                                                                            <img src="{{$ticket->performer->avatar}}" alt="{{$ticket->performer->name}}" class="w-100" />
+                                                                        </div>
+                                                                    @else
+                                                                        <div class="symbol-label fs-3 bg-light-dark text-dark">
+                                                                            {{get_initials($ticket->performer->name)}}
+                                                                        </div>
+                                                                    @endif
+                                                                </a>
+                                                                @else
+                                                                <div class="symbol-label fs-3 bg-light-dark text-gray-800">
+                                                                    ?
+                                                                </div>
+                                                            @endif
+
+                                                        </div>
+                                                        <div class="d-flex flex-column">
+                                                            @if($ticket->performer)
+                                                                <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
+                                                                    {{$ticket->performer->name}}
+                                                                </a>
+                                                                <span>{{$ticket->performer->department}}</span>
+                                                            @else
+                                                                {{trans('tickets.sent.performer_empty')}}
+                                                            @endif
+
                                                         </div>
                                                     </td>
                                                     <td>
@@ -153,115 +265,131 @@
                                                         </div>
                                                     </td>
                                                 </tr>
-                                            @endif
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            @endif
-
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="card card-flush">
-                        <div class="card-header flex-nowrap pt-5">
-                            <h3 class="card-title align-items-start flex-column">
-                                <span class="card-label fw-bold text-gray-900">
-                                    {{trans('tickets.my_opened_tickets')}}
-                                </span>
-                            </h3>
-                        </div>
-                        <div class="card-body pt-0">
-                            @if(count($openedTickets))
-                                <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="my_open_tickets_table">
-                                    <thead>
-                                    <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                        <th class="">{{trans('tickets.table.ticket')}}</th>
-                                        <th class="min-w-125px">{{trans('tickets.table.creator')}}</th>
-                                        <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
-                                        <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
-                                        <th>{{trans('tickets.table.ticket')}}</th>
-                                        <th class="text-end min-w-100px"></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody class="fw-semibold text-gray-600">
-                                    @foreach($openedTickets as $ticket)
-                                        <tr class="position_row_{{$ticket->id}}">
-                                            <td class="ps-3">
-                                                <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
-                                            </td>
-                                            <td class="d-flex align-items-center border-bottom-0">
-                                                <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
-                                                    <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank">
-                                                        @if($ticket->creator->avatar)
-                                                            <div class="symbol-label">
-                                                                <img src="{{$ticket->creator->avatar}}" alt="{{$ticket->creator->name}}" class="w-100" />
-                                                            </div>
-                                                        @else
-                                                            <div class="symbol-label fs-3 bg-light-dark text-dark">
-                                                                {{get_initials($ticket->creator->name)}}
-                                                            </div>
-                                                        @endif
-                                                    </a>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    @else
+                                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-6 my-5">
+                                            <i class="ki-outline ki-information fs-2tx text-warning me-4"></i>
+                                            <div class="d-flex flex-stack flex-grow-1 ">
+                                                <div class=" fw-semibold">
+                                                    <h4 class="text-gray-900 fw-bold mb-0">
+                                                        {{trans('tickets.empty_out')}}
+                                                    </h4>
                                                 </div>
-                                                <div class="d-flex flex-column">
-                                                    <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
-                                                        {{$ticket->creator->name}}
-                                                    </a>
-                                                    <span>{{$ticket->creator->department}}</span>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge badge-light-{{$ticket->priority->class}} fw-bold fs-7">
-                                                    {{$ticket->priority->getNameByLocale()}}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
-                                            </td>
-                                            <td>
-                                                @if($ticket->parent)
-                                                    <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold" target="_blank">#{{$ticket->id}}</a>
-                                                @else
-                                                    {{trans('tickets.table.no_parent')}}
-                                                @endif
-                                            </td>
-                                            <td class="text-end pe-2">
-                                                <div class="my-3 ms-9">
-                                                    <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
-                                        <span data-bs-toggle="tooltip"
-                                              data-bs-trigger="hover"
-                                              aria-label="{{trans('tickets.table.more')}}"
-                                              data-bs-original-title="{{trans('tickets.table.more')}}">
-                                            <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
-                                        </span>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            @else
-                                <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-6 my-5">
-                                    <i class="ki-outline ki-information fs-2tx text-warning me-4"></i>
-                                    <div class="d-flex flex-stack flex-grow-1 ">
-                                        <div class=" fw-semibold">
-                                            <h4 class="text-gray-900 fw-bold mb-0">{{trans('tickets.table.empty')}}</h4>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
-                            @endif
+
+                                @if(auth()->user()->hasPermissions('close', \App\Models\Ticket::class))
+                                    <div class="tab-pane fade" id="wait_closed" role="tabpanel">
+                                        @if(count($doneTickets))
+                                            <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="done_tickets_table">
+                                                <thead>
+                                                <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                                    <th class="">{{trans('tickets.table.ticket')}}</th>
+                                                    <th class="min-w-125px">{{trans('tickets.table.performer')}}</th>
+                                                    <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
+                                                    <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
+                                                    <th>{{trans('tickets.table.main_ticket')}}</th>
+                                                    <th class="text-end min-w-100px"></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody class="fw-semibold text-gray-600">
+                                                @php
+                                                    // Создаем массив ID тикетов, у которых есть выполненные подтикеты
+                                                    $ticketsWithDoneChildren = [];
+                                                    foreach($doneTickets as $ticket) {
+                                                        if($ticket->parent) {
+                                                            $ticketsWithDoneChildren[] = $ticket->parent->id;
+                                                        }
+                                                    }
+                                                @endphp
+
+                                                @foreach($doneTickets as $ticket)
+                                                    @if(!in_array($ticket->id, $ticketsWithDoneChildren))
+                                                        <tr class="position_row_{{$ticket->id}}">
+                                                            <td class="ps-3">
+                                                                <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
+                                                            </td>
+                                                            <td class="d-flex align-items-center border-bottom-0">
+                                                                <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
+                                                                    <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank">
+                                                                        @if($ticket->performer->avatar)
+                                                                            <div class="symbol-label">
+                                                                                <img src="{{$ticket->performer->avatar}}" alt="{{$ticket->performer->name}}" class="w-100" />
+                                                                            </div>
+                                                                        @else
+                                                                            <div class="symbol-label fs-3 bg-light-dark text-dark">
+                                                                                {{get_initials($ticket->performer->name)}}
+                                                                            </div>
+                                                                        @endif
+                                                                    </a>
+                                                                </div>
+                                                                <div class="d-flex flex-column">
+                                                                    <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
+                                                                        {{$ticket->performer->name}}
+                                                                    </a>
+                                                                    <span>{{$ticket->performer->department}}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                        <span class="badge badge-light-{{$ticket->priority->class}} fw-bold fs-7">
+                                                            {{$ticket->priority->getNameByLocale()}}
+                                                        </span>
+                                                            </td>
+                                                            <td>
+                                                                {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
+                                                            </td>
+                                                            <td>
+                                                                @if($ticket->parent)
+                                                                    <a href="{{route('cabinet.tickets.show', $ticket->parent)}}" class="text-gray-800 text-hover-primary fw-bold" target="_blank">#{{$ticket->parent->id}}</a>
+                                                                @else
+                                                                    {{trans('tickets.table.no_parent')}}
+                                                                @endif
+                                                            </td>
+                                                            <td class="text-end pe-2">
+                                                                <div class="my-3 ms-9">
+                                                                    <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
+                                                                <span data-bs-toggle="tooltip"
+                                                                      data-bs-trigger="hover"
+                                                                      aria-label="{{trans('tickets.table.more')}}"
+                                                                      data-bs-original-title="{{trans('tickets.table.more')}}">
+                                                                    <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
+                                                                </span>
+                                                                    </a>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>
+                                            </table>
+                                        @else
+                                            <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-6 my-5">
+                                                <i class="ki-outline ki-information fs-2tx text-warning me-4"></i>
+                                                <div class="d-flex flex-stack flex-grow-1 ">
+                                                    <div class=" fw-semibold">
+                                                        <h4 class="text-gray-900 fw-bold mb-0">
+                                                            {{trans('tickets.empty_wait_close')}}
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
 
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
+
+
+
         <div class="col-xl-4">
             <div class="col-12">
                 <div class="card card-flush h-xl-100">
@@ -392,6 +520,7 @@
     <script src="{{asset('assets/js/custom/tickets/create.js')}}"></script>
     <script src="{{asset('assets/js/custom/index/opened_tickets_table.js')}}"></script>
     <script src="{{asset('assets/js/custom/index/done_tickets_table.js')}}"></script>
+    <script src="{{asset('assets/js/custom/index/sent_tickets_table.js')}}"></script>
     <script>
         //filepond
         FilePond.registerPlugin(FilePondPluginFileValidateType);
