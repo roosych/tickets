@@ -2,7 +2,6 @@
 
 namespace App\Http\Filters;
 
-use Illuminate\Support\Carbon;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -15,6 +14,7 @@ class TicketFilter extends QueryBuilder
             AllowedFilter::exact('priorities_id'),
             AllowedFilter::exact('department_id'),
             AllowedFilter::scope('date_range', 'filterByDateRange'),
+            AllowedFilter::exact('status'),
         ];
     }
 }

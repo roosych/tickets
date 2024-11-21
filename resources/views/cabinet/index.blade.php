@@ -83,6 +83,12 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-active-primary d-flex align-items-center pb-5"
+                                       data-bs-toggle="tab" href="#my_done">
+                                        Выполненные (<span class="text-gray-800">{{count($myDoneTickets)}}</span>)
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-active-primary d-flex align-items-center pb-5"
                                        data-bs-toggle="tab" href="#my_out">
                                         {{trans('sidebar.tickets.sent.text')}} (<span class="text-gray-800">{{count($sentTickets)}}</span>)
                                     </a>
@@ -163,12 +169,12 @@
                                                     <td class="text-end pe-2">
                                                         <div class="my-3 ms-9">
                                                             <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
-                                        <span data-bs-toggle="tooltip"
-                                              data-bs-trigger="hover"
-                                              aria-label="{{trans('tickets.table.more')}}"
-                                              data-bs-original-title="{{trans('tickets.table.more')}}">
-                                            <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
-                                        </span>
+                                                                <span data-bs-toggle="tooltip"
+                                                                      data-bs-trigger="hover"
+                                                                      aria-label="{{trans('tickets.table.more')}}"
+                                                                      data-bs-original-title="{{trans('tickets.table.more')}}">
+                                                                    <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
+                                                                </span>
                                                             </a>
                                                         </div>
                                                     </td>
@@ -182,6 +188,96 @@
                                             <div class="d-flex flex-stack flex-grow-1 ">
                                                 <div class=" fw-semibold">
                                                     <h4 class="text-gray-900 fw-bold mb-0">{{trans('tickets.table.empty')}}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="tab-pane fade" id="my_done" role="tabpanel">
+                                    @if(count($myDoneTickets))
+                                        <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="my_done_tickets_table">
+                                            <thead>
+                                            <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
+                                                <th class="">{{trans('tickets.table.ticket')}}</th>
+                                                <th class="min-w-125px">{{trans('tickets.table.creator')}}</th>
+                                                <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
+                                                <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
+                                                <th>{{trans('tickets.table.main_ticket')}}</th>
+                                                <th class="text-end min-w-100px"></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="fw-semibold text-gray-600">
+                                            @foreach($myDoneTickets as $ticket)
+                                                <tr class="position_row_{{$ticket->id}}">
+                                                    <td class="ps-3">
+                                                        <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
+                                                        @if($ticket->allChildren()->exists())
+                                                            <div class="ms-2" data-bs-toggle="tooltip" aria-label="{{trans('tickets.has_children')}}" data-bs-original-title="{{trans('tickets.has_children')}}">
+                                                                <i class="ki-outline ki-note-2 fs-2"></i>
+                                                            </div>
+                                                        @endif
+                                                    </td>
+                                                    <td class="d-flex align-items-center border-bottom-0">
+                                                        <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
+                                                            <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank">
+                                                                @if($ticket->creator->avatar)
+                                                                    <div class="symbol-label">
+                                                                        <img src="{{$ticket->creator->avatar}}" alt="{{$ticket->creator->name}}" class="w-100" />
+                                                                    </div>
+                                                                @else
+                                                                    <div class="symbol-label fs-3 bg-light-dark text-dark">
+                                                                        {{get_initials($ticket->creator->name)}}
+                                                                    </div>
+                                                                @endif
+                                                            </a>
+                                                        </div>
+                                                        <div class="d-flex flex-column">
+                                                            <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
+                                                                {{$ticket->creator->name}}
+                                                            </a>
+                                                            <span>{{$ticket->creator->department}}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                <span class="badge badge-light-{{$ticket->priority->class}} fw-bold fs-7">
+                                                    {{$ticket->priority->getNameByLocale()}}
+                                                </span>
+                                                    </td>
+                                                    <td>
+                                                        {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
+                                                    </td>
+                                                    <td>
+                                                        @if($ticket->parent)
+                                                            <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold" target="_blank">#{{$ticket->id}}</a>
+                                                        @else
+                                                            {{trans('tickets.table.no_parent')}}
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-end pe-2">
+                                                        <div class="my-3 ms-9">
+                                                            <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
+                                                                <span data-bs-toggle="tooltip"
+                                                                      data-bs-trigger="hover"
+                                                                      aria-label="{{trans('tickets.table.more')}}"
+                                                                      data-bs-original-title="{{trans('tickets.table.more')}}">
+                                                                    <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    @else
+                                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-6 my-5">
+                                            <i class="ki-outline ki-information fs-2tx text-warning me-4"></i>
+                                            <div class="d-flex flex-stack flex-grow-1 ">
+                                                <div class="fw-semibold">
+                                                    <h4 class="text-gray-900 fw-bold mb-0">
+                                                        Нет выполненных тикетов
+                                                    </h4>
                                                 </div>
                                             </div>
                                         </div>
@@ -444,12 +540,12 @@
                                         </div>
 
                                         <div class="m-0">
-                                        <span class="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                                            {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::IN_PROGRESS) }}
-                                        </span>
-                                            <span class="text-gray-500 fw-semibold fs-6">
-                                            {{trans('tickets.statuses.in_progress')}}
-                                        </span>
+                                            <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::IN_PROGRESS]) }}" class="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
+                                                {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::IN_PROGRESS) }}
+                                            </a>
+                                            <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::IN_PROGRESS]) }}" class="text-gray-500 fw-semibold fs-6">
+                                                {{trans('tickets.statuses.in_progress')}}
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -461,12 +557,12 @@
                                         </span>
                                         </div>
                                         <div class="m-0">
-                                        <span class="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                                            {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::DONE) }}
-                                        </span>
-                                            <span class="text-gray-500 fw-semibold fs-6">
-                                            {{trans('tickets.statuses.done')}}
-                                        </span>
+                                            <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::DONE]) }}" class="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
+                                                {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::DONE) }}
+                                            </a>
+                                            <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::DONE]) }}" class="text-gray-500 fw-semibold fs-6">
+                                                {{trans('tickets.statuses.done')}}
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -478,12 +574,12 @@
                                 </span>
                                         </div>
                                         <div class="m-0">
-                                        <span class="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                                            {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::COMPLETED) }}
-                                        </span>
-                                            <span class="text-gray-500 fw-semibold fs-6">
-                                            {{trans('tickets.statuses.completed')}}
-                                        </span>
+                                            <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::COMPLETED]) }}" class="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
+                                                {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::COMPLETED) }}
+                                            </a>
+                                            <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::COMPLETED]) }}" class="text-gray-500 fw-semibold fs-6">
+                                                {{trans('tickets.statuses.completed')}}
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -495,12 +591,12 @@
                                 </span>
                                         </div>
                                         <div class="m-0">
-                                        <span class="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                                            {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::CANCELED) }}
-                                        </span>
-                                            <span class="text-gray-500 fw-semibold fs-6">
-                                            {{trans('tickets.statuses.canceled')}}
-                                        </span>
+                                            <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::CANCELED]) }}" class="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
+                                                {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::CANCELED) }}
+                                            </a>
+                                            <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::CANCELED]) }}" class="text-gray-500 fw-semibold fs-6">
+                                                {{trans('tickets.statuses.canceled')}}
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -535,6 +631,7 @@
     <script src="{{asset('assets/js/custom/tickets/create.js')}}"></script>
     <script src="{{asset('assets/js/custom/index/opened_tickets_table.js')}}"></script>
     <script src="{{asset('assets/js/custom/index/done_tickets_table.js')}}"></script>
+    <script src="{{asset('assets/js/custom/index/my_done_tickets_table.js')}}"></script>
     <script src="{{asset('assets/js/custom/index/sent_tickets_table.js')}}"></script>
     <script>
         //filepond

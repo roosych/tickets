@@ -56,7 +56,7 @@ class TicketController extends Controller
         return view('cabinet.tickets.index', compact('tickets', 'priorities', 'statusLabels', 'departments'));
     }
 
-    public function inbox()
+    public function inbox(Request $request)
     {
         $statusLabels = [];
         foreach (TicketStatusEnum::cases() as $status) {
@@ -65,7 +65,12 @@ class TicketController extends Controller
         $priorities = Priorities::getCachedPriorities();
         $tickets = Ticket::query()
             ->with(['priority', 'creator', 'tags', 'performer'])
-            ->where('executor_id', auth()->id())->latest()->get();
+            ->where('executor_id', auth()->id())
+            ->when($request->input('filter.status'), function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->latest()
+            ->get();
 
         return view('cabinet.tickets.inbox', compact('tickets', 'statusLabels', 'priorities'));
     }
