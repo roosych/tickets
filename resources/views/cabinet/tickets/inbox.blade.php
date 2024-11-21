@@ -26,30 +26,32 @@
                 </div>
             </div>
             <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                @if(count($tickets))
-                    <div class="w-100 mw-250px">
-                        <select class="form-select form-select-solid"
-                                data-control="select2"
-                                data-hide-search="true" data-placeholder="{{trans('tickets.table.priority')}}" data-kt-ecommerce-priority-filter="priority">
-                            <option></option>
-                            <option value="all">{{trans('tickets.table.all_priorities')}}</option>
-                            @foreach($priorities as $item)
-                                <option value="{{$item->getNameByLocale()}}">{{$item->getNameByLocale()}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="w-100 mw-150px">
-                        <select class="form-select form-select-solid"
-                                data-control="select2"
-                                data-hide-search="true" data-placeholder="{{trans('tickets.table.all_statuses')}}" data-dept-tickets-filter="status">
-                            <option></option>
-                            <option value="all">{{trans('tickets.table.all_statuses')}}</option>
-                            @foreach($statusLabels as $item)
-                                <option value="{{$item}}">{{$item}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                @endif
+                <div class="w-100 mw-250px">
+                    <select class="form-select form-select-solid"
+                            data-control="select2"
+                            data-hide-search="true" data-placeholder="{{trans('tickets.table.priority')}}" data-kt-ecommerce-priority-filter="priority">
+                        <option></option>
+                        <option value="all">{{trans('tickets.table.all_priorities')}}</option>
+                        @foreach($priorities as $item)
+                            <option value="{{$item->getNameByLocale()}}">{{$item->getNameByLocale()}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="w-100 mw-150px">
+                    <select id="statusFilter" class="form-select form-select-solid"
+                            data-control="select2"
+                            data-hide-search="true"
+                            data-placeholder="{{ trans('tickets.table.all_statuses') }}">
+                        <option></option>
+                        <option value="all">{{ trans('tickets.table.all_statuses') }}</option>
+                        @foreach($statusLabels as $key => $label)
+                            <option value="{{ $key }}"
+                                {{ request('filter.status') === $key ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </div>
         <div class="card-body pt-0">
@@ -189,4 +191,21 @@
 
 @push('custom_js')
     <script src="{{asset('assets/js/custom/tickets/table.js')}}"></script>
+    <script>
+        $(document).ready(function () {
+            $('#statusFilter').on('change', function () {
+                const status = $(this).val();
+
+                // Формируем URL для фильтрации
+                const url = new URL(window.location.href);
+                if (status === 'all') {
+                    url.searchParams.delete('filter[status]'); // Убираем фильтр для всех статусов
+                } else {
+                    url.searchParams.set('filter[status]', status); // Устанавливаем выбранный статус
+                }
+
+                window.location.href = url.toString(); // Перенаправляем пользователя
+            });
+        });
+    </script>
 @endpush
