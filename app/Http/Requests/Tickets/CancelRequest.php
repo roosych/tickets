@@ -22,8 +22,8 @@ class CancelRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'cancelled_comment.required' => 'Пожалуйста, введите комментарий',
-            'cancelled_comment.max' => 'Слишком длинный комментарий',
+            'cancelled_comment.required' => trans('tickets.validations.comment.text_required'),
+            'cancelled_comment.max' => trans('tickets.validations.comment.text_max'),
         ];
     }
 }

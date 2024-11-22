@@ -24,8 +24,8 @@ class CompleteRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'completed_comment.required' => 'Пожалуйста, введите комментарий',
-            'completed_comment.max' => 'Слишком длинный комментарий',
+            'completed_comment.required' => trans('tickets.validations.comment.text_required'),
+            'completed_comment.max' => trans('tickets.validations.comment.text_max'),
         ];
     }
 }

@@ -30,8 +30,9 @@ return [
         'status' => 'Status',
         'all_statuses' => 'Bütün statuslar',
         'performer' => 'İcraçı',
+        'dept_users' => 'Şöbənin əməkdaşları',
         'tags' => 'taqlar',
-        'actions' => 'Əməlliyatlar',
+        'actions' => 'Əməliyyatlar',
         'more' => 'Ətraflı',
         'empty' => 'Tiket yoxdur',
         'no_parent' => 'yoxdur',
@@ -90,4 +91,21 @@ return [
     'empty_out' => 'Siz heç bir tiket açmamısız',
     'empty_wait_close' => 'Bağlanmağı gözləyən tiketlər yoxdur',
     'has_children' => 'Alt tiketlər mövcuddur',
+    'validations' => [
+        'text_required' => 'Tiketin təsviri yazılmayıb',
+        'text_max' => 'Təsvir 10000 simvoldan artıqdır',
+        'priority_required' => 'Prioritet seçlməyib',
+        'priority_exists' => 'Prioritet mövcud deyil',
+        'department_required' => 'İcraçı şöbə seçilməyib',
+        'department_exists' => 'Şöbə mövcud deyil',
+        'files_mimes' => 'Fayl formatları: jpeg, png, pdf, doc, docx, xls, xlsx',
+        'files_max' => 'Faylın ölçüsü 4 MB-dan çox olmamalıdır.',
+
+        'comment' => [
+            'text_required' => 'Şərh daxil edin',
+            'text_string' => 'Şərh daxil edin',
+            'text_max' => 'Mətn çox uzundur',
+        ],
+
+    ],
 ];

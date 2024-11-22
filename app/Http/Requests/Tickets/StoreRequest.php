@@ -64,17 +64,17 @@ class StoreRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'text.required' => 'Заполните описание тикета',
-            'text.max' => 'Описание не может содержать более 10000 символов',
+            'text.required' => trans('tickets.validations.text_required'),
+            'text.max' => trans('tickets.validations.text_max'),
 
-            'priority.required' => 'Выберите приоритет',
-            'priority.exists' => 'Приоритет не существует',
+            'priority.required' => trans('tickets.validations.priority_required'),
+            'priority.exists' => trans('tickets.validations.priority_exists'),
 
-            'department.required' => 'Выберите отдел',
-            'department.exists' => 'Отдел не существует',
+            'department.required' => trans('tickets.validations.department_required'),
+            'department.exists' => trans('tickets.validations.department_exists'),
 
-            'files.*.mimes' => 'Допустимые форматы файлов: jpeg, png, pdf, doc, docx, xls, xlsx',
-            'files.*.max' => 'Максимальный размер файла не должен превышать 4 МБ.',
+            'files.*.mimes' => trans('tickets.validations.files_mimes'),
+            'files.*.max' => trans('tickets.validations.files_max'),
         ];
     }
 }

@@ -11,7 +11,9 @@
                     @csrf
                     <input type="hidden" name="ticket_id" id="ticket-id">
                     <div class="text-center mb-13">
-                        <h1 class="mb-3">Исполнители</h1>
+                        <h1 class="mb-3">
+                            {{trans('tickets.table.dept_users')}}
+                        </h1>
                     </div>
 
                     <div id="modal_content">
@@ -45,7 +47,9 @@
                         @if(! $ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED))
 --}}
                             <div class="text-center">
-                                <button id="attach_user_submit" type="submit" class="btn btn-primary">Сохранить</button>
+                                <button id="attach_user_submit" type="submit" class="btn btn-primary">
+                                    {{trans('common.roles.buttons.save')}}
+                                </button>
                             </div>
 {{--
                         @endif

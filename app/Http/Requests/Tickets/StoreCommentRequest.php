@@ -25,9 +25,9 @@ class StoreCommentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'text.required' => 'Введите комментарий',
-            'text.string' => 'Введите текст',
-            'text.max' => 'Слишком длинный комментарий',
+            'text.required' => trans('tickets.validations.comment.text_required'),
+            'text.string' => trans('tickets.validations.comment.text_string'),
+            'text.max' => trans('tickets.validations.comment.text_max'),
         ];
     }
 }

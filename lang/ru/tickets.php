@@ -30,6 +30,7 @@ return [
         'status' => 'Статус',
         'all_statuses' => 'Все статусы',
         'performer' => 'Исполнитель',
+        'dept_users' => 'Сотрудники отдела',
         'tags' => 'Теги',
         'actions' => 'Действия',
         'more' => 'Подробнее',
@@ -90,4 +91,21 @@ return [
     'empty_out' => 'Вы не создавали тикетов',
     'empty_wait_close' => 'Нет тикетов ожидающих закрытия',
     'has_children' => 'Есть подтикеты',
+    'validations' => [
+        'text_required' => 'Заполните описание тикета',
+        'text_max' => 'Описание не может содержать более 10000 символов',
+        'priority_required' => 'Выберите приоритет',
+        'priority_exists' => 'Приоритет не существует',
+        'department_required' => 'Выберите отдел',
+        'department_exists' => 'Отдел не существует',
+        'files_mimes' => 'Допустимые форматы файлов: jpeg, png, pdf, doc, docx, xls, xlsx',
+        'files_max' => 'Максимальный размер файла не должен превышать 4 МБ.',
+
+        'comment' => [
+            'text_required' => 'Введите комментарий',
+            'text_string' => 'Введите текст',
+            'text_max' => 'Слишком длинный комментарий',
+        ],
+
+    ],
 ];
