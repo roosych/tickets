@@ -22,7 +22,15 @@
                 <i class="ki-outline ki-magnifier fs-3 position-absolute ms-4"></i>
                 <input type="text" user-report-filter="search" class="form-control form-control-solid w-250px ps-12"
                        placeholder="{{trans('tickets.table.search')}}" />
+                <div>
+                    <button id="syncButton" class="btn btn-primary ms-5">
+                        Обновить данные
+                    </button>
+                </div>
             </div>
+
+            <div id="output" class="text-success fs-5 fw-bold output my-5"></div>
+
             <table class="table align-middle table-row-dashed fs-6 gy-5" id="user_report_table">
                 <thead>
                 <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
@@ -33,9 +41,9 @@
                     <th class="text-end min-w-100px">3CX</th>
                     <th class="text-end min-w-100px">Учетка</th>
                     <th class="text-end">Видимый</th>
-                    <th class="text-end">Активный</th>
-                    <th class="text-end">Email notify</th>
-                    <th class="text-end">TG notify</th>
+{{--                    <th class="text-end">Активный</th>--}}
+{{--                    <th class="text-end">Email notify</th>--}}
+{{--                    <th class="text-end">TG notify</th>--}}
                 </tr>
                 </thead>
                 <tbody class="fw-semibold text-gray-600">
@@ -91,39 +99,39 @@
                                 </div>
                             </div>
                         </td>
-                        <td>
-                            <div class="d-flex justify-content-end">
-                                <div class="form-check form-check-solid form-check-custom form-switch">
-                                    <input class="form-check-input w-35px h-20px"
-                                           type="checkbox"
-                                           id="activeSwitch"
-                                        {{$user->active ? 'checked' : ''}}>
-                                    <label class="form-check-label" for="activeSwitch"></label>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="d-flex justify-content-end">
-                                <div class="form-check form-check-solid form-check-custom form-switch">
-                                    <input class="form-check-input w-35px h-20px"
-                                           type="checkbox"
-                                           id="emailSwitch"
-                                        {{$user->email_notify ? 'checked' : ''}}>
-                                    <label class="form-check-label" for="emailSwitch"></label>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="d-flex justify-content-end">
-                                <div class="form-check form-check-solid form-check-custom form-switch">
-                                    <input class="form-check-input w-35px h-20px"
-                                           type="checkbox"
-                                           id="tgSwitch"
-                                        {{$user->tg_notify ? 'checked' : ''}}>
-                                    <label class="form-check-label" for="tgSwitch"></label>
-                                </div>
-                            </div>
-                        </td>
+{{--                        <td>--}}
+{{--                            <div class="d-flex justify-content-end">--}}
+{{--                                <div class="form-check form-check-solid form-check-custom form-switch">--}}
+{{--                                    <input class="form-check-input w-35px h-20px"--}}
+{{--                                           type="checkbox"--}}
+{{--                                           id="activeSwitch"--}}
+{{--                                        {{$user->active ? 'checked' : ''}}>--}}
+{{--                                    <label class="form-check-label" for="activeSwitch"></label>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        </td>--}}
+{{--                        <td>--}}
+{{--                            <div class="d-flex justify-content-end">--}}
+{{--                                <div class="form-check form-check-solid form-check-custom form-switch">--}}
+{{--                                    <input class="form-check-input w-35px h-20px"--}}
+{{--                                           type="checkbox"--}}
+{{--                                           id="emailSwitch"--}}
+{{--                                        {{$user->email_notify ? 'checked' : ''}}>--}}
+{{--                                    <label class="form-check-label" for="emailSwitch"></label>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        </td>--}}
+{{--                        <td>--}}
+{{--                            <div class="d-flex justify-content-end">--}}
+{{--                                <div class="form-check form-check-solid form-check-custom form-switch">--}}
+{{--                                    <input class="form-check-input w-35px h-20px"--}}
+{{--                                           type="checkbox"--}}
+{{--                                           id="tgSwitch"--}}
+{{--                                        {{$user->tg_notify ? 'checked' : ''}}>--}}
+{{--                                    <label class="form-check-label" for="tgSwitch"></label>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        </td>--}}
                     </tr>
                 @empty
                     {{trans('users.users_empty')}}
@@ -151,4 +159,50 @@
 
 @push('custom_js')
     <script src="{{asset('assets/js/custom/settings/users.js')}}"></script>
+    <script>
+        $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $('#syncButton').click(function() {
+                const button = $(this);
+                const output = $('#output');
+
+                button.prop('disabled', true);
+                button.text('Синхронизация...');
+                output.show().html('Выполняется...');
+                applyWait($('body'));
+
+                $.ajax({
+                    url: '{{ route("cabinet.settings.ldap.sync.run") }}',
+                    method: 'POST',
+                    success: function(response) {
+                        output.html(`
+                            <div style="color: green;">
+                                ${response.message}<br>
+                                <pre>${response.output}</pre>
+                            </div>
+                        `);
+                    },
+                    error: function(xhr) {
+                        const response = xhr.responseJSON;
+                        output.html(`
+                            <div style="color: red;">
+                                ${response.message}<br>
+                                <pre>${response.output || ''}</pre>
+                            </div>
+                        `);
+                    },
+                    complete: function() {
+                        removeWait($('body'));
+                        button.prop('disabled', false);
+                        button.text('Обновить данные');
+                    }
+                });
+            });
+        });
+    </script>
 @endpush

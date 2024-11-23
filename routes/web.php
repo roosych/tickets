@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Cabinet\ChartDataController;
 use App\Http\Controllers\Cabinet\DepartmentController;
 use App\Http\Controllers\Cabinet\IndexController;
 use App\Http\Controllers\Cabinet\MentionController;
@@ -79,6 +78,7 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
 
     Route::prefix('settings')->name('settings.')->middleware('admin')->group(function () {
         Route::get('/users', [SettingsController::class, 'users'])->name('users');
+        Route::post('/ldap-sync', [SettingsController::class, 'sync'])->name('ldap.sync.run');
     });
 
     Route::prefix('mentions')->name('mentions.')->group(function () {

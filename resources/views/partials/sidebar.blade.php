@@ -125,46 +125,6 @@
 
                         </div>
                     </div>
-
-                    {{--<div data-kt-menu-trigger="{default: 'click', lg: 'click'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.reports*', 'cabinet.reports*'])}} py-2">
-                    <span class="menu-link menu-center">
-                        <span class="menu-icon me-0">
-                            <i class="ki-outline ki-chart-line-up fs-2x"></i>
-                        </span>
-                    </span>
-                        <div class="menu-sub menu-sub-dropdown px-2 py-4 w-200px w-lg-225px mh-75 overflow-auto">
-                            <div class="menu-item">
-                                <div class="menu-content">
-                                    <span class="menu-section fs-5 fw-bolder ps-1 py-1">
-                                        {{trans('sidebar.stats.title')}}
-                                    </span>
-                                </div>
-                            </div>
-
-                            --}}{{--<div class="menu-item">
-                                <a class="menu-link" href="{{route('cabinet.reports.depts')}}"
-                                   title="{{trans('sidebar.stats.dept.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                    <span class="menu-title">
-                                        {{trans('sidebar.stats.dept.text')}}
-                                    </span>
-                                </a>
-                            </div>
-                            <div class="menu-item">
-                                <a class="menu-link" href="{{route('cabinet.reports.tags')}}"
-                                   title="{{trans('sidebar.stats.tags.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                    <span class="menu-title">
-                                        {{trans('sidebar.stats.tags.text')}}
-                                    </span>
-                                </a>
-                            </div>--}}{{--
-                        </div>
-                    </div>--}}
                 @endif
 
                 @auth
