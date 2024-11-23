@@ -13,6 +13,8 @@ class LdapManualSyncCommand extends Command
     public function handle()
     {
         ini_set('memory_limit', '512M'); // Увеличение лимита памяти
+        set_time_limit(300); // Увеличение времени выполнения
+
         $this->info('Sync users from LDAP...');
         $this->input->setInteractive(false);  // Отключаем интерактивный режим
 
