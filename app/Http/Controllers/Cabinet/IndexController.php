@@ -75,15 +75,16 @@ class IndexController extends Controller
             ->count();
 
         $topPerformers = User::select('users.*')
+            ->selectRaw('COUNT(DISTINCT tickets.id) as completed_tickets_count')
             ->join('tickets', 'users.id', '=', 'tickets.executor_id')
             ->where('tickets.department_id', $departmentId)
-            ->whereColumn('tickets.user_id', '!=', 'tickets.executor_id') // Исключаем тикеты, где user_id == executor_id
+            ->whereIn('tickets.status', [
+                TicketStatusEnum::DONE->value,
+                TicketStatusEnum::COMPLETED->value
+            ])
+            ->whereColumn('tickets.user_id', '!=', 'tickets.executor_id')
             ->groupBy('users.id')
-            ->withCount(['tickets as ticket_count' => function ($query) use ($departmentId) {
-                $query->where('department_id', $departmentId)
-                    ->whereColumn('user_id', '!=', 'executor_id'); // Применяем то же условие в withCount
-            }])
-            ->orderBy('ticket_count', 'desc')
+            ->orderBy('completed_tickets_count', 'desc')
             ->limit(3)
             ->get();
 
