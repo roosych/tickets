@@ -40,7 +40,7 @@ class TicketController extends Controller
         $departmentId = $user->getDepartmentId();
 
         $tickets = Ticket::query()
-            ->with(['priority', 'creator', 'tags', 'performer', 'client'])
+            ->with(['priority', 'creator', 'tags', 'performer', 'department'])
             //->whereNot('status', TicketStatusEnum::COMPLETED)
             ->where('department_id', $departmentId)
             ->where(function ($query) {
