@@ -31,11 +31,11 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
 
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/{user:username}', [UserController::class, 'show'])->name('show');
-        Route::post('{user}/attach-roles', [UserController::class, 'attach_roles'])->name('attach_roles');
-        Route::post('{user}/attach-permissions', [UserController::class, 'attach_permissions'])->name('attach_permissions');
+        Route::post('{user}/attach-roles', [UserController::class, 'attach_roles'])->middleware('check.department.status')->name('attach_roles');
+        Route::post('{user}/attach-permissions', [UserController::class, 'attach_permissions'])->middleware('check.department.status')->name('attach_permissions');
     });
 
-    Route::prefix('dept')->name('dept.')->group(function () {
+    Route::prefix('dept')->name('dept.')->middleware('check.department.status')->group(function () {
 
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', [DepartmentController::class, 'users'])->name('index');
@@ -51,8 +51,8 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
     });
 
     Route::prefix('tickets')->name('tickets.')->group(function () {
-        Route::get('/', [TicketController::class, 'index'])->name('index');
-        Route::get('inbox', [TicketController::class, 'inbox'])->name('inbox');
+        Route::get('/', [TicketController::class, 'index'])->name('index')->middleware('check.department.status');
+        Route::get('inbox', [TicketController::class, 'inbox'])->name('inbox')->middleware('check.department.status');
         Route::get('sent', [TicketController::class, 'sent'])->name('sent');
         Route::get('{ticket}', [TicketController::class, 'show'])->name('show');
         Route::post('store', [TicketController::class, 'store'])->name('store');
@@ -61,16 +61,16 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
         Route::post('{ticket}/close', [TicketController::class, 'close'])->name('close');
         Route::post('{id}/inprogress', [TicketController::class, 'inprogress'])->name('inprogress');
         Route::post('{ticket}/comment', [TicketController::class, 'storeComment'])->name('comment.store');
-        Route::post('attach_users', [TicketController::class, 'attachUsers'])->name('attach_users');
-        Route::post('{ticket}/attach_tags', [TicketController::class, 'attachTags'])->name('attach_tags');
-        Route::get('{ticket}/performers', [TicketController::class, 'getTicketPerformers'])->name('performers');
+        Route::post('attach_users', [TicketController::class, 'attachUsers'])->name('attach_users')->middleware('check.department.status');
+        Route::post('{ticket}/attach_tags', [TicketController::class, 'attachTags'])->name('attach_tags')->middleware('check.department.status');
+        Route::get('{ticket}/performers', [TicketController::class, 'getTicketPerformers'])->name('performers')->middleware('check.department.status');
     });
 
-    Route::resource('tags', TagController::class)->except(
+    Route::resource('tags', TagController::class)->middleware('check.department.status')->except(
         ['create', 'edit'] // закрытые маршруты
     );
 
-    Route::prefix('reports')->name('reports.')->group(function () {
+    Route::prefix('reports')->name('reports.')->middleware('check.department.status')->group(function () {
         Route::get('/tickets', [ReportController::class, 'tickets'])->name('tickets');
         Route::get('/depts', [ReportController::class, 'depts'])->name('depts');
         Route::get('/tags', [ReportController::class, 'tags'])->name('tags');

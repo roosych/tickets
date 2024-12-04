@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\CheckDepartmentStatus;
 use App\Http\Middleware\LanguageCookieMiddleware;
 use App\Http\Middleware\LanguageHeaderMiddleware;
 use App\Http\Middleware\LanguageRouteMiddleware;
@@ -75,5 +76,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
         'admin' => AdminMiddleware::class,
+        'check.department.status' => CheckDepartmentStatus::class,
     ];
 }
