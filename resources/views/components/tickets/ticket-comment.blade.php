@@ -16,7 +16,7 @@
             </div>
         </div>
         <div class="p-5 rounded bg-light-{{$comment->user_id === auth()->id() ? 'primary' : 'info'}} text-gray-900 fw-semibold mw-lg-400px text-start">
-            {{$comment->text}}
+            {!! nl2br(e($comment->text)) !!}
         </div>
         @if($comment->media->isNotEmpty())
             <div class="d-flex flex-aligns-center mt-3">

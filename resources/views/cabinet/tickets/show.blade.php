@@ -216,7 +216,7 @@
                         </div>
 
                         <div class="py-5 mt-2">
-                            <p>{{$ticket->text}}</p>
+                            <p>{!! nl2br(e($ticket->text)) !!}</p>
                         </div>
 
                         @if($ticket->media->isNotEmpty())
