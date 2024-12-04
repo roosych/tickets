@@ -100,6 +100,7 @@ class ReportOpenTickets extends Command
         try {
             Telegram::sendMessage([
                 'chat_id' => config('services.telegram.chat_id'),
+                'message_thread_id' => config('services.telegram.it_dept_topic_id'),
                 'text' => $message,
                 'parse_mode' => 'HTML',
             ]);
