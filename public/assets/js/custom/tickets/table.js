@@ -13,7 +13,7 @@ let DeptTickets = (function () {
                     { orderable: false, targets: 1 },
                     { orderable: false, targets: 2 },
                     { orderable: false, targets: 4 },
-                    { orderable: false, targets: 5 },
+                    { orderable: true, targets: 5 },
                     { orderable: false, targets: 6 },
                     { orderable: false, targets: 7 },
                 ],

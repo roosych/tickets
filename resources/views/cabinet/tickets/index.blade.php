@@ -75,7 +75,7 @@
                         <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
                         <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
                         <th>{{trans('tickets.table.status')}}</th>
-                        <th>{{trans('tickets.table.performer')}}</th>
+                        <th class="min-w-125px">{{trans('tickets.table.performer')}}</th>
                         <th>{{trans('tickets.table.tags')}}</th>
                         <th>{{trans('tickets.create_modal.description')}}</th>
                         <th class="text-end">{{trans('tickets.table.actions')}}</th>
@@ -124,7 +124,7 @@
                             <td id="ticket_status_{{$ticket->id}}">
                                 <x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge>
                             </td>
-                            <td class="w-50px">
+                            <td class="w-75px" data-order="{{ $ticket->performer ? $ticket->performer->name : '' }}">
                                 <div class="">
                                     <div class="performers_symbols_{{$ticket->id}} symbol-group symbol-hover flex-nowrap">
                                         <x-ticket-performer :user="$ticket->performer" :ticket="$ticket"></x-ticket-performer>
