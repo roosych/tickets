@@ -1052,7 +1052,7 @@
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    window.location.reload();
+                                    window.location.href = '{{$backUrl}}';
                                 } else {
                                     removeWait($('body'));
                                     Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
