@@ -17,7 +17,7 @@ enum TicketStatusEnum :string
 
     public function label(): string
     {
-        return trans('tickets.statuses.'.$this->value);
+        return trans('tickets.statuses.'.$this->value, [], 'ru');
         //return $this->value;
     }
 
