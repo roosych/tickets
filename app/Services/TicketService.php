@@ -43,6 +43,8 @@ class TicketService
                 $ticket->executor_id = Auth::id();
             }
             $ticket->save();
+            // Перезагружаем отношение
+            $ticket->load('performer');
 
             $ticketHistory = TicketHistory::create([
                 'ticket_id' => $ticket->id,

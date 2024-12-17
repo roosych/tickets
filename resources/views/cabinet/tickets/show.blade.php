@@ -209,7 +209,10 @@
                                     <div class="text-gray-800 fw-bold fs-12 me-5">
                                         {{trans('tickets.responsible')}}:
                                     </div>
-                                    <x-ticket-performer :user="$ticket->performer" :ticket="$ticket"></x-ticket-performer>
+                                    <div class="performer_wrapper">
+                                        <x-ticket-performer :user="$ticket->performer" :ticket="$ticket"></x-ticket-performer>
+                                    </div>
+
                                 </div>
                             </div>
 
@@ -736,9 +739,9 @@
                     _token: '{{ csrf_token() }}',
                 },
                 success: function(response) {
-                    console.log(response.html)
                     if (response.success) {
                         $('.ticket_status_label').html(response.html);
+                        $('.performer_wrapper').html(response.html2);
                         button.removeClass('btn-light-warning start-task-btn').addClass('btn-light-primary');
                         button.html('<i class="ki-outline ki-timer fs-2"></i> {{trans('tickets.buttons.done_ticket')}}');
                         button.blur();
@@ -798,7 +801,7 @@
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    window.location.reload()
+                                    window.location.href = '{{$backUrl}}';
                                 } else {
                                     removeWait($('body'));
                                     Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
@@ -883,7 +886,7 @@
                 success: function (response) {
                     if(response.success) {
                         removeWait($('body'));
-                        window.location.reload();
+                        window.location.href = '{{$backUrl}}';
                         Swal.fire('{{trans('common.swal.success_title')}}', '{{trans('common.swal.success_text')}}', 'success');
                     } else {
                         Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
