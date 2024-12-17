@@ -79,7 +79,7 @@
                     </div>
 
                     @can('assign', new \App\Models\Ticket())
-                        <div id="dept_users_list" style="display: none;">
+                        <div id="dept_users_list" class="mb-8" style="display: none;">
                             <div class="col-md-12 fv-row">
                                 <label class="fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.performer')}}</label>
                                 <select class="form-select form-select-solid"
@@ -124,6 +124,30 @@
                         <label class="fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.attachments')}}</label>
                         <input type="file" class="my-pond" name="media" multiple />
                     </div>
+
+                    @if(auth()->user()->isManager())
+                        <div class="my-10">
+                            <div class="d-flex justify-content-between">
+                                <div class="fw-semibold">
+                                    <label class="fs-6">
+                                        {{trans('tickets.create_modal.private_title')}}
+                                    </label>
+                                    <div class="fs-7 text-muted">
+                                        {{trans('tickets.create_modal.private_text')}}
+                                    </div>
+                                </div>
+                                <input type="hidden" name="is_private" value="0">
+                                <label class="form-check form-switch form-check-custom form-check-solid">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="is_private"
+                                        value="1"
+                                        {{ old('is_private', false) ? 'checked' : '' }}>
+                                </label>
+                            </div>
+                        </div>
+                    @endif
 
                     <div class="text-center">
                         <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">{{trans('tickets.buttons.close')}}</button>

@@ -54,16 +54,20 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
         Route::get('/', [TicketController::class, 'index'])->name('index')->middleware('check.department.status');
         Route::get('inbox', [TicketController::class, 'inbox'])->name('inbox')->middleware('check.department.status');
         Route::get('sent', [TicketController::class, 'sent'])->name('sent');
-        Route::get('{ticket}', [TicketController::class, 'show'])->name('show');
+        Route::get('{ticket}', [TicketController::class, 'show'])->name('show')
+            ->middleware(['check.private.ticket']);
         Route::post('store', [TicketController::class, 'store'])->name('store');
         Route::post('complete', [TicketController::class, 'complete'])->name('complete');
         Route::post('cancel', [TicketController::class, 'cancel'])->name('cancel');
         Route::post('{ticket}/close', [TicketController::class, 'close'])->name('close');
         Route::post('{id}/inprogress', [TicketController::class, 'inprogress'])->name('inprogress');
         Route::post('{ticket}/comment', [TicketController::class, 'storeComment'])->name('comment.store');
-        Route::post('attach_users', [TicketController::class, 'attachUsers'])->name('attach_users')->middleware('check.department.status');
-        Route::post('{ticket}/attach_tags', [TicketController::class, 'attachTags'])->name('attach_tags')->middleware('check.department.status');
-        Route::get('{ticket}/performers', [TicketController::class, 'getTicketPerformers'])->name('performers')->middleware('check.department.status');
+        Route::post('attach_users', [TicketController::class, 'attachUsers'])->name('attach_users')
+            ->middleware('check.department.status');
+        Route::post('{ticket}/attach_tags', [TicketController::class, 'attachTags'])->name('attach_tags')
+            ->middleware('check.department.status');
+        Route::get('{ticket}/performers', [TicketController::class, 'getTicketPerformers'])->name('performers')
+            ->middleware('check.department.status');
     });
 
     Route::resource('tags', TagController::class)->middleware('check.department.status')->except(

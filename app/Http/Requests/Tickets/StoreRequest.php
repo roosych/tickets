@@ -45,17 +45,16 @@ class StoreRequest extends FormRequest
                     }
                 },
             ],
-
-//        'files' => ['nullable', 'array'],
-//        'files.*' => ['required', 'file', 'mimes:jpeg,png,pdf,doc,docx,xls,xlsx', 'max:4096'],
         ];
 
         if ($this->has('parent_id')) {
             $rules['parent_id'] = ['required', 'exists:tickets,id'];
-            //$rules['user'] = ['nullable', 'exists:users,id'];
         }
         if ($this->has('client')) {
             $rules['client'] = ['nullable', 'exists:users,id'];
+        }
+        if ($this->user()->isManager() && $this->has('is_private')) {
+            $rules['is_private'] = ['boolean'];
         }
 
         return $rules;

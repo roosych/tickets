@@ -139,6 +139,36 @@ class Ticket extends Model
             ->groupBy('status'); // Группируем по статусу
     }
 
+    public function isPrivate(): bool
+    {
+        return $this->is_private;
+    }
+
+    public function isHidden(): bool
+    {
+        return $this->is_hidden;
+    }
+
+    // Локальные Scopes
+    public function scopePrivate($query)
+    {
+        return $query->where('is_private', true);
+    }
+
+    public function scopeVisible($query)
+    {
+        return $query->where('is_hidden', false);
+    }
+
+    // Видимы только юзерам (кто не менеджер)
+    public function scopeVisibleToUser($query)
+    {
+        if (!auth()->user()->isManager()) {
+            $query->where('is_private', false);
+        }
+        return $query;
+    }
+
     protected $fillable = [
         'user_id',
         'text',
@@ -149,6 +179,8 @@ class Ticket extends Model
         'priorities_id',
         'status',
         'client_id',
+        'is_private',
+        'is_hidden',
     ];
 
     protected $casts = [

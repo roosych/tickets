@@ -52,6 +52,8 @@ return [
         'attachments_hint' => 'Faylları yerləşdirin və ya yükləmək üçün klikləyin.',
         'format_error' => 'Format dəstəklənmir',
         'size_limit' => 'Fayl çox böyükdür',
+        'private_title' => 'Məxfilik',
+        'private_text' => 'Tiketi yalnız seçdiyiniz şöbənin rəhbəri görəcək.',
     ],
     'cancel_modal' => [
         'title' => 'Ləğv etmək',

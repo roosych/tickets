@@ -32,6 +32,11 @@ class SendTicketTelegramNotification implements ShouldQueue
 
     public function handle(): void
     {
+        // Если приватный - не отправляем
+        if ($this->ticket->isPrivate()) {
+            return;
+        }
+
         Telegram::sendMessage([
             'chat_id' => $this->ticket->department->tg_chat_id,
             'message_thread_id' => $this->ticket->department->tg_topic_id,

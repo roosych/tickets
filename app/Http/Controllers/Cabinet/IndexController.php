@@ -29,6 +29,7 @@ class IndexController extends Controller
                 $query->whereColumn('user_id', '!=', 'executor_id')
                     ->orWhereNull('executor_id'); // Добавляем условие для null
             })
+            ->visibleToUser()
             ->get();
 
         $openedTickets = $tickets

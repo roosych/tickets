@@ -9,6 +9,7 @@ use App\Events\TicketEvent;
 use App\Exceptions\TicketAccessException;
 use App\Http\Filters\TicketFilter;
 use App\Models\Comment;
+use App\Models\Department;
 use App\Models\Media;
 use App\Models\Tag;
 use App\Models\TemporaryFile;
@@ -319,14 +320,22 @@ class TicketService
         DB::beginTransaction();
         try {
             // Создание тикета
+            $isPrivate = auth()->user()->isManager() ? ($data['is_private'] ?? false) : false;
+            $department = Department::find($data['department']);
+
+            $executorId = $isPrivate
+                ? $department->manager->id
+                : ($data['user'] ?? null);
+
             $ticket = Ticket::query()->create([
                 'text' => $data['text'],
                 'user_id' => $data['client'] ?? auth()->id(),
                 'priorities_id' => $data['priority'],
                 'department_id' => $data['department'],
                 'status' => TicketStatusEnum::OPENED,
-                'executor_id' => $data['user'] ?? null,
+                'executor_id' => $executorId,
                 'parent_id' => $data['parent_id'] ?? null,
+                'is_private' => $isPrivate,
             ]);
 
             // Синхронизация тегов
@@ -521,6 +530,7 @@ class TicketService
             ->where('tickets.department_id', auth()->user()->getDepartmentId())
             ->whereColumn('user_id', '!=', 'executor_id')
             ->whereNotNull('executor_id')
+            ->visibleToUser()
             ->get();
 
         // Вызываем метод группировки и возвращаем результаты
