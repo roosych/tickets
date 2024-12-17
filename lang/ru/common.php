@@ -38,7 +38,7 @@ return [
     'my_tickets' => [
         'title' => 'Мои личные тикеты',
         'filter_my_all' => 'Все мои тикеты',
-        'filter_my_own' => 'Для себя',
+        'filter_my_own' => 'Лично для себя',
     ],
     'sent_tickets' => [
         'title' => 'Исходящие тикеты',
