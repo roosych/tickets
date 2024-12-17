@@ -15,6 +15,7 @@ class TicketFilter extends QueryBuilder
             AllowedFilter::exact('department_id'),
             AllowedFilter::scope('date_range', 'filterByDateRange'),
             AllowedFilter::exact('status'),
+            AllowedFilter::exact('creator'),
         ];
     }
 }

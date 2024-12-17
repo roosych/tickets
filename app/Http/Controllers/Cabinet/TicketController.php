@@ -69,6 +69,12 @@ class TicketController extends Controller
             ->when($request->input('filter.status'), function ($query, $status) {
                 $query->where('status', $status);
             })
+            ->when($request->input('filter.creator'), function ($query, $creatorFilter) {
+                if ($creatorFilter === 'own') {
+                    $query->where('user_id', auth()->id())
+                        ->where('executor_id', auth()->id());
+                }
+            })
             ->latest()
             ->get();
 

@@ -52,6 +52,20 @@
                         @endforeach
                     </select>
                 </div>
+
+                <div class="w-100 mw-200px">
+                    <select id="creatorFilter" class="form-select form-select-solid"
+                            data-control="select2"
+                            data-hide-search="true"
+                            data-placeholder="Мои все тикеты">
+                        <option value="all" {{ request('filter.creator') === 'all' ? 'selected' : '' }}>
+                            {{trans('common.my_tickets.filter_my_all')}}
+                        </option>
+                        <option value="own" {{ request('filter.creator') === 'own' ? 'selected' : '' }}>
+                            {{trans('common.my_tickets.filter_my_own')}}
+                        </option>
+                    </select>
+                </div>
             </div>
         </div>
         <div class="card-body pt-0">
@@ -193,18 +207,21 @@
     <script src="{{asset('assets/js/custom/tickets/table.js')}}"></script>
     <script>
         $(document).ready(function () {
-            $('#statusFilter').on('change', function () {
-                const status = $(this).val();
-
-                // Формируем URL для фильтрации
+            $('#statusFilter, #creatorFilter').on('change', function () {
+                const status = $('#statusFilter').val();
+                const creator = $('#creatorFilter').val();
                 const url = new URL(window.location.href);
                 if (status === 'all') {
-                    url.searchParams.delete('filter[status]'); // Убираем фильтр для всех статусов
+                    url.searchParams.delete('filter[status]');
                 } else {
-                    url.searchParams.set('filter[status]', status); // Устанавливаем выбранный статус
+                    url.searchParams.set('filter[status]', status);
                 }
-
-                window.location.href = url.toString(); // Перенаправляем пользователя
+                if (creator === 'all') {
+                    url.searchParams.delete('filter[creator]');
+                } else {
+                    url.searchParams.set('filter[creator]', creator);
+                }
+                window.location.href = url.toString();
             });
         });
     </script>

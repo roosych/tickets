@@ -37,6 +37,8 @@ return [
     ],
     'my_tickets' => [
         'title' => 'Şəxsi tiketlərim',
+        'filter_my_all' => 'Bütün tiketlərim',
+        'filter_my_own' => 'Özüm üçün açdığlarım',
     ],
     'sent_tickets' => [
         'title' => 'Mənim tiketlərim',
