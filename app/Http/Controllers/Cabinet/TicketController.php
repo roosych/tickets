@@ -205,7 +205,7 @@ class TicketController extends Controller
             'color' => $ticket->status->color()
         ])->render();
 
-        $html2 =  view('components.tickets.ticket-performer', [
+        $html2 =  view('components.tickets.ticket-performer-full', [
             'ticket' => $ticket,
             'user' => $ticket->performer,
         ])->render();
@@ -271,7 +271,7 @@ class TicketController extends Controller
                 'color' => $ticket->status->color(),
                 'status' => $ticket->status->label(),
             ])->render(),
-            'html' => view('components.tickets.ticket-performer', [
+            'html' => view('components.tickets.ticket-performer-full', [
                 'ticket' => $ticket,
                 'user' => $ticket->performer,
             ])->render()

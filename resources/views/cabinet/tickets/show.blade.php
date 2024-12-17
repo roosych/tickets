@@ -102,6 +102,15 @@
                             </div>
 
                             <div class="d-flex">
+                                <div class="d-flex me-10">
+                                    <div class="text-gray-800 fw-bold fs-12">
+                                        {{trans('tickets.table.priority')}}:
+                                    </div>
+                                    <span class="badge badge-light-{{$ticket->priority->class}} ms-2 fw-bold fs-7">
+                                        {{$ticket->priority->getNameByLocale()}}
+                                    </span>
+                                </div>
+
                                 <span class="text-gray-800 fw-bold fs-12 me-2">
                                     {{trans('tickets.table.status')}}:
                                 </span>
@@ -163,27 +172,29 @@
                             </div>
                         </div>
 
-                        <div class="d-flex flex-wrap gap-2 flex-stack">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="d-flex text-gray-800 fw-bold fs-12 mb-3 ms-1">
+                                {{trans('tickets.table.creator')}}:
+                            </div>
                             <div class="d-flex align-items-center">
                                 <div class="symbol symbol-circle symbol-40px overflow-hidden me-3">
-                                    <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank">
-                                        @if($ticket->creator->avatar)
-                                            <div class="symbol-label">
-                                                <img src="{{$ticket->creator->avatar}}" alt="{{$ticket->creator->name}}" class="w-100" />
-                                            </div>
-                                        @else
-                                            <div class="symbol-label fs-3 bg-light-dark text-gray-800">
-                                                {{get_initials($ticket->creator->name)}}
-                                            </div>
-                                        @endif
-                                    </a>
+                                    @if($ticket->creator->avatar)
+                                        <div class="symbol-label cursor-default">
+                                            <img src="{{$ticket->creator->avatar}}" alt="{{$ticket->creator->name}}" class="w-100" />
+                                        </div>
+                                    @else
+                                        <div class="symbol-label fs-3 bg-light-dark text-gray-800">
+                                            {{get_initials($ticket->creator->name)}}
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <div class="pe-5">
                                     <div class="d-flex align-items-center flex-wrap gap-1">
-                                        <a href="{{route('cabinet.users.show', $ticket->creator)}}" class="fw-bold text-gray-900 text-hover-primary" target="_blank">
+                                        <p class="fw-bold text-gray-900 mb-0">
                                             {{$ticket->creator->name}}
-                                        </a>
+                                        </p>
                                     </div>
                                     <div>
                                         <span class="text-muted fw-semibold">
@@ -192,31 +203,33 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="d-flex align-items-center flex-wrap gap-2">
-                                <div class="d-flex align-items-center">
-                                    <div class="text-gray-800 fw-bold fs-12">
-                                        {{trans('tickets.table.priority')}}:
-                                    </div>
-                                    <span class="badge badge-light-{{$ticket->priority->class}} ms-2 my-1 fw-bold fs-7">
-                                        {{$ticket->priority->getNameByLocale()}}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="my-5">
-                                <div class="performers_symbols symbol-group symbol-hover flex-nowrap">
-                                    <div class="text-gray-800 fw-bold fs-12 me-5">
-                                        {{trans('tickets.responsible')}}:
-                                    </div>
-                                    <div class="performer_wrapper">
-                                        <x-ticket-performer :user="$ticket->performer" :ticket="$ticket"></x-ticket-performer>
-                                    </div>
-
-                                </div>
-                            </div>
-
                         </div>
+
+                        <div>
+                            <div class="d-flex text-gray-800 fw-bold fs-12 mb-3 ms-1">
+                                {{trans('tickets.responsible')}}:
+                                @if($ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS) || $ticket->status->is(\App\Enums\TicketStatusEnum::OPENED))
+                                    @if($ticket->performer)
+                                        <a href="javascript:void(0);"
+                                           @can('assign', $ticket)
+                                               data-bs-toggle="modal"
+                                               data-bs-target="#attach_users_modal"
+                                               data-ticket-id="{{ $ticket->id }}"
+                                            @endcan
+                                        >
+                                            <i class="ki-outline ki-arrows-loop text-gray-800 fs-2 ms-2 mt-1"></i>
+                                        </a>
+                                    @endif
+                                @endif
+
+                            </div>
+                            <div class="performers_symbols symbol-group symbol-hover flex-nowrap">
+                                <div class="performer_wrapper">
+                                    <x-ticket-performer-full :user="$ticket->performer" :ticket="$ticket"></x-ticket-performer-full>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                         <div class="py-5 mt-2">
                             <p>{!! nl2br(e($ticket->text)) !!}</p>
@@ -741,7 +754,9 @@
                 success: function(response) {
                     if (response.success) {
                         $('.ticket_status_label').html(response.html);
-                        $('.performer_wrapper').html(response.html2);
+                        $('.performer_wrapper').fadeOut(200, function() {
+                            $(this).html(response.html2).fadeIn(200);
+                        });
                         button.removeClass('btn-light-warning start-task-btn').addClass('btn-light-primary');
                         button.html('<i class="ki-outline ki-timer fs-2"></i> {{trans('tickets.buttons.done_ticket')}}');
                         button.blur();
