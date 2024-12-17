@@ -160,7 +160,7 @@
 
                         <div class="badge badge-lg badge-light-secondary mb-4">
                             <div class="d-flex align-items-center flex-wrap">
-                                @if($ticket->parent)
+                                @if($ticket->parent && !$ticket->parent->isPrivate())
                                 {{trans('tickets.table.main_ticket')}}: <a href="{{route('cabinet.tickets.show', $ticket->parent->id)}}" class="text-dgray-800 text-hover-primary ms-1" target="_blank">
                                         #{{$ticket->parent_id}}
                                     </a>
