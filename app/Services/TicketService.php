@@ -79,8 +79,11 @@ class TicketService
             $ticketChildren = $ticket->allChildren()->get();
 
             foreach ($ticketChildren as $child) {
-                // Проверяем есть ли тикеты не в статусе DONE или COMPLETED
-                if (!$child->status->is(TicketStatusEnum::DONE) && !$child->status->is(TicketStatusEnum::COMPLETED)) {
+                // Проверяем есть ли тикеты не в статусе DONE, COMPLETED или CANCELED
+                if (!$child->status->is(TicketStatusEnum::DONE)
+                    && !$child->status->is(TicketStatusEnum::COMPLETED)
+                    && !$child->status->is(TicketStatusEnum::CANCELED)
+                ) {
                     abort(403, 'У тикета есть невыполненные подтикеты');
                 }
             }
