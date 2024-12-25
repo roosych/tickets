@@ -23,6 +23,7 @@ class IndexController extends Controller
 
     public function index()
     {
+        //auth()->loginUsingId(96);
         $user = Auth::user();
         $tickets = Ticket::with('performer', 'department', 'creator', 'priority', 'parent')
             ->where(function ($query) {

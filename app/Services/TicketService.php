@@ -79,11 +79,11 @@ class TicketService
             $ticketChildren = $ticket->allChildren()->get();
 
             foreach ($ticketChildren as $child) {
-                // Проверяем есть ли тикеты не в статусе DONE, COMPLETED или CANCELED
-                if (!$child->status->is(TicketStatusEnum::DONE)
-                    && !$child->status->is(TicketStatusEnum::COMPLETED)
-                    && !$child->status->is(TicketStatusEnum::CANCELED)
-                ) {
+                if (!in_array($child->status, [
+                    TicketStatusEnum::DONE,
+                    TicketStatusEnum::COMPLETED,
+                    TicketStatusEnum::CANCELED
+                ])) {
                     abort(403, 'У тикета есть невыполненные подтикеты');
                 }
             }
@@ -114,17 +114,14 @@ class TicketService
 
         if ($ticket->allChildren()->exists()) {
             $ticketChildren = $ticket->allChildren()->get();
-            $hasUncompleted = false;
 
             foreach ($ticketChildren as $child) {
-                if (!$child->status->is(TicketStatusEnum::COMPLETED)) {
-                    $hasUncompleted = true;
-                    break;
+                if (!in_array($child->status, [
+                    TicketStatusEnum::COMPLETED,
+                    TicketStatusEnum::CANCELED
+                ])) {
+                    abort(403, 'У тикета есть невыполненные подтикеты');
                 }
-            }
-
-            if ($hasUncompleted) {
-                abort(403, 'У тикета есть невыполненные подтикеты');
             }
         }
 
