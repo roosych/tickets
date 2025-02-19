@@ -7,6 +7,7 @@ use App\Http\Requests\User\AttachPermissionsRequest;
 use App\Http\Requests\User\AttachRolesRequest;
 use App\Models\Permission;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -14,7 +15,12 @@ class UserController extends Controller
     {
         $permissions = Permission::all();
         $groupedPermissions = $permissions->groupBy('group');
-        return view('cabinet.users.show2', compact('user', 'groupedPermissions'));
+
+       // dd(auth()->user()->getDepartmentId() . '-' . $user->getDepartmentId());
+
+        return Auth::user()->getDepartmentId() == $user->getDepartmentId()
+            ? view('cabinet.users.show2', compact('user', 'groupedPermissions'))
+            : view('cabinet.users.show-stranger-user', compact('user'));
     }
 
     public function attach_roles(AttachRolesRequest $request, User $user)
