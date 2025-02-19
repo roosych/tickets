@@ -54,11 +54,11 @@ class User extends Authenticatable implements LdapAuthenticatable
     {
         // Если пользователь — менеджер, то выбираем сотрудников, у которых он является менеджером
         if ($this->isManager()) {
-            return self::where('manager', $this->distinguishedname)->get();
+            return self::where('manager', $this->distinguishedname)->where('active', true)->get();
         }
 
         // Если пользователь — не менеджер, то выбираем сотрудников отдела его руководителя
-        return self::where('manager', $this->manager)->get();
+        return self::where('manager', $this->manager)->where('active', true)->get();
     }
 
     public function comments(): HasMany
