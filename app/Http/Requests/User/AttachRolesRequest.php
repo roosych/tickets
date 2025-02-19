@@ -15,9 +15,8 @@ class AttachRolesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'roles' => ['required', 'array', 'max:10'],
+            'roles' => ['nullable', 'array', 'max:10'],
             'roles.*' => [
-                'required',
                 'integer',
                 'exists:roles,id',
                 function ($attribute, $value, $fail) {
