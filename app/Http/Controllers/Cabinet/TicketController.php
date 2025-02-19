@@ -141,7 +141,10 @@ class TicketController extends Controller
         $departmentTags = auth()->user()->getDepartment()->tags;
         $activities = $comments->concat($histories)->sortBy('created_at');
 
-        $deptUsers = auth()->user()->deptAllUsers();
+        //$deptUsers = auth()->user()->deptAllUsers();
+        $deptUsers = $ticket->getUsersByDepartment($ticket->department_id)
+            ->filter(fn($user) => !str_contains($user->name, 'Aydin Karimov'));
+
         $mentions = $deptUsers->push($ticket->creator)->unique('id')->values();
         // Если $ticket->performer не равен null, добавляем его тоже
         if ($ticket->performer) {
