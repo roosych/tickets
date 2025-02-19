@@ -72,7 +72,7 @@ return [
     'sent' => [
         'opened' => 'Açıq olan',
         'in_progress' => 'İcra olunan',
-        'done' => 'Bağlanan',
+        'done' => 'Tamamlanan',
         'performer_empty' => 'icraçı yoxdur',
     ],
     'parent_ticket_cancelled' => 'Əsas tiket ləğv olundu',
@@ -86,7 +86,7 @@ return [
     'send_comment' => 'Şərh yaz',
     'add_file' => 'Fayl əlavə et',
     'my_opened_tickets' => 'Açıq tiketlərim',
-    'done_tickets' => '',
+    'done_tickets' => 'Tamamlanan',
     'mention_hint' => 'əməkdaşı qeyd etmək üçün "@" ilə başlayın',
     'my_open' => 'Mənim açıq tiketlərim',
     'wait_close' => 'Bağlanmağı gözləyənlər',

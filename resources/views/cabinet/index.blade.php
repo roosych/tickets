@@ -66,7 +66,7 @@
                         <div class="card-header flex-nowrap pt-5">
                             <h3 class="card-title align-items-start flex-column">
                                 <span class="card-label fw-bold text-gray-800">
-                                    Тикеты
+                                    {{trans('common.tickets.title')}}
                                 </span>
                             </h3>
                         </div>
@@ -81,7 +81,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-active-primary d-flex align-items-center pb-5"
                                        data-bs-toggle="tab" href="#my_done">
-                                        Выполненные (<span class="text-gray-800">{{count($myDoneTickets)}}</span>)
+                                        {{trans('tickets.sent.done')}} (<span class="text-gray-800">{{count($myDoneTickets)}}</span>)
                                     </a>
                                 </li>
                                 <li class="nav-item">

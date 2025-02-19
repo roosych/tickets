@@ -8,7 +8,7 @@ return [
     'index' => [
         'my_tickets' => 'Mənim tiketlərim',
         'opened_tickets' => 'Açıq olan:',
-        'done_tickets' => 'Tamamlanan tiketlər',
+        'done_tickets' => 'Bağlanmış tiketlər',
         'all_time' => 'bütün vaxt ərzində',
         'dept_tickets' => 'Şöbənin tiketləri',
         'top_3' => 'Ən yaxşı 3 icraçı',
@@ -65,7 +65,7 @@ return [
         'select_all' => 'Hamısını seç',
         'empty_users' => 'Əməkdaşlar tapılmadı',
         'empty_dept_users' => 'Sizin şöbənizdə əməkdaş tapılmadı',
-        'empty_users_text2' => 'Добавляйте сотрудников на должности, чтобы у них были определенные полномочия',
+        'empty_users_text2' => 'İşçiləri vəzifələrə əlavə edin ki, onların müəyyən səlahiyyətləri olsun.',
         'add_users' => 'Əməkdaş əlavə et',
         'my_dept_users' => 'Şöbənin əməkdaşları',
         'table_name' => 'Əməkdaş',
