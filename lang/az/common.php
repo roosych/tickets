@@ -13,6 +13,9 @@ return [
         'dept_tickets' => 'Şöbənin tiketləri',
         'top_3' => 'Ən yaxşı 3 icraçı',
         'chart_tickets' => 'Tiket sayı',
+        'need_help' => 'Dəstəyə ehtiyacınız var?',
+        'need_help_desc' => 'Tiket yaradın, müvafiq şöbə sualınızı həll edəcək!',
+        'greeting' => 'Xoş gördük,'
     ],
     'month' => [
         'jan' => 'Yanvar',

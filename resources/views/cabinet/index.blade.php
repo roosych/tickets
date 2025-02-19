@@ -1,11 +1,8 @@
 @extends('layouts.app')
-@section('title', trans('common.dashboard'))
-@section('breadcrumbs')
-    <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
-        <li class="breadcrumb-item text-muted">{{trans('common.mainpage')}}</li>
-    </ul>
-@endsection
 @section('content')
+    <h1 class="page-heading d-flex align-items-center text-gray-900 fw-bold fs-3 mb-8">
+        <span class="fs-1 me-2">👋</span> {{trans('common.index.greeting')}} {{auth()->user()->name}}!
+    </h1>
     <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
         <div class="col-xl-8">
             <div class="row">

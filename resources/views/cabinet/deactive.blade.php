@@ -1,22 +1,18 @@
 @extends('layouts.app')
-@section('title', trans('common.dashboard'))
-@section('breadcrumbs')
-    <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
-        <li class="breadcrumb-item text-muted">{{trans('common.mainpage')}}</li>
-    </ul>
-@endsection
 @section('content')
-
+    <h1 class="page-heading d-flex align-items-center text-gray-900 fw-bold fs-3 mb-8">
+        <span class="fs-1 me-2">👋</span> {{trans('common.index.greeting')}} {{auth()->user()->name}}!
+    </h1>
     <div class="card border-0 h-md-100 mb-10" data-bs-theme="light" style="background: linear-gradient(112.14deg, #00D2FF 0%, #3A7BD5 100%)">
         <div class="card-body">
             <div class="row align-items-center h-100">
                 <div class="col-7 ps-xl-13">
                     <div class="text-white mb-6 pt-6">
                         <span class="fs-2qx fw-bold">
-                            Есть вопрос? Сообщите нам!
+                            {{trans('common.index.need_help')}}
                         </span>
                         <span class="fs-4 fw-semibold me-2 d-block lh-1 opacity-75">
-                            Создайте тикет, и мы вам поможем!
+                            {{trans('common.index.need_help_desc')}}
                         </span>
                     </div>
                     <button class="btn btn-success flex-shrink-0 me-lg-2"
@@ -33,7 +29,7 @@
         </div>
     </div>
 
-    <div class="card">
+    {{--<div class="card">
         <div class="card-body p-10 p-lg-15">
             <div class="mb-13">
                 <div class="mb-15">
@@ -137,15 +133,15 @@
                 </div>
             </div>
 
-{{--            <div class="card mb-4 bg-light text-center">
+--}}{{--            <div class="card mb-4 bg-light text-center">
                 <div class="card-body py-12">
                     <a href="#" class="mx-4">
                         <img src="" class="h-30px my-2" alt="" />
                     </a>
                 </div>
-            </div>--}}
+            </div>--}}{{--
         </div>
-    </div>
+    </div>--}}
 @endsection
 
 @push('vendor_css')
