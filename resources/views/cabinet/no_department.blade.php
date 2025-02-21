@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <title>Maintenance</title>
+    <title>Ticket system</title>
     <meta charset="utf-8" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="" />
@@ -27,11 +27,17 @@
         <div class="d-flex flex-column flex-center text-center p-10">
             <div class="card card-flush w-lg-650px py-5">
                 <div class="card-body py-15 py-lg-20">
-                    <h1 class="fw-bolder fs-2hx text-gray-900 mb-4">Технический апгрейд!</h1>
-                    <div class="fw-semibold fs-6 text-gray-500 mb-7">Работаем над улучшениями.</div>
+                    <h1 class="fw-bolder fs-2hx text-gray-900 mb-4">{{trans('common.error_pages.title')}}</h1>
+                    <div class="fw-semibold fs-6 text-gray-500 mb-7">
+                        <p>Для доступа к тикет-системе обратитесь в IT-отдел. Или отдыхайте 🏖️</p>
+                    </div>
                     <div class="mb-3">
-                        <img src="{{asset('assets/media/misc/maintenance.png')}}" class="mw-100 mh-300px theme-light-show" alt="" />
-                        <img src="{{asset('assets/media/misc/maintenance-dark.png')}}" class="mw-100 mh-300px theme-dark-show" alt="" />
+                        <img src="{{asset('assets/media/misc/6.svg')}}" class="mw-100 mb-10 mh-300px theme-light-show" alt="" />
+                    </div>
+                    <div class="mb-0">
+                        <a href="{{route('cabinet.index')}}" class="btn btn-sm btn-primary">
+                            Проверить еще раз
+                        </a>
                     </div>
                 </div>
             </div>

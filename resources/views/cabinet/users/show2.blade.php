@@ -221,7 +221,7 @@
                         <div class="separator separator-dashed mb-7"></div>
                         <div class="fs-6">
                             <div class="fw-bold mt-5">Отдел</div>
-                            <div class="text-gray-600">{{$user->head ? $user->head->department : $user->department}}</div>
+                            <div class="text-gray-600">{{$user->department}}</div>
                             <div class="fw-bold mt-5">Email</div>
                             <div class="text-gray-600">{{$user->email}}</div>
                             @if($user->mobile)

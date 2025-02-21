@@ -1,5 +1,5 @@
 <?php
-
+// todo Не запускать команду отдельно. Отделы и сотрудники отделов регулируются вручную. 20.02.2025
 namespace App\Console\Commands;
 
 use App\Models\Department;
@@ -16,7 +16,7 @@ class SyncDepartmentsCommand extends Command
     public function handle()
     {
         $this->info('Sync departments...');
-        $this->fillDepartments();
+        //$this->fillDepartments();
         //$this->attachDeptToUser();
         $this->info('Sync completed!');
     }

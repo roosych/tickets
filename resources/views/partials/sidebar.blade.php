@@ -32,7 +32,7 @@
                             </div>
                         </div>
                         <div class="menu-item">
-                            @if(auth()->user()->getDepartment()->active)
+                            @if(auth()->user()->getDepartment() && auth()->user()->getDepartment()->active)
                                 <a class="menu-link" href="{{route('cabinet.tickets.index')}}"
                                    title="{{trans('sidebar.tickets.dept.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                     <span class="menu-bullet">
@@ -61,7 +61,7 @@
                                     {{trans('sidebar.tickets.sent.text')}}
                                 </span>
                             </a>
-                            @if(auth()->user()->getDepartment()->active)
+                            @if(auth()->user()->getDepartment() && auth()->user()->getDepartment()->active)
                                 <a class="menu-link" href="{{route('cabinet.tags.index')}}"
                                    title="{{trans('sidebar.tickets.tags.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
                                     <span class="menu-bullet">
@@ -76,7 +76,7 @@
                     </div>
                 </div>
 
-                @if(auth()->user()->getDepartment()->active)
+                @if(auth()->user()->getDepartment() && auth()->user()->getDepartment()->active)
                     <div data-kt-menu-trigger="{default: 'click', lg: 'click'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.dept*', 'cabinet.users*', 'cabinet.reports*'])}} py-2">
                     <span class="menu-link menu-center">
                         <span class="menu-icon me-0">
@@ -87,7 +87,7 @@
                             <div class="menu-item">
                                 <div class="menu-content">
                                     <span class="menu-section fs-5 fw-bolder ps-1 py-1">
-                                        Мой отдел
+                                        {{trans('sidebar.dept.title')}}
                                     </span>
                                 </div>
                             </div>
@@ -149,12 +149,24 @@
                                 </div>
                                 <div class="menu-item">
                                     <a class="menu-link" href="{{route('cabinet.settings.users')}}"
-                                       title="Пользователи Active Directory" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
+                                       title="Все пользователи компании" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
                                         <span class="menu-title">
                                         Пользователи
+                                    </span>
+                                    </a>
+                                </div>
+
+                                <div class="menu-item">
+                                    <a class="menu-link" href="{{route('cabinet.settings.departments')}}"
+                                       title="Департаменты компании" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                        <span class="menu-title">
+                                        Департаменты
                                     </span>
                                     </a>
                                 </div>

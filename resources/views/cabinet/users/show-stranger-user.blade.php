@@ -30,100 +30,78 @@
 
         <div class="card-body mt-n19">
             <div class="m-0">
-                <div class="d-flex flex-stack align-items-end pb-4 mt-n19">
-                    <div class="symbol symbol-125px symbol-lg-150px symbol-fixed position-relative mt-n3">
-                        <img src="{{$user->avatar}}" alt="image" class="border border-white border-4">
-                    </div>
-                </div>
+                    <div class="d-flex flex-stack align-items-end pb-4 mt-n19">
+                        <div class="symbol symbol-125px symbol-lg-150px symbol-fixed position-relative mt-n3">
 
-                <!--begin::Info-->
-                <div class="d-flex flex-stack flex-wrap align-items-end">
-                    <!--begin::User-->
-                    <div class="d-flex flex-column">
-                        <!--begin::Name-->
-                        <div class="d-flex align-items-center">
-                            <p class="text-gray-800 fs-2 fw-bolder me-1 mb-0">
-                                {{$user->name}}
-                            </p>
+                            @if($user->avatar)
+                                <span class="symbol-label" style="background-image: url('{{ $user->avatar }}'); background-size: cover; background-position: center;"></span>
+                            @else
+                                <span class="symbol-label fs-3 bg-light-dark text-dark d-flex align-items-center justify-content-center">
+                                    {{ get_initials($user->name) }}
+                                </span>
+                            @endif
                         </div>
+                    </div>
 
-                        {{--<span class="fw-bold text-gray-600 fs-6 mb-2 d-block">
-                            text
-                        </span>--}}
-
-                        <!--begin::Info-->
-                        <div class="d-flex flex-column fw-semibold fs-7 pe-2">
-                            <p class="d-flex align-items-center text-gray-500 fs-5 me-3 mb-0">
-                                {{$user->department}} - {{$user->position}}
-                            </p>
-                            <div>
-                                <p class="d-flex align-items-center text-gray-500 fs-5 me-3 mb-0">
-                                    {{$user->email}}
+                    <div class="d-flex flex-stack flex-wrap align-items-end">
+                        <div class="d-flex flex-column">
+                            <div class="d-flex align-items-center">
+                                <p class="text-gray-800 fs-2 fw-bolder me-1 mb-0">
+                                    {{$user->name}}
                                 </p>
+                            </div>
 
-                                @if($user->pager)
-                                    <div>
-                                        <p class="d-flex align-items-center text-gray-500 fs-5 me-3">
-                                            {{$user->pager}}
-                                        </p>
-                                    </div>
-                                @endif
+                            {{--<span class="fw-bold text-gray-600 fs-6 mb-2 d-block">
+                                text
+                            </span>--}}
+
+                            <div class="d-flex flex-column fw-semibold fs-7 pe-2">
+                                <p class="d-flex align-items-center text-gray-500 fs-5 me-3 mb-0">
+                                    {{$user->department}} - {{$user->position}}
+                                </p>
+                                <div>
+                                    <p class="d-flex align-items-center text-gray-500 fs-5 me-3 mb-0">
+                                        {{$user->email}}
+                                    </p>
+
+                                    @if($user->pager)
+                                        <div>
+                                            <p class="d-flex align-items-center text-gray-500 fs-5 me-3">
+                                                {{$user->pager}}
+                                            </p>
+                                        </div>
+                                    @endif
+                            </div>
                         </div>
-                        <!--end::Info-->
                     </div>
-                    <!--end::User-->
-
                 </div>
-                <!--end::Info-->
             </div>
-            <!--end::Details-->
         </div>
     </div>
-    {{--<div class="d-flex flex-column flex-lg-row">
-        <div class="flex-column flex-lg-row-auto w-100 w-lg-250px w-xl-300px mb-10 order-1 order-lg-2">
-            <div class="card card-flush pt-3 mb-0" data-kt-sticky="true" data-kt-sticky-name="subscription-summary" data-kt-sticky-offset="{default: false, lg: '200px'}" data-kt-sticky-width="{lg: '250px', xl: '300px'}" data-kt-sticky-left="auto" data-kt-sticky-top="150px" data-kt-sticky-animation="false" data-kt-sticky-zindex="95">
-                <div class="card-body pt-0 fs-6">
-                    <div class="">
-                        <div class="d-flex flex-center flex-column py-5">
-                            <div class="symbol symbol-100px symbol-circle mb-7">
-                                @if($user->avatar)
-                                    <img src="{{$user->avatar}}" alt="{{$user->name}}">
-                                @else
-                                    <div class="symbol-label fs-3 bg-light-dark text-dark">
-                                        {{get_initials($user->name)}}
-                                    </div>
-                                @endif
-                            </div>
-                            <p class="fs-3 text-gray-800 fw-bold mb-3">
-                                {{$user->name}}
-                            </p>
-                            <div class="mb-3">
-                                <div class="badge badge-lg badge-light-secondary d-inline">
-                                    {{$user->position}}
-                                </div>
-                            </div>
 
-                        </div>
-                        <div class="separator separator-dashed mb-7"></div>
-                        <div class="fs-6">
-                            <div class="fw-bold mt-5">Отдел</div>
-                            <div class="text-gray-600">{{$user->head ? $user->head->department : $user->department}}</div>
-                            <div class="fw-bold mt-5">Email</div>
-                            <div class="text-gray-600">{{$user->email}}</div>
-                            @if($user->mobile)
-                                <div class="fw-bold mt-5">Номер</div>
-                                <div class="text-gray-600">{{$user->mobile}}</div>
-                            @endif
-                            @if($user->pager)
-                                <div class="fw-bold mt-5">3CX</div>
-                                <div class="text-gray-600">{{$user->pager}}</div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
+
+    @if(auth()->user()->is_admin)
+        <div class="row">
+            <div class="col-lg-6">
+                <h4>Прямые разрешения:</h4>
+                @foreach($user->permissions as $permission)
+                    <p>{{$permission->group}} - {{$permission->name}}</p>
+                @endforeach
+            </div>
+            <div class="col-lg-6">
+                <h4>Роли:</h4>
+                @foreach($user->roles as $role)
+                    <h5>{{$role->name}}</h5>
+                    <ul>
+                        @foreach($role->permissions as $permission)
+                            <p>{{$permission->group}} - {{$permission->name}}</p>
+                        @endforeach
+                    </ul>
+                @endforeach
             </div>
         </div>
-    </div>--}}
+
+    @endif
 @endsection
 
 @push('vendor_css')

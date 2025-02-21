@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Список с Active Directory')
+@section('title', 'Список пользователей')
 
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
@@ -22,11 +22,6 @@
                 <i class="ki-outline ki-magnifier fs-3 position-absolute ms-4"></i>
                 <input type="text" user-report-filter="search" class="form-control form-control-solid w-250px ps-12"
                        placeholder="{{trans('tickets.table.search')}}" />
-                <div>
-                    <button id="syncButton" class="btn btn-primary ms-5">
-                        Обновить данные
-                    </button>
-                </div>
             </div>
 
             <div id="output" class="text-success fs-5 fw-bold output my-5"></div>
@@ -37,13 +32,11 @@
                     <th class="min-w-100px">Сотрудник</th>
                     <th class="text-end min-w-75px">Департамент</th>
                     <th class="text-end min-w-75px">Позиция</th>
-                    <th class="text-end min-w-75px">HEAD</th>
-                    <th class="text-end min-w-100px">3CX</th>
                     <th class="text-end min-w-100px">Учетка</th>
                     <th class="text-end">Видимый</th>
-{{--                    <th class="text-end">Активный</th>--}}
-{{--                    <th class="text-end">Email notify</th>--}}
-{{--                    <th class="text-end">TG notify</th>--}}
+                    <th class="text-end">Активный</th>
+                    <th class="text-end">Email</th>
+                    <th class="text-end">Telegram</th>
                 </tr>
                 </thead>
                 <tbody class="fw-semibold text-gray-600">
@@ -64,26 +57,15 @@
                             <div class="d-flex flex-column">
                                 <p class="text-gray-800 mb-1">
                                     {{$user->name}}
-                                    @if($user->is_manager)
-                                        <i class="ki-solid ki-star fs-3 text-warning"></i>
-                                    @endif
                                 </p>
                                 <span>{{$user->email}}</span>
                             </div>
                         </td>
                         <td class="text-end pe-0">
-                            {{$user->department}}
+                            {{$user->getDepartment()?->name}}
                         </td>
                         <td class="text-end pe-0">
                             {{$user->position}}
-                        </td>
-                        <td class="text-end pe-0">
-                            <p class="mb-0 fw-bold {{$user->head->name ?? 'text-danger'}}">
-                                {{$user->head->name ?? 'не указан'}}
-                            </p>
-                        </td>
-                        <td class="text-end pe-0">
-                            {{$user->pager}}
                         </td>
                         <td class="text-end">
                             {{$user->username}}
@@ -94,44 +76,48 @@
                                     <input class="form-check-input w-35px h-20px"
                                            type="checkbox"
                                            id="visibleSwitch"
+                                           data-user-id="{{$user->id}}"
                                         {{$user->visible ? 'checked' : ''}}>
                                     <label class="form-check-label" for="visibleSwitch"></label>
                                 </div>
                             </div>
                         </td>
-{{--                        <td>--}}
-{{--                            <div class="d-flex justify-content-end">--}}
-{{--                                <div class="form-check form-check-solid form-check-custom form-switch">--}}
-{{--                                    <input class="form-check-input w-35px h-20px"--}}
-{{--                                           type="checkbox"--}}
-{{--                                           id="activeSwitch"--}}
-{{--                                        {{$user->active ? 'checked' : ''}}>--}}
-{{--                                    <label class="form-check-label" for="activeSwitch"></label>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </td>--}}
-{{--                        <td>--}}
-{{--                            <div class="d-flex justify-content-end">--}}
-{{--                                <div class="form-check form-check-solid form-check-custom form-switch">--}}
-{{--                                    <input class="form-check-input w-35px h-20px"--}}
-{{--                                           type="checkbox"--}}
-{{--                                           id="emailSwitch"--}}
-{{--                                        {{$user->email_notify ? 'checked' : ''}}>--}}
-{{--                                    <label class="form-check-label" for="emailSwitch"></label>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </td>--}}
-{{--                        <td>--}}
-{{--                            <div class="d-flex justify-content-end">--}}
-{{--                                <div class="form-check form-check-solid form-check-custom form-switch">--}}
-{{--                                    <input class="form-check-input w-35px h-20px"--}}
-{{--                                           type="checkbox"--}}
-{{--                                           id="tgSwitch"--}}
-{{--                                        {{$user->tg_notify ? 'checked' : ''}}>--}}
-{{--                                    <label class="form-check-label" for="tgSwitch"></label>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </td>--}}
+                        <td>
+                            <div class="d-flex justify-content-end">
+                                <div class="form-check form-check-solid form-check-custom form-switch">
+                                    <input class="form-check-input w-35px h-20px"
+                                           type="checkbox"
+                                           id="activeSwitch"
+                                           data-user-id="{{$user->id}}"
+                                        {{$user->active ? 'checked' : ''}}>
+                                    <label class="form-check-label" for="activeSwitch"></label>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-end">
+                                <div class="form-check form-check-solid form-check-custom form-switch">
+                                    <input class="form-check-input w-35px h-20px"
+                                           type="checkbox"
+                                           id="emailSwitch"
+                                           data-user-id="{{$user->id}}"
+                                        {{$user->email_notify ? 'checked' : ''}}>
+                                    <label class="form-check-label" for="emailSwitch"></label>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-end">
+                                <div class="form-check form-check-solid form-check-custom form-switch">
+                                    <input class="form-check-input w-35px h-20px"
+                                           type="checkbox"
+                                           id="tgSwitch"
+                                           data-user-id="{{$user->id}}"
+                                        {{$user->tg_notify ? 'checked' : ''}}>
+                                    <label class="form-check-label" for="tgSwitch"></label>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                 @empty
                     {{trans('users.users_empty')}}
@@ -141,6 +127,27 @@
         </div>
     </div>
 
+
+    <!-- Toast контейнер -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <!-- Уведомление об успехе -->
+        <div id="toastSuccess" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <strong class="me-auto" id="toastTitleSuccess"></strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body fs-6 text-gray-800" id="toastMessageSuccess"></div>
+        </div>
+
+        <!-- Уведомление об ошибке -->
+        <div id="toastError" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-danger text-white">
+                <strong class="me-auto" id="toastTitleError"></strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body fs-6 text-gray-800" id="toastMessageError"></div>
+        </div>
+    </div>
 @endsection
 
 
@@ -167,42 +174,55 @@
                 }
             });
 
-            $('#syncButton').click(function() {
-                const button = $(this);
-                const output = $('#output');
+            // Карта соответствий ID переключателей и их полей в БД
+            const settingMap = {
+                'visibleSwitch': 'visible',
+                'activeSwitch': 'active',
+                'emailSwitch': 'email_notify',
+                'tgSwitch': 'tg_notify'
+            };
 
-                button.prop('disabled', true);
-                button.text('Синхронизация...');
-                output.show().html('Выполняется...');
-                applyWait($('body'));
+            // Обработчик для всех переключателей
+            $('#visibleSwitch, #activeSwitch, #emailSwitch, #tgSwitch').on('change', function() {
+                const switchId = $(this).attr('id');
+                const setting = settingMap[switchId];
+                const isChecked = $(this).prop('checked');
+                const userId = $(this).data('user-id');
 
                 $.ajax({
-                    url: '{{ route("cabinet.settings.ldap.sync.run") }}',
-                    method: 'POST',
+                    url: '{{ route('cabinet.settings.users.toggleUserSetting', ['id' => ':id', 'setting' => ':setting']) }}'
+                        .replace(':id', userId)
+                        .replace(':setting', setting),
+                    type: 'POST',
+                    data: {
+                        value: isChecked
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(response) {
-                        output.html(`
-                            <div style="color: green;">
-                                ${response.message}<br>
-                                <pre>${response.output}</pre>
-                            </div>
-                        `);
+                        // Успешное изменение
+                        $('#toastTitleSuccess').text('Success');
+                        $('#toastMessageSuccess').text(`Изменения сохранены!`);
+                        var toastSuccess = new bootstrap.Toast($('#toastSuccess')[0], {
+                            delay: 3000 // Уведомление будет отображаться 5 секунд
+                        });
+                        toastSuccess.show();
+                        console.log(`${setting} успешно изменен на ${response.value}`);
                     },
                     error: function(xhr) {
-                        const response = xhr.responseJSON;
-                        output.html(`
-                            <div style="color: red;">
-                                ${response.message}<br>
-                                <pre>${response.output || ''}</pre>
-                            </div>
-                        `);
-                    },
-                    complete: function() {
-                        removeWait($('body'));
-                        button.prop('disabled', false);
-                        button.text('Обновить данные');
+                        // Ошибка при изменении
+                        $('#toastTitleError').text('Error');
+                        $('#toastMessageError').text('Произошла ошибка при изменении настройки.');
+                        var toastError = new bootstrap.Toast($('#toastError')[0], {
+                            delay: 3000 // Уведомление будет отображаться 5 секунд
+                        });
+                        $(this).prop('checked', !isChecked);
+                        console.error('Ошибка при изменении настройки');
                     }
                 });
             });
+
         });
     </script>
 @endpush

@@ -82,7 +82,10 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
 
     Route::prefix('settings')->name('settings.')->middleware('admin')->group(function () {
         Route::get('/users', [SettingsController::class, 'users'])->name('users');
-        Route::post('/ldap-sync', [SettingsController::class, 'sync'])->name('ldap.sync.run');
+        Route::post('/users/{id}/toggle-setting/{setting}', [SettingsController::class, 'toggleUserSetting'])->name('users.toggleUserSetting');
+        Route::get('/departments', [SettingsController::class, 'departments'])->name('departments');
+        Route::get('/departments/{department}/show', [SettingsController::class, 'show'])->name('departments.show');
+        Route::post('/departments/{department}/show', [SettingsController::class, 'store'])->name('departments.store');
     });
 
     Route::prefix('mentions')->name('mentions.')->group(function () {

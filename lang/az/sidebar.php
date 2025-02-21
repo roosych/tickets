@@ -24,7 +24,7 @@ return [
 
     ],
     'dept' => [
-        'title' => 'Mənim şöbəm',
+        'title' => 'Departamentim',
         'users' => [
             'text' => 'Əməkdaşlar',
             'hint' => 'Sizinlə birgə şöbədə çalışan əməkdaşlar',

@@ -21,15 +21,24 @@ class User extends Authenticatable implements LdapAuthenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, AuthenticatesWithLdap, HasPermissions;
 
-    public function head(): BelongsTo
+//    public function head(): BelongsTo
+//    {
+//        return $this->belongsTo(User::class, 'manager', 'distinguishedname');
+//    }
+
+    public function head(): ?User
     {
-        return $this->belongsTo(User::class, 'manager', 'distinguishedname');
+        return Department::where('id', $this->department_id)
+            ->with('manager') // Жадная загрузка менеджера
+            ->first()
+            ?->manager;
     }
 
     public function getDepartmentId()
     {
+        return $this->department_id;
         // Возвращаем department_id пользователя или department_id его руководителя
-        return $this->department_id ?: optional($this->head)->department_id;
+        //return $this->department_id ?: optional($this->head)->department_id;
     }
 
     public function getDepartment(): ?Department
@@ -52,13 +61,16 @@ class User extends Authenticatable implements LdapAuthenticatable
 
     public function deptUsers(): array|Collection
     {
-        // Если пользователь — менеджер, то выбираем сотрудников, у которых он является менеджером
+        return self::where('department_id', $this->getDepartmentId())
+            ->where('active', true)
+            ->get();
+       /* // Если пользователь — менеджер, то выбираем сотрудников, у которых он является менеджером
         if ($this->isManager()) {
             return self::where('manager', $this->distinguishedname)->where('active', true)->get();
         }
 
         // Если пользователь — не менеджер, то выбираем сотрудников отдела его руководителя
-        return self::where('manager', $this->manager)->where('active', true)->get();
+        return self::where('manager', $this->manager)->where('active', true)->get();*/
     }
 
     public function comments(): HasMany
@@ -94,14 +106,14 @@ class User extends Authenticatable implements LdapAuthenticatable
         $deptUsers = $this->deptUsers();
 
         // Если пользователь является менеджером, добавляем его в коллекцию
-        if ($this->isManager()) {
+/*        if ($this->isManager()) {
             // Добавляем текущего пользователя (менеджера) в коллекцию сотрудников
             $deptUsers->push($this);
         } else {
             // Если пользователь не менеджер, получаем его руководителя и добавляем к сотрудникам
             $head = $this->head()->get();
             $deptUsers = $deptUsers->merge($head);
-        }
+        }*/
 
         return $deptUsers;
     }

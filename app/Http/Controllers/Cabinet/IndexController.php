@@ -23,6 +23,7 @@ class IndexController extends Controller
 
     public function index()
     {
+        //dd(Auth::user()->department_id);
         //auth()->loginUsingId(96);
         $user = Auth::user();
         $tickets = Ticket::with('performer', 'department', 'creator', 'priority', 'parent')
@@ -63,9 +64,16 @@ class IndexController extends Controller
         $topPerformers = $data['topPerformers'];
         $totalTickets = $data['totalDepartmentTickets'];
 
-        return Auth::user()->getDepartment()->active
-            ? view('cabinet.index', compact('priorities','openedTickets', 'departments', 'topPerformers', 'totalTickets', 'tickets', 'doneTickets', 'sentTickets', 'myDoneTickets'))
-            : view('cabinet.deactive', compact('priorities', 'departments'));
+        $department = Auth::user()->getDepartment();
+
+        if ($department) {
+            return $department->active
+                ? view('cabinet.index', compact('priorities','openedTickets', 'departments', 'topPerformers', 'totalTickets', 'tickets', 'doneTickets', 'sentTickets', 'myDoneTickets'))
+                : view('cabinet.deactive', compact('priorities', 'departments'));
+        } else {
+            // Пользователь не привязан к департаменту
+            return view('cabinet.no_department');
+        }
     }
 
     private function getTopPerformers()
