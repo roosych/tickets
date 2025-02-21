@@ -61,6 +61,8 @@ class SettingsController extends Controller
         // Добавляем выбранных пользователей, если они есть
         if (isset($data['users']) && is_array($data['users'])) {
             $usersToKeep = array_merge($usersToKeep, $data['users']);
+        } else {
+            $usersToKeep = [];
         }
 
         // Убираем дубликаты
@@ -70,6 +72,8 @@ class SettingsController extends Controller
         if (!empty($data['manager_id']) && !in_array($data['manager_id'], $usersToKeep)) {
             $usersToKeep[] = $data['manager_id'];
         }
+
+        //dd($usersToKeep);
 
         // Обновление менеджера департамента
         $department->update([
@@ -95,14 +99,12 @@ class SettingsController extends Controller
             }
         }
 
-        // ✅ Используем транзакцию для безопасности
         DB::transaction(function () use ($usersToKeep, $department) {
-            // Сначала убираем всех пользователей, которых нет в списке на сохранение
+            // Сначала очищаем департамент
             User::where('department_id', $department->id)
-                ->whereNotIn('id', $usersToKeep)
                 ->update(['department_id' => null]);
 
-            // Привязываем выбранных пользователей
+            // Обновляем выбранных пользователей (всех сразу)
             User::whereIn('id', $usersToKeep)
                 ->update(['department_id' => $department->id]);
         });
