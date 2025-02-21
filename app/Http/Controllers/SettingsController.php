@@ -50,30 +50,16 @@ class SettingsController extends Controller
         // Сохраняем ID текущего менеджера
         $oldManagerId = $department->manager_id;
 
-        // Получаем текущих сотрудников департамента (до изменений)
-        $currentDepartmentUserIds = User::where('department_id', $department->id)
-            ->pluck('id')
-            ->toArray();
+        // Список пользователей из формы
+        $usersToKeep = $data['users'] ?? [];
 
-        // Подготавливаем массив пользователей, которые должны остаться
-        $usersToKeep = $currentDepartmentUserIds;
-
-        // Добавляем выбранных пользователей, если они есть
-        if (isset($data['users']) && is_array($data['users'])) {
-            $usersToKeep = array_merge($usersToKeep, $data['users']);
-        } else {
-            $usersToKeep = [];
-        }
-
-        // Убираем дубликаты
-        $usersToKeep = array_unique($usersToKeep);
-
-        // Если менеджер есть и его нет в массиве — добавляем
+        // Добавляем менеджера, если его нет в списке
         if (!empty($data['manager_id']) && !in_array($data['manager_id'], $usersToKeep)) {
             $usersToKeep[] = $data['manager_id'];
         }
 
-        //dd($usersToKeep);
+        // Убираем дубликаты
+        $usersToKeep = array_unique($usersToKeep);
 
         // Обновление менеджера департамента
         $department->update([
@@ -82,35 +68,36 @@ class SettingsController extends Controller
             'active' => $data['active'],
         ]);
 
-        // Если менеджер изменился, переназначаем права
+        // Переназначаем права, если менеджер изменился
         if ($oldManagerId != $data['manager_id']) {
             $allPermissionIds = Permission::pluck('id')->toArray();
 
             if ($oldManagerId) {
                 $oldManager = User::find($oldManagerId);
-                if ($oldManager) {
-                    $oldManager->permissions()->detach($allPermissionIds);
-                }
+                $oldManager?->permissions()->detach($allPermissionIds);
             }
 
             $newManager = User::find($data['manager_id']);
-            if ($newManager) {
-                $newManager->permissions()->syncWithoutDetaching($allPermissionIds);
-            }
+            $newManager?->permissions()->syncWithoutDetaching($allPermissionIds);
         }
 
+        // Обновляем департамент для пользователей
         DB::transaction(function () use ($usersToKeep, $department) {
-            // Сначала очищаем департамент
+            // Отключаем всех пользователей из департамента
             User::where('department_id', $department->id)
                 ->update(['department_id' => null]);
 
-            // Обновляем выбранных пользователей (всех сразу)
-            User::whereIn('id', $usersToKeep)
-                ->update(['department_id' => $department->id]);
+            // Привязываем выбранных пользователей
+            if (!empty($usersToKeep)) {
+                User::whereIn('id', $usersToKeep)
+                    ->update(['department_id' => $department->id]);
+            }
         });
 
-        return redirect()->route('cabinet.settings.departments.show', $department)->with('success', 'Департамент успешно обновлен');
+        return redirect()->route('cabinet.settings.departments.show', $department)
+            ->with('success', 'Департамент успешно обновлен');
     }
+
 
 
     public function toggleUserSetting(Request $request, $userId, $setting)
