@@ -33,11 +33,6 @@
                         <img src="{{asset('assets/media/misc/maintenance.png')}}" class="mw-100 mh-300px theme-light-show" alt="" />
                         <img src="{{asset('assets/media/misc/maintenance-dark.png')}}" class="mw-100 mh-300px theme-dark-show" alt="" />
                     </div>
-                    <div class="mb-0">
-                        <a href="{{route('cabinet.index')}}" class="btn btn-sm btn-primary">
-                            {{trans('common.error_pages.button')}}
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
