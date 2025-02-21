@@ -108,137 +108,24 @@
 
 
                 <div class="card-body pt-0">
-                    <div class="d-flex flex-column gap-10">
-                        <div>
-                            <div class="row row-cols-1 row-cols-xl-3 row-cols-md-2 border border-dashed rounded pt-3 pb-1 px-2 mb-5 mh-300px overflow-scroll"
-                                 id="kt_ecommerce_edit_order_selected_products">
 
-                                @if($department->manager)
-                                    <div class="col my-2"
-                                         data-kt-ecommerce-edit-order-filter="product"
-                                         data-kt-ecommerce-edit-order-id="product_{{$department->manager->id}}">
-                                        <div class="d-flex align-items-center border border-dashed p-3 rounded bg-white">
-                                            <a href="{{route('cabinet.users.show', $department->manager)}}" class="symbol symbol-50px" target="_blank">
-                                                @if($department->manager->avatar)
-                                                    <span class="symbol-label" style="background-image: url('{{ $department->manager->avatar }}'); background-size: cover; background-position: center;"></span>
-                                                @else
-                                                    <span class="symbol-label fs-3 bg-light-dark text-dark d-flex align-items-center justify-content-center">
-                                                        {{ get_initials($department->manager->name) }}
-                                                    </span>
-                                                @endif
-                                            </a>
-                                            <div class="ms-5">
-                                                <a href="{{route('cabinet.users.show', $department->manager)}}" class="text-gray-800 text-hover-primary fs-5 fw-bold" target="_blank">
-                                                    {{$department->manager->name}}
-                                                </a>
-                                                <div class="text-muted fs-7">
-                                                    {{$department->manager->email}}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-                                @if(count($department->users))
-                                    @foreach($department->users as $user)
-                                            @if($user->id == $department->manager?->id)
-                                                @continue
-                                            @endif
-                                        <div class="col my-2"
-                                             data-kt-ecommerce-edit-order-filter="product"
-                                             data-kt-ecommerce-edit-order-id="product_{{$user->id}}">
-                                            <div class="d-flex align-items-center border border-dashed p-3 rounded">
-                                                <a href="{{route('cabinet.users.show', $user)}}" class="symbol symbol-50px" target="_blank">
-                                                    @if($user->avatar)
-                                                        <span class="symbol-label" style="background-image: url('{{ $user->avatar }}'); background-size: cover; background-position: center;"></span>
-                                                    @else
-                                                        <span class="symbol-label fs-3 bg-light-dark text-dark d-flex align-items-center justify-content-center">
-                                                            {{ get_initials($user->name) }}
-                                                        </span>
-                                                    @endif
-                                                </a>
-                                                <div class="ms-5">
-                                                    <a href="{{route('cabinet.users.show', $user)}}" class="text-gray-800 text-hover-primary fs-5 fw-bold" target="_blank">
-                                                        {{$user->name}}
-                                                    </a>
-                                                    <div class="text-muted fs-7">
-                                                        {{$user->email}}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                <select multiple="multiple" size="10" name="users[]" title="users[]">
+                                    @foreach($users as $user)
+                                        @if($user->id == $department->manager?->id)
+                                            @continue
+                                        @endif
+                                        <option value="{{$user->id}}" {{$user->department_id == $department->id ? 'selected' : ''}}>
+                                            {{$user->name}}
+                                        </option>
                                     @endforeach
-                                @else
-                                    <span class="w-100 text-muted mb-2">
-                                        Чтобы добавить сотрудника, выберите его из списка
-                                    </span>
-                                @endif
 
+                                </select>
                             </div>
                         </div>
-
-                        <div class="separator"></div>
-
-                        <div class="d-flex align-items-center position-relative mb-n7">
-                            <i class="ki-outline ki-magnifier fs-3 position-absolute ms-4"></i>
-                            <input type="text"
-                                   data-kt-ecommerce-edit-order-filter="search"
-                                   class="form-control form-control-solid w-100 w-lg-50 ps-12"
-                                   placeholder="Поиск..." />
-                        </div>
-
-                        <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_ecommerce_edit_order_product_table">
-                            <thead>
-                            <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
-                                <th class="w-25px pe-2"></th>
-                                <th class="min-w-200px">Сотрудник</th>
-                            </tr>
-                            </thead>
-                            <tbody class="fw-semibold text-gray-600">
-                                @foreach($users as $user)
-                                    @if($user->id == $department->manager?->id)
-                                        @continue
-                                    @endif
-                                    <tr>
-                                        <td>
-                                            <div class="form-check form-check-sm form-check-custom form-check-solid">
-                                                <input class="form-check-input"
-                                                       type="checkbox"
-                                                       name="users[]"
-                                                       value="{{$user->id}}"
-                                                    {{$user->department_id == $department->id ? 'checked' : ''}}
-                                                />
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center"
-                                                 data-kt-ecommerce-edit-order-filter="product"
-                                                 data-kt-ecommerce-edit-order-id="product_{{$user->id}}">
-
-                                                <a href="{{route('cabinet.users.show', $user)}}" class="symbol symbol-50px" target="_blank">
-                                                    @if($user->avatar)
-                                                        <span class="symbol-label" style="background-image: url('{{ $user->avatar }}'); background-size: cover; background-position: center;"></span>
-                                                    @else
-                                                        <span class="symbol-label fs-3 bg-light-dark text-dark d-flex align-items-center justify-content-center">
-                                                            {{ get_initials($user->name) }}
-                                                        </span>
-                                                    @endif
-                                                </a>
-
-                                                <div class="ms-5">
-                                                    <a href="{{route('cabinet.users.show', $user)}}" class="text-gray-800 text-hover-primary fs-5 fw-bold" target="_blank">
-                                                        {{$user->name}}
-                                                    </a>
-
-                                                    <div class="text-muted fs-7">
-                                                        {{$user->email}}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
@@ -248,6 +135,11 @@
 
 @push('vendor_css')
     <link href="{{asset('assets/css/plugins/datatables.bundle.css')}}" rel="stylesheet" type="text/css" />
+    <style>
+        .btn-group {
+            display: none !important;
+        }
+    </style>
 @endpush
 
 @push('vendor_js')
@@ -260,5 +152,15 @@
 @endpush
 
 @push('custom_js')
-    <script src="{{asset('assets/js/custom/department/users-show.js')}}"></script>
+    <script src="{{asset('assets/js/plugins/jquery.bootstrap-duallistbox.js')}}"></script>
+    <script>
+        let demo1 = $('select[name="users[]"]').bootstrapDualListbox({
+            nonSelectedListLabel: 'Выберите сотрудников',
+            selectedListLabel: 'Выбранные',
+            preserveSelectionOnMove: 'moved',
+            infoText: false,
+            filterPlaceHolder: 'Поиск...',
+            filterTextClear: false,
+        });
+    </script>
 @endpush

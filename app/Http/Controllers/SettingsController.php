@@ -47,6 +47,7 @@ class SettingsController extends Controller
     {
         $data = $request->validated();
 
+        //dd($data);
         // Сохраняем ID текущего менеджера
         $oldManagerId = $department->manager_id;
 
@@ -87,10 +88,9 @@ class SettingsController extends Controller
             User::where('department_id', $department->id)
                 ->update(['department_id' => null]);
 
-            // Привязываем выбранных пользователей
-            if (!empty($usersToKeep)) {
-                User::whereIn('id', $usersToKeep)
-                    ->update(['department_id' => $department->id]);
+            // Обновляем каждого пользователя по очереди
+            foreach ($usersToKeep as $userId) {
+                User::where('id', $userId)->update(['department_id' => $department->id]);
             }
         });
 
