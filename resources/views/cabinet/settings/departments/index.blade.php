@@ -48,7 +48,12 @@
                                         <div class="d-flex align-items-center">
                                             <div class="fw-semibold ms-5">
                                                 <a href="javascript:void(0);" class="fs-5 fw-bold text-gray-900">
-                                                    {{$department->name}}
+                                                   @if($department->active)
+                                                       <span>
+                                                           <i class="ki-duotone ki-star text-warning fs-4 me-1"></i>
+                                                       </span>
+                                                   @endif
+                                                   {{$department->name}}
                                                 </a>
                                                 <div class="badge badge-light-primary ms-3">
                                                     {{ count($department->users) }}
