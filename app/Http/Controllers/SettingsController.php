@@ -7,6 +7,7 @@ use App\Models\Department;
 use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SettingsController extends Controller
 {
@@ -44,10 +45,9 @@ class SettingsController extends Controller
 
     public function store(UpdateDepartmentRequest $request, Department $department)
     {
-        //dd($department->id);
         $data = $request->validated();
 
-        // Сохраняем ID текущего менеджера для проверки изменений
+        // Сохраняем ID текущего менеджера
         $oldManagerId = $department->manager_id;
 
         // Получаем текущих сотрудников департамента (до изменений)
@@ -56,25 +56,19 @@ class SettingsController extends Controller
             ->toArray();
 
         // Подготавливаем массив пользователей, которые должны остаться
-        $usersToKeep = [];
+        $usersToKeep = $currentDepartmentUserIds;
 
         // Добавляем выбранных пользователей, если они есть
         if (isset($data['users']) && is_array($data['users'])) {
-            $usersToKeep = $data['users'];
+            $usersToKeep = array_merge($usersToKeep, $data['users']);
         }
 
-        // Если новый менеджер был одним из сотрудников, его могли убрать из массива users[]
-        // при смене роли. Убедимся, что он присутствует в списке.
-        if (!in_array($data['manager_id'], $usersToKeep)) {
+        // Убираем дубликаты
+        $usersToKeep = array_unique($usersToKeep);
+
+        // Если менеджер есть и его нет в массиве — добавляем
+        if (!empty($data['manager_id']) && !in_array($data['manager_id'], $usersToKeep)) {
             $usersToKeep[] = $data['manager_id'];
-        }
-
-        // Если меняем менеджера на одного из сотрудников, сохраняем остальных сотрудников
-        if (in_array($data['manager_id'], $currentDepartmentUserIds)) {
-            // Если передан пустой массив users[], считаем, что нужно сохранить всех текущих сотрудников
-            if (empty($data['users'])) {
-                $usersToKeep = $currentDepartmentUserIds;
-            }
         }
 
         // Обновление менеджера департамента
@@ -84,36 +78,38 @@ class SettingsController extends Controller
             'active' => $data['active'],
         ]);
 
-        // Проверяем, изменился ли менеджер
+        // Если менеджер изменился, переназначаем права
         if ($oldManagerId != $data['manager_id']) {
-            // Получаем все доступные разрешения
             $allPermissionIds = Permission::pluck('id')->toArray();
 
-            // Удаляем все разрешения у старого менеджера, если он существует
-            if ($oldManagerId !== null) {
+            if ($oldManagerId) {
                 $oldManager = User::find($oldManagerId);
                 if ($oldManager) {
                     $oldManager->permissions()->detach($allPermissionIds);
                 }
             }
 
-            // Добавляем все разрешения новому менеджеру
             $newManager = User::find($data['manager_id']);
             if ($newManager) {
                 $newManager->permissions()->syncWithoutDetaching($allPermissionIds);
             }
         }
 
-        // Обновляем department_id для всех, кто должен остаться
-        User::whereIn('id', $usersToKeep)->update(['department_id' => $department->id]);
+        // ✅ Используем транзакцию для безопасности
+        DB::transaction(function () use ($usersToKeep, $department) {
+            // Сначала убираем всех пользователей, которых нет в списке на сохранение
+            User::where('department_id', $department->id)
+                ->whereNotIn('id', $usersToKeep)
+                ->update(['department_id' => null]);
 
-        // Удаляем привязку у тех, кого нет в списке на сохранение
-        User::where('department_id', $department->id)
-            ->whereNotIn('id', $usersToKeep)
-            ->update(['department_id' => null]);
+            // Привязываем выбранных пользователей
+            User::whereIn('id', $usersToKeep)
+                ->update(['department_id' => $department->id]);
+        });
 
         return redirect()->route('cabinet.settings.departments.show', $department)->with('success', 'Департамент успешно обновлен');
     }
+
 
     public function toggleUserSetting(Request $request, $userId, $setting)
     {
