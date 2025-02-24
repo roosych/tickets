@@ -174,7 +174,6 @@
                 }
             });
 
-            // Карта соответствий ID переключателей и их полей в БД
             const settingMap = {
                 'visibleSwitch': 'visible',
                 'activeSwitch': 'active',
@@ -182,8 +181,8 @@
                 'tgSwitch': 'tg_notify'
             };
 
-            // Обработчик для всех переключателей
-            $('#visibleSwitch, #activeSwitch, #emailSwitch, #tgSwitch').on('change', function() {
+            // Используем делегирование событий
+            $(document).on('change', '#visibleSwitch, #activeSwitch, #emailSwitch, #tgSwitch', function() {
                 const switchId = $(this).attr('id');
                 const setting = settingMap[switchId];
                 const isChecked = $(this).prop('checked');
@@ -197,32 +196,27 @@
                     data: {
                         value: isChecked
                     },
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
                     success: function(response) {
-                        // Успешное изменение
                         $('#toastTitleSuccess').text('Success');
                         $('#toastMessageSuccess').text(`Изменения сохранены!`);
                         var toastSuccess = new bootstrap.Toast($('#toastSuccess')[0], {
-                            delay: 3000 // Уведомление будет отображаться 5 секунд
+                            delay: 3000
                         });
                         toastSuccess.show();
                         console.log(`${setting} успешно изменен на ${response.value}`);
                     },
                     error: function(xhr) {
-                        // Ошибка при изменении
                         $('#toastTitleError').text('Error');
                         $('#toastMessageError').text('Произошла ошибка при изменении настройки.');
                         var toastError = new bootstrap.Toast($('#toastError')[0], {
-                            delay: 3000 // Уведомление будет отображаться 5 секунд
+                            delay: 3000
                         });
+                        toastError.show();
                         $(this).prop('checked', !isChecked);
                         console.error('Ошибка при изменении настройки');
                     }
                 });
             });
-
         });
     </script>
 @endpush
