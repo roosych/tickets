@@ -29,12 +29,12 @@ class SettingsController extends Controller
         $managerId = $department->manager?->id; // null если менеджера нет
 
         $users = User::query()
-            ->where(function ($query) use ($managerId) {
-                $query->whereNull('department_id');
-                if ($managerId !== null) {
-                    $query->orWhere('department_id', '!=', $managerId);
-                }
-            })
+//            ->where(function ($query) use ($managerId) {
+//                $query->whereNull('department_id');
+//                if ($managerId !== null) {
+//                    $query->orWhere('department_id', '!=', $managerId);
+//                }
+//            })
             ->where('visible', true)
             ->where('active', true)
             ->get();
