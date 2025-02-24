@@ -51,8 +51,18 @@ class User extends Authenticatable implements LdapAuthenticatable
 
     public function isManager(): bool
     {
-        return $this->is_manager === 'manager';
+        // Проверяем, есть ли хотя бы один департамент, где этот пользователь является менеджером
+        return Department::where('manager_id', $this->id)->exists();
     }
+
+    public function isManagerOf(Department $department): bool
+    {
+        return $this->id === $department->manager_id;
+    }
+//    public function isManager(): bool
+//    {
+//        return $this->is_manager === 'manager';
+//    }
 
 //    public function deptUsers(): array|Collection
 //    {
