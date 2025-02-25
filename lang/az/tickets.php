@@ -93,6 +93,7 @@ return [
     'empty_out' => 'Siz heç bir tiket açmamısız',
     'empty_wait_close' => 'Bağlanmağı gözləyən tiketlər yoxdur',
     'has_children' => 'Alt tiketlər mövcuddur',
+    'raiting_title' => 'Tiketi qiymətləndirin — bu, komandanın performansını yaxşılaşdırmağa dəstək olacaq.',
     'validations' => [
         'text_required' => 'Tiketin təsviri yazılmayıb',
         'text_max' => 'Təsvir 10000 simvoldan artıqdır',
@@ -107,7 +108,8 @@ return [
             'text_required' => 'Şərh daxil edin',
             'text_string' => 'Şərh daxil edin',
             'text_max' => 'Mətn çox uzundur',
+            'text_min' => 'Mətn çox qısadır',
+            'raiting' => 'Tiketin icra olunmasını qiymətləndirin',
         ],
-
     ],
 ];

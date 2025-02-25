@@ -15,6 +15,7 @@ use App\Models\Tag;
 use App\Models\TemporaryFile;
 use App\Models\Ticket;
 use App\Models\TicketHistory;
+use App\Models\TicketRating;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -62,41 +63,54 @@ class TicketService
         });
     }
 
-    public function closeTicket(Ticket $ticket): void
+    public function closeTicket(Ticket $ticket, array $ratingData = null): void
     {
-        $this->checkTicketStatus(
-            $ticket,
-            [TicketStatusEnum::CANCELED, TicketStatusEnum::COMPLETED],
-            'Тикет уже закрыт или отменен!'
-        );
+        DB::transaction(function () use ($ticket, $ratingData) {
+            $this->checkTicketStatus(
+                $ticket,
+                [TicketStatusEnum::CANCELED, TicketStatusEnum::COMPLETED],
+                'Тикет уже закрыт или отменен!'
+            );
 
-        // Проверка статуса самого тикета
-        if (!$ticket->status->is(TicketStatusEnum::DONE)) {
-            abort(403, 'Тикет еще не выполнен');
-        }
+            // Проверка статуса самого тикета
+            if (!$ticket->status->is(TicketStatusEnum::DONE)) {
+                abort(403, 'Тикет еще не выполнен');
+            }
 
-        if ($ticket->allChildren()->exists()) {
-            $ticketChildren = $ticket->allChildren()->get();
+            if ($ticket->allChildren()->exists()) {
+                $ticketChildren = $ticket->allChildren()->get();
 
-            foreach ($ticketChildren as $child) {
-                if (!in_array($child->status, [
-                    TicketStatusEnum::DONE,
-                    TicketStatusEnum::COMPLETED,
-                    TicketStatusEnum::CANCELED
-                ])) {
-                    abort(403, 'У тикета есть невыполненные подтикеты');
+                foreach ($ticketChildren as $child) {
+                    if (!in_array($child->status, [
+                        TicketStatusEnum::DONE,
+                        TicketStatusEnum::COMPLETED,
+                        TicketStatusEnum::CANCELED
+                    ])) {
+                        abort(403, 'У тикета есть невыполненные подтикеты');
+                    }
+                }
+
+                // Закрываем все подтикеты в статусе DONE
+                foreach ($ticketChildren as $child) {
+                    if ($child->status->is(TicketStatusEnum::DONE)) {
+                        $this->updateTicketStatus($child, TicketStatusEnum::COMPLETED);
+                    }
                 }
             }
 
-            // Закрываем все подтикеты в статусе DONE
-            foreach ($ticketChildren as $child) {
-                if ($child->status->is(TicketStatusEnum::DONE)) {
-                    $this->updateTicketStatus($child, TicketStatusEnum::COMPLETED);
-                }
+            // Если переданы данные рейтинга и пользователь - создатель тикета
+            if ($ratingData && auth()->id() === $ticket->creator->id) {
+                // Создаем запись рейтинга
+                TicketRating::create([
+                    'ticket_id' => $ticket->id,
+                    'user_id' => auth()->id(),
+                    'rating' => $ratingData['rating'],
+                    'comment' => $ratingData['comment'],
+                ]);
             }
-        }
 
-        $this->updateTicketStatus($ticket, TicketStatusEnum::COMPLETED);
+            $this->updateTicketStatus($ticket, TicketStatusEnum::COMPLETED);
+        });
     }
 
     public function completeTicket(Ticket $ticket, string $comment): void

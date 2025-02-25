@@ -92,6 +92,7 @@
 @push('modals')
     @include('partials.modals.tickets.create')
     @include('partials.modals.tickets.cancel')
+    @include('partials.modals.tickets.close_rating')
 @endpush
 
 @push('custom_js')
@@ -198,52 +199,50 @@
         });
 
         //close ticket
-        $(".close_ticket").on('click', function (){
+        $('#close_ticket_submit').click(function (e) {
+            e.preventDefault();
             let ticket_id = $(this).data('id');
-            Swal.fire({
-                html: `{{trans('common.swal.close_ticket')}}`,
-                icon: "info",
-                buttonsStyling: false,
-                showCancelButton: true,
-                confirmButtonText: "{{trans('common.swal.yes')}}",
-                cancelButtonText: '{{trans('common.swal.no')}}',
-                customClass: {
-                    confirmButton: "btn fw-bold btn-danger",
-                    cancelButton: 'btn fw-bold btn-active-light-primary'
-                }
-            }).then(async (result) => {
-                if(result.value) {
-                    try {
-                        applyWait($('body'));
-                        const response = await $.ajax({
-                            url: '{{route('cabinet.tickets.close', ':id')}}'.replace(':id', ticket_id),
-                            method: "POST",
-                            headers: {'X-CSRF-TOKEN': '{{csrf_token()}}'},
-                            success: function(response)
-                            {
-                                if (response.success) {
-                                    $('.ticket_item_' + ticket_id).remove();
-                                    removeWait($('body'));
-                                    Swal.fire('{{trans('common.swal.success_title')}}', 'Тикет <b>"' + ticket_id + '"</b> закрыт.', 'success');
-                                    setTimeout(function(){
-                                        Swal.close();
-                                    }, 1000)
-                                } else {
-                                    removeWait($('body'));
-                                    Swal.fire('{{trans('common.swal.error_title')}}', 'common.swal.error_text', 'error');
-                                }
-                            },
-                            error: function (response)
-                            {
-                                removeWait($('body'));
-                                Swal.fire('{{trans('common.swal.error_title')}}', 'common.swal.error_text', 'error');
-                            },
-                        });
-                        //console.log(response.status)
-                    } catch (error) {
+            $('#close_ticket_id').val(ticket_id);
+            applyWait($('body'));
+            $.ajax({
+                url: '{{route('cabinet.tickets.close', ':id')}}'.replace(':id', ticket_id),
+                method: "POST",
+                headers: {'X-CSRF-TOKEN': '{{csrf_token()}}'},
+                data: $('#close_ticket_form').serialize(),
+                success: function(response)
+                {
+                    if (response.success) {
+                        $('#close_ticket_form')[0].reset();
+                        $('#close_ticket_modal').modal('hide');
+                        $('.ticket_item_' + ticket_id).remove();
                         removeWait($('body'));
-                        Swal.fire('{{trans('common.swal.error_title')}}', 'common.swal.error_text', 'error');
+                        Swal.fire({
+                            title: '{{trans('common.swal.success_title')}}',
+                            html: 'Тикет <b>"' + ticket_id + '"</b> закрыт.',
+                            icon: 'success',
+                            timer: 1000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        removeWait($('body'));
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                     }
+                },
+                error: function (response) {
+                    let errorMessage = '';
+                    if (response.status === 422) {
+                        const errors = response.responseJSON.errors;
+                        for (const key in errors) {
+                            errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
+                        }
+                    } else if (response.status === 403) {
+                        errorMessage = `<p class="mb-0">${response.responseJSON.message}</p>`;
+                        Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
+                    }
+                    Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
+                },
+                complete: function () {
+                    removeWait($('body'));
                 }
             });
         });

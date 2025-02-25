@@ -54,9 +54,15 @@
                                 @can('close', $ticket)
                                     <button class="btn btn-sm btn-light-success btn-active-success me-2 closed-ticket-btn"
                                             data-ticket_id="{{$ticket->id}}"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            title="{{trans('tickets.buttons.close_ticket')}}">
+                                            @if(auth()->id() === $ticket->creator->id)
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#close_ticket_modal"
+                                            @else
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="{{trans('tickets.buttons.close_ticket')}}"
+                                            @endif
+                                            >
                                         <i class="ki-outline ki-check-square fs-2"></i>
                                         {{trans('tickets.buttons.close_ticket')}}
                                     </button>
@@ -472,6 +478,9 @@
     @include('partials.modals.tickets.complete')
     @include('partials.modals.tickets.cancel')
     @include('partials.modals.tickets.attach_user')
+    @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE) && auth()->id() === $ticket->creator->id)
+        @include('partials.modals.tickets.close_rating')
+    @endif
 @endpush
 
 @push('vendor_css')
@@ -1043,8 +1052,50 @@
             });
         });
 
-        // closed
-        $(document).on('click', '.closed-ticket-btn', function(e) {
+        @if(auth()->id() === $ticket->creator->id)
+            // closed
+        $('#close_ticket_submit').click(function (e) {
+            e.preventDefault();
+            let ticket_id = $(this).data('id');
+            $('#close_ticket_id').val(ticket_id);
+            applyWait($('body'));
+            $.ajax({
+                url: '{{route('cabinet.tickets.close', ':id')}}'.replace(':id', ticket_id),
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token
+                },
+                data: $('#close_ticket_form').serialize(),
+                success: function (response) {
+                    if(response.success) {
+                        removeWait($('body'));
+                        window.location.href = '{{$backUrl}}';
+                        Swal.fire('{{trans('common.swal.success_title')}}', '{{trans('common.swal.success_text')}}', 'success');
+                    } else {
+                        removeWait($('body'));
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
+                    }
+                },
+                error: function (response) {
+                    let errorMessage = '';
+                    if (response.status === 422) {
+                        const errors = response.responseJSON.errors;
+                        for (const key in errors) {
+                            errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
+                        }
+                    } else if (response.status === 403) {
+                        errorMessage = `<p class="mb-0">${response.responseJSON.message}</p>`;
+                        Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
+                    }
+                    Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
+                },
+                complete: function () {
+                    removeWait($('body'));
+                }
+            });
+        });
+        @else
+            $(document).on('click', '.closed-ticket-btn', function(e) {
             e.preventDefault();
             Swal.fire({
                 html: `{{trans('common.swal.close_ticket')}}`,
@@ -1099,5 +1150,6 @@
                 }
             });
         });
+        @endif
     </script>
 @endpush

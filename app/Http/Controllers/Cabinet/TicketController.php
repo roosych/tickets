@@ -227,16 +227,45 @@ class TicketController extends Controller
         ]);
     }
 
-    public function close(Ticket $ticket)
+    public function close(Request $request, Ticket $ticket = null)
     {
+        // Если тикет не передан через route model binding, пытаемся получить его из запроса
+        if (!$ticket && $request->has('ticket_id')) {
+            $ticket = Ticket::findOrFail($request->ticket_id);
+        }
+
+        // Проверяем, что тикет определен
+        if (!$ticket) {
+            abort(404, 'Тикет не найден');
+        }
+
         try {
             $this->authorize('close', $ticket);
         } catch (AuthorizationException $e) {
             throw new AuthorizationException('У вас нет прав на закрытие этого тикета!');
         }
 
-        $this->ticketService->closeTicket($ticket);
-        return response()->json(['success' => true,]);
+        // Проверяем, является ли пользователь создателем тикета
+        if (auth()->id() === $ticket->creator->id) {
+            $ratingData = $request->validate([
+                'rating' => ['required', 'integer', 'between:1,5'],
+                'comment' => ['required', 'string', 'min:3', 'max:1000'],
+            ], [
+                'rating.required' => trans('tickets.validations.comment.raiting'),
+                'rating.integer' => 'Оценка должна быть целым числом.',
+                'rating.between' => trans('tickets.validations.comment.raiting'),
+                'comment.required' => trans('tickets.validations.comment.text_required'),
+                'comment.string' => trans('tickets.validations.comment.text_string'),
+                'comment.min' => trans('tickets.validations.comment.text_min'),
+                'comment.max' => trans('tickets.validations.comment.text_max'),
+            ]);
+
+            $this->ticketService->closeTicket($ticket, $ratingData);
+        } else {
+            $this->ticketService->closeTicket($ticket);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     public function storeComment(StoreCommentRequest $request, Ticket $ticket)

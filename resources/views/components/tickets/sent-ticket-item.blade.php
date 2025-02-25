@@ -9,6 +9,9 @@
                     && $ticket->creator->id === auth()->id())
                     <button type="button" class="btn btn-sm btn-icon btn-color-light-dark btn-active-light-success close_ticket"
                             data-id="{{$ticket->id}}"
+                            data-ticket_id="{{$ticket->id}}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#close_ticket_modal"
                     >
                         <i class="ki-outline ki-check-square fs-2"></i>
                     </button>
