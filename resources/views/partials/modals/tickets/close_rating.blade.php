@@ -61,7 +61,7 @@
                         <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">
                             {{trans('common.roles.buttons.cancel')}}
                         </button>
-                        <button type="button" class="btn btn-primary" id="close_ticket_submit" data-id="{{$ticket->id}}">
+                        <button type="button" class="btn btn-primary" id="close_ticket_submit">
                             {{trans('common.roles.buttons.save')}}
                         </button>
                     </div>
