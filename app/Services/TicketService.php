@@ -338,7 +338,7 @@ class TicketService
             $department = Department::find($data['department']);
 
             $executorId = $isPrivate
-                ? $department->manager->id
+                ? ($department->manager->id ?? null)
                 : ($data['user'] ?? null);
 
             $ticket = Ticket::query()->create([
@@ -451,7 +451,7 @@ class TicketService
         } else {
             // Если перформер не назначен, получаем всех сотрудников департамента
             $departmentUsers = $recipients->merge(
-                User::where('manager', $ticket->department->manager->distinguishedname)
+                User::where('department_id', $ticket->department_id)
                     ->get()
             );
 
