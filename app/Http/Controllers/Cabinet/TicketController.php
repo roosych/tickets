@@ -245,8 +245,8 @@ class TicketController extends Controller
             throw new AuthorizationException('У вас нет прав на закрытие этого тикета!');
         }
 
-        // Проверяем, является ли пользователь создателем тикета
-        if (auth()->id() === $ticket->creator->id) {
+        // Проверяем, требуется ли рейтинг для закрытия тикета
+        if ($ticket->requiresRating()) {
             $ratingData = $request->validate([
                 'rating' => ['required', 'integer', 'between:1,5'],
                 'comment' => ['required', 'string', 'min:3', 'max:1000'],

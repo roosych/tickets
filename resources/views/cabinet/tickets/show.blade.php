@@ -478,7 +478,7 @@
     @include('partials.modals.tickets.complete')
     @include('partials.modals.tickets.cancel')
     @include('partials.modals.tickets.attach_user')
-    @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE) && auth()->id() === $ticket->creator->id)
+    @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE) && $ticket->requiresRating())
         @include('partials.modals.tickets.close_rating')
     @endif
 @endpush
@@ -868,7 +868,7 @@
                 success: function (response) {
                     if(response.success) {
                         removeWait($('body'));
-                        window.location.href = '{{route('cabinet.tickets.index')}}';
+                        window.location.href = '{{$backUrl}}';
                         Swal.fire('{{trans('common.swal.success_title')}}', '{{trans('common.swal.success_text')}}', 'success');
                     } else {
                         Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
@@ -1052,7 +1052,7 @@
             });
         });
 
-        @if(auth()->id() === $ticket->creator->id)
+        @if($ticket->requiresRating())
             // closed
         $('#close_ticket_submit').click(function (e) {
             e.preventDefault();

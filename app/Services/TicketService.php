@@ -98,8 +98,8 @@ class TicketService
                 }
             }
 
-            // Если переданы данные рейтинга и пользователь - создатель тикета
-            if ($ratingData && auth()->id() === $ticket->creator->id) {
+            // Если переданы данные рейтинга и для тикета требуется рейтинг
+            if ($ratingData && $ticket->requiresRating()) {
                 // Создаем запись рейтинга
                 TicketRating::create([
                     'ticket_id' => $ticket->id,
@@ -109,7 +109,7 @@ class TicketService
                 ]);
             }
 
-            $this->updateTicketStatus($ticket, TicketStatusEnum::COMPLETED);
+            //$this->updateTicketStatus($ticket, TicketStatusEnum::COMPLETED);
         });
     }
 

@@ -169,6 +169,25 @@ class Ticket extends Model
         return $query;
     }
 
+    /**
+     * Проверяет, требуется ли рейтинг при закрытии тикета.
+     * Рейтинг не требуется, если:
+     * - пользователь является и создателем, и исполнителем
+     * - исполнитель не назначен
+     *
+     * @return bool
+     */
+    public function requiresRating(): bool
+    {
+        // Если исполнитель не назначен, рейтинг не требуется
+        if (!$this->performer || !$this->performer->id) {
+            return false;
+        }
+
+        // Если текущий пользователь - создатель и не исполнитель, рейтинг требуется
+        return auth()->id() === $this->creator->id && auth()->id() !== $this->performer->id;
+    }
+
     protected $fillable = [
         'user_id',
         'text',
