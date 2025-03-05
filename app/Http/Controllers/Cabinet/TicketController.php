@@ -114,9 +114,17 @@ class TicketController extends Controller
     public function show(Request $request, Ticket $ticket)
     {
         //auth()->loginUsingId(151);
+//        abort_unless(
+//            auth()->user()->getDepartmentId() === $ticket->department_id
+//                    || auth()->id() === $ticket->creator->id,
+//            403,
+//            'Вы не можете просматривать тикеты другого отдела'
+//        );
+
         abort_unless(
-            auth()->user()->getDepartmentId() === $ticket->department_id
-                    || auth()->id() === $ticket->creator->id,
+            auth()->user()->username === 'akarimov' //todo ВРЕМЕННО!!!
+            || auth()->user()->getDepartmentId() === $ticket->department_id
+            || auth()->id() === $ticket->creator->id,
             403,
             'Вы не можете просматривать тикеты другого отдела'
         );
