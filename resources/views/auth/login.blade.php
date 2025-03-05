@@ -98,7 +98,7 @@
                             <div class="d-flex flex-stack flex-grow-1 ">
                                 <div class=" fw-semibold">
                                     <div class="fs-6 text-gray-700 ">
-                                        {{trans('auth.hint_text')}} <br> {{trans('auth.example')}} <strong>rmamedov, fpoladov, rjalalov</strong>.
+                                        {{trans('auth.hint_text')}} <br> {{trans('auth.example')}} <strong>maslanova, pjabbarov, fvaliyev</strong>.
                                     </div>
                                 </div>
                             </div>
