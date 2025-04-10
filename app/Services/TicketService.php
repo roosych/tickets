@@ -109,7 +109,7 @@ class TicketService
                 ]);
             }
 
-            //$this->updateTicketStatus($ticket, TicketStatusEnum::COMPLETED);
+            $this->updateTicketStatus($ticket, TicketStatusEnum::COMPLETED);
         });
     }
 
