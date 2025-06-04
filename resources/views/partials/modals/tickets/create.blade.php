@@ -102,7 +102,7 @@
 
                     @if(count($deptTags) > 0)
                         <div class="my-10" id="tagsSelect" style="display: none;">
-                            <label class="fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.tags')}}</label>
+                            <label class="fs-6 fw-semibold mb-2">{{trans('common.tags.title')}}</label>
                             <select class="form-select form-select-solid"
                                     name="tags[]"
                                     data-control="select2"

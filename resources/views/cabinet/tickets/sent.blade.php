@@ -252,13 +252,17 @@
         });
 
         // cancel ticket
+        let ticketId;
+        $('.cancel-ticket-btn').on('click', function (e) {
+            ticketId = $(this).data('ticket_id');
+        });
         $('#cancel_ticket_submit').click(function (e) {
             e.preventDefault();
             let button = $(this);
             console.log(button)
-            $('#cancel_ticket_id').val();
+            $('#cancel_ticket_id').val(ticketId);
             applyWait($('body'));
-            /*$.ajax({
+            $.ajax({
                 url: "{{route('cabinet.tickets.cancel')}}",
                 method: 'POST',
                 headers: {
@@ -290,7 +294,7 @@
                 complete: function () {
                     removeWait($('body'));
                 }
-            });*/
+            });
         });
 
     </script>
