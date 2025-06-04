@@ -1,16 +1,20 @@
 @extends('layouts.app')
 
-@section('title', 'Теги')
+@section('title', trans('common.tags.title'))
 
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
         <li class="breadcrumb-item text-muted">
-            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">Главная</a>
+            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">
+                {{trans('common.mainpage')}}
+            </a>
         </li>
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
         </li>
-        <li class="breadcrumb-item text-muted">Теги</li>
+        <li class="breadcrumb-item text-muted">
+            {{trans('common.tags.title')}}
+        </li>
     </ul>
 @endsection
 
@@ -25,7 +29,7 @@
                     >
                         <img src="{{asset('assets/media/misc/2.svg')}}" alt="" class="mw-100 mh-100px mb-7">
                         <div class="fw-bold fs-3 text-gray-600 text-hover-primary">
-                            Добавить тег
+                            {{trans('common.tags.add_tag')}}
                         </div>
                     </button>
                 </div>
@@ -42,12 +46,12 @@
                         </div>
 
                         <div class="fs-6 fw-semibold text-gray-500">
-                            Тикеты: {{count($tag->tickets)}}
+                            {{trans('common.tags.tickets')}}: {{count($tag->tickets)}}
                         </div>
                         @can('delete', $tag)
                             <div class="text-center mt-10">
                                 <button class="btn btn-sm btn-light-danger delete_tag" data-name="{{$tag->text}}" data-id="{{$tag->id}}">
-                                    Удалить
+                                    {{trans('common.tags.delete_tag')}}
                                 </button>
                             </div>
                         @endcan
@@ -94,14 +98,12 @@
                     data: form.serialize(),
                     success: function(response)
                     {
-                        removeWait($('body'));
                         if(response.success) {
                             form.trigger('reset');
-                            modal.modal('toggle');
                             location.reload();
                         } else {
                             removeWait($('body'));
-                            Swal.fire('Ошибка!', 'Что-то пошло не так', 'error');
+                            Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                         }
                     },
                     error: function (response)
@@ -114,7 +116,7 @@
                                 errorMessage += `<p>${errors[key][0]}</p>`;
                             }
                         }
-                        Swal.fire('Ошибка!', errorMessage, 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
                     },
                 });
             });
@@ -126,12 +128,12 @@
             let tag_name = $(this).data('name');
             let item = $('.tag_item_' + tag_id);
             Swal.fire({
-                html: `Тег будет удален, Вы уверены?`,
+                html: `{{trans('common.tags.swal_text')}}`,
                 icon: "info",
                 buttonsStyling: false,
                 showCancelButton: true,
-                confirmButtonText: "Да",
-                cancelButtonText: 'Нет',
+                confirmButtonText: "{{trans('common.swal.yes')}}",
+                cancelButtonText: '{{trans('common.swal.no')}}',
                 customClass: {
                     confirmButton: "btn fw-bold btn-danger",
                     cancelButton: 'btn fw-bold btn-active-light-primary'
@@ -148,26 +150,26 @@
                             {
                                 if (response.success) {
                                     removeWait($('body'));
-                                    Swal.fire('Всё прошло успешно!', 'Тег <b>"' + tag_name + '"</b> удален.', 'success');
+                                    Swal.fire('{{trans('common.swal.success_title')}}', '{{trans('common.tags.tag')}} <b>"' + tag_name + '"</b> {{trans('common.tags.tag_deleted')}}.', 'success');
                                     setTimeout(function(){
                                         Swal.close();
                                         item.remove();
                                     }, 1000)
                                 } else {
                                     removeWait($('body'));
-                                    Swal.fire('Произошла ошибка!', 'common.swal.error_text', 'error');
+                                    Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                                 }
                             },
                             error: function (response)
                             {
                                 removeWait($('body'));
-                                Swal.fire('Произошла ошибка!', 'common.swal.error_text', 'error');
+                                Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                             },
                         });
                         //console.log(response.status)
                     } catch (error) {
                         removeWait($('body'));
-                        Swal.fire('Произошла ошибка!', 'common.swal.error_text', 'error');
+                        Swal.fire('{{trans('common.swal.error_title')}}', '{{trans('common.swal.error_text')}}', 'error');
                     }
                 }
             });

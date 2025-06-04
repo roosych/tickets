@@ -15,8 +15,8 @@ return [
     'tickets_statuses' => [
         'opened' => 'Açıq',
         'in_progress' => 'İcrada olan',
-        'done' => 'İcra olunan',
-        'completed' => 'Tamamlanan',
+        'done' => 'Tamamlanan',
+        'completed' => 'Bağlı',
         'cancelled' => 'Ləğv olunan',
     ],
 ];

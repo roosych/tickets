@@ -1,7 +1,7 @@
 <div class="card-header border-0">
     <div class="card-title">
         <h3 class="fw-bold mb-0">
-            Тикеты по тегам
+            {{trans('common.reports.title_by_tags')}}
         </h3>
     </div>
 </div>

@@ -1,7 +1,7 @@
 <div class="card-header border-0">
     <div class="card-title">
         <h3 class="fw-bold mb-0">
-            Тикеты по сотрудникам
+            {{trans('common.reports.title_by_employee')}}
         </h3>
     </div>
 </div>
@@ -40,7 +40,7 @@
                 </div>
                 <div class="d-flex my-3 ms-9">
                     <a href="{{route('cabinet.users.show', $performer)}}" class="btn btn-icon btn-active-light-primary w-30px h-30px me-3" target="_blank">
-                        <span data-bs-toggle="tooltip" data-bs-trigger="hover" title="Информация">
+                        <span data-bs-toggle="tooltip" data-bs-trigger="hover" title="{{trans('common.reports.info')}}">
                             <i class="ki-outline ki-eye fs-3"></i>
                         </span>
                     </a>
@@ -55,10 +55,10 @@
                         <th>{{trans('tickets.table.ticket')}}</th>
                         <th>{{trans('tickets.table.priority')}}</th>
                         <th>{{trans('tickets.table.created_at')}}</th>
-                        <th>Назначен</th>
-                        <th>Принятие</th>
-                        <th>Выполнение</th>
-                        <th>Закрытие</th>
+                        <th>{{trans('common.reports.assigned_at')}}</th>
+                        <th>{{trans('common.reports.acceptance_at')}}</th>
+                        <th>{{trans('common.reports.execution_at')}}</th>
+                        <th>{{trans('common.reports.closed_at')}}</th>
                         <th>{{trans('tickets.table.tags')}}</th>
                         <th class="text-end"></th>
                     </tr>

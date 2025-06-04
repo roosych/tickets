@@ -1,7 +1,7 @@
 <div class="card-header border-0">
     <div class="card-title">
         <h3 class="fw-bold mb-0">
-            Тикеты по приоритетам
+            {{trans('common.reports.title_by_priorities')}}
         </h3>
     </div>
 </div>
@@ -131,40 +131,3 @@
 
     @endforeach
 </div>
-
-
-
-
-{{--<div class="card-header border-0">--}}
-{{--    <div class="card-title">--}}
-{{--        <h2 class="fw-bold mb-0">--}}
-{{--            Тикеты по приоритетам--}}
-{{--        </h2>--}}
-{{--    </div>--}}
-{{--</div>--}}
-
-{{--<div class="accordion" id="ticketsAccordion">--}}
-{{--    @foreach ($groupedTickets as $priorityId => $tickets)--}}
-{{--        <div class="accordion-item">--}}
-{{--            <h2 class="accordion-header" id="heading{{ $priorityId }}">--}}
-{{--                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $priorityId }}" aria-expanded="true" aria-controls="collapse{{ $priorityId }}">--}}
-{{--                    Приоритет ID: {{ $priorityId }}--}}
-{{--                </button>--}}
-{{--            </h2>--}}
-{{--            <div id="collapse{{ $priorityId }}" class="accordion-collapse collapse" aria-labelledby="heading{{ $priorityId }}" data-bs-parent="#ticketsAccordion">--}}
-{{--                <div class="accordion-body">--}}
-{{--                    <ul>--}}
-{{--                        @foreach ($tickets as $ticket)--}}
-{{--                            <li>--}}
-{{--                                <strong>{{ $ticket->title }}</strong> - Статус: {{ $ticket->status }}--}}
-{{--                                <br>Создано: {{ $ticket->created_at->format('d.m.Y H:i') }}--}}
-{{--                                <br>Исполнитель: {{ $ticket->performer->name ?? 'Не назначен' }}--}}
-{{--                            </li>--}}
-{{--                        @endforeach--}}
-{{--                    </ul>--}}
-{{--                </div>--}}
-{{--            </div>--}}
-{{--        </div>--}}
-{{--    @endforeach--}}
-{{--</div>--}}
-

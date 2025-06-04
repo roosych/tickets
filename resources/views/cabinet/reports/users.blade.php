@@ -1,16 +1,20 @@
 @extends('layouts.app')
 
-@section('title', 'Отчеты')
+@section('title', trans('common.reports.title'))
 
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
         <li class="breadcrumb-item text-muted">
-            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">Главная</a>
+            <a href="{{route('cabinet.index')}}" class="text-muted text-hover-primary">
+                {{trans('common.mainpage')}}
+            </a>
         </li>
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
         </li>
-        <li class="breadcrumb-item text-muted">Отчеты</li>
+        <li class="breadcrumb-item text-muted">
+            {{trans('common.reports.title')}}
+        </li>
     </ul>
 @endsection
 
@@ -22,12 +26,12 @@
                     <div class="card-body">
                         <div class="mb-5">
                             <label class="fs-6 form-label fw-bold text-gray-900">
-                                Сотрудник
+                                {{trans('common.reports.employee')}}
                             </label>
                             <select class="form-select form-select-solid @error('filter.executor_id') is-invalid @enderror"
                                     name="filter[executor_id]"
                                     data-control="select2"
-                                    data-placeholder="Все сотрудники"
+                                    data-placeholder="{{trans('common.reports.all_employees')}}"
                                     data-allow-clear="true"
                                     data-hide-search="false">
                                 <option value=""></option>
@@ -58,10 +62,12 @@
                         </div>--}}
 
                         <div class="mb-5">
-                            <label class="fs-6 form-label fw-bold text-gray-900">Период</label>
+                            <label class="fs-6 form-label fw-bold text-gray-900">
+                                {{trans('common.reports.period.title')}}
+                            </label>
                             <input class="form-control form-control-solid w-100"
                                    name="date_range"
-                                   placeholder="За всё время"
+                                   placeholder="{{trans('common.reports.period.all_time')}}"
                                    id="users_report_period"
                                    value="{{ request('date_range') }}"
                             />
@@ -69,7 +75,7 @@
 
                         <div class="mb-5">
                             <label class="fs-6 form-label fw-bold text-gray-900">
-                                Группировка
+                                {{trans('common.reports.grouping.title')}}
                             </label>
                             <div class="nav-group nav-group-fluid">
                                 <label>
@@ -79,7 +85,7 @@
                                            value="{{\App\Enums\FilterGroupingEnum::USER}}"
                                         {{ request('grouping', \App\Enums\FilterGroupingEnum::USER->value) === \App\Enums\FilterGroupingEnum::USER->value ? 'checked' : '' }} />
                                     <span class="btn btn-sm btn-color-muted btn-active btn-active-primary fw-bold px-4">
-                            Сотрудник
+                            {{trans('common.reports.grouping.employee')}}
                         </span>
                                 </label>
                                 <label>
@@ -90,7 +96,7 @@
                                         {{ \App\Enums\FilterGroupingEnum::isSelected(request('grouping'), \App\Enums\FilterGroupingEnum::TAG) ? 'checked' : '' }}
                                     />
                                     <span class="btn btn-sm btn-color-muted btn-active btn-active-primary fw-bold px-4">
-                            Тег
+                            {{trans('common.reports.grouping.tag')}}
                         </span>
                                 </label>
                                 <label>
@@ -101,7 +107,7 @@
                                             {{ \App\Enums\FilterGroupingEnum::isSelected(request('grouping'), \App\Enums\FilterGroupingEnum::PRIORITY) ? 'checked' : '' }}
                                             />
                                     <span class="btn btn-sm btn-color-muted btn-active btn-active-primary fw-bold px-4">
-                            Приоритет
+                            {{trans('common.reports.grouping.priority')}}
                         </span>
                                 </label>
                             </div>
@@ -109,7 +115,7 @@
 
                         <div class="mb-10">
                             <label class="fs-6 form-label fw-bold text-gray-900 mb-5">
-                                Приоритет
+                                {{trans('common.reports.grouping.priority')}}
                             </label>
 
                             @foreach($priorities as $priority)
@@ -130,20 +136,20 @@
                         </div>
 
                         <div class="d-flex align-items-center justify-content-end">
-                            <a href="{{route('cabinet.reports.tickets')}}" class="btn btn-active-light-primary btn-color-gray-500 me-3">Сбросить</a>
-                            <button type="submit" class="btn btn-primary">Применить</button>
+                            <a href="{{route('cabinet.reports.tickets')}}" class="btn btn-active-light-primary btn-color-gray-500 me-3">
+                                {{trans('common.reports.clear_btn')}}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                {{trans('common.reports.apply_btn')}}
+                            </button>
                         </div>
                     </div>
                 </div>
             </form>
         </div>
-        <!--end::Aside-->
-        <!--begin::Layout-->
+
         <div class="flex-lg-row-fluid">
             <div class="card pt-4 mb-6 mb-xl-9">
-
-                <!--end::Card header-->
-                <!--begin::Card body-->
                 @if(\App\Enums\FilterGroupingEnum::isSelected(request('grouping'), \App\Enums\FilterGroupingEnum::PRIORITY))
                     @include('partials.reports.priority_accordion')
                 @elseif(\App\Enums\FilterGroupingEnum::isSelected(request('grouping'), \App\Enums\FilterGroupingEnum::TAG))
@@ -151,10 +157,7 @@
                 @else
                     @include('partials.reports.user_accordion')
                 @endif
-                <!--end::Card body-->
             </div>
-
-
 
             {{--<div class="card card-flush">
                 <!--begin::Card header-->
@@ -267,21 +270,29 @@
     <script>
         $("#users_report_period").daterangepicker({
                 ranges: {
-                    "Сегодня": ["{{ $today }}", "{{ $today }}"],
-                    "Вчера": ["{{ $yesterday }}", "{{ $yesterday }}"],
-                    "За 7 дней": ["{{ $sevenDaysAgo }}", "{{ $today }}"],
-                    "За 30 дней": ["{{ $thirtyDaysAgo }}", "{{ $today }}"],
-                    "Этот месяц": ["{{ $startOfMonth }}", "{{ $endOfMonth }}"],
+                    "{{trans('common.reports.period.today')}}": ["{{ $today }}", "{{ $today }}"],
+                    "{{trans('common.reports.period.yesterday')}}": ["{{ $yesterday }}", "{{ $yesterday }}"],
+                    "{{trans('common.reports.period.7_days')}}": ["{{ $sevenDaysAgo }}", "{{ $today }}"],
+                    "{{trans('common.reports.period.30_days')}}": ["{{ $thirtyDaysAgo }}", "{{ $today }}"],
+                    "{{trans('common.reports.period.this_month')}}": ["{{ $startOfMonth }}", "{{ $endOfMonth }}"],
                 },
                 locale: {
-                    customRangeLabel: "Период",
+                    customRangeLabel: "{{trans('common.reports.period.custom_date')}}",
                     format: "DD.MM.YYYY",
                     firstDay: 1,
-                    applyLabel: "Применить",
-                    cancelLabel: "Отмена",
+                    applyLabel: "{{trans('common.reports.apply_btn')}}",
+                    cancelLabel: "{{trans('common.roles.buttons.cancel')}}",
                     fromLabel: "С",
                     toLabel: "По",
-                    daysOfWeek: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+                    daysOfWeek: [
+                        "{{trans('common.short_days.7')}}",
+                        "{{trans('common.short_days.1')}}",
+                        "{{trans('common.short_days.2')}}",
+                        "{{trans('common.short_days.3')}}",
+                        "{{trans('common.short_days.4')}}",
+                        "{{trans('common.short_days.5')}}",
+                        "{{trans('common.short_days.6')}}"
+                    ],
                     monthNames: [
                         "{{trans('common.month.jan')}}",
                         "{{trans('common.month.feb')}}",

@@ -41,7 +41,7 @@ class TagController extends Controller
     {
         $tag = Tag::query()->findOrFail($id);
         $this->authorize('delete', $tag);
-        abort_unless($tag->department_id !== auth()->user()->getDepartmentId(), 403);
+        abort_if($tag->department_id !== auth()->user()->getDepartmentId(), 403);
         $tag->delete();
         return response()->json(['success' => true]);
     }
