@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('tickets:send-reminders')
             ->dailyAt('09:00')
-            ->when(fn () => now()->dayOfWeek !== 0); // 0 = воскресенье
+            ->when(fn () => !in_array(now()->dayOfWeek, [0, 6])); // сб, вс
     }
 
     /**
