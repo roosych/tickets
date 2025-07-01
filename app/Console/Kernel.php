@@ -27,6 +27,10 @@ class Kernel extends ConsoleKernel
             ->before(function () {
                 \Log::info('tickets:notify-urgent is about to run');
             });
+
+        $schedule->command('tickets:send-reminders')
+            ->dailyAt('09:00')
+            ->when(fn () => now()->dayOfWeek !== 0); // 0 = воскресенье
     }
 
     /**
