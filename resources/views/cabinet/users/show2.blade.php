@@ -73,7 +73,11 @@
             </div>
 
 @can('accesses', $user)
-    @if(auth()->user()->getDepartmentId() === $user->getDepartmentId())
+            @if(
+                auth()->user()->getDepartmentId() === $user->getDepartmentId() &&
+                $user->getDepartment() &&
+                $user->getDepartment()->is_active
+            )
         <div class="card card-flush pt-4 mb-6 mb-xl-9">
             <div class="card-header">
                 <div class="card-title">
