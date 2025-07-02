@@ -126,6 +126,19 @@
                             </td>
                             <td id="ticket_status_{{$ticket->id}}">
                                 <x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge>
+                                @if($ticket->status === \App\Enums\TicketStatusEnum::COMPLETED && $ticket->rating)
+                                    @php
+                                        $rating = $ticket->rating->rating ?? 0;
+                                    @endphp
+
+                                    <div class="rating justify-content-start mt-1">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <div class="rating-label {{ $i <= $rating ? 'checked' : '' }}">
+                                                <i class="ki-duotone ki-star fs-6"></i>
+                                            </div>
+                                        @endfor
+                                    </div>
+                                @endif
                             </td>
                             <td>
                                 @if($ticket->parent)
