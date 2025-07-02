@@ -76,7 +76,7 @@
             @if(
                 auth()->user()->getDepartmentId() === $user->getDepartmentId() &&
                 $user->getDepartment() &&
-                $user->getDepartment()->is_active
+                $user->getDepartment()->active
             )
         <div class="card card-flush pt-4 mb-6 mb-xl-9">
             <div class="card-header">
