@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', trans('sidebar.tickets.my.text'))
+@section('title', 'Исходящие тикеты отдела')
 
 @section('breadcrumbs')
     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
@@ -10,7 +10,7 @@
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
         </li>
-        <li class="breadcrumb-item text-muted">{{trans('sidebar.tickets.my.link_inbox')}}</li>
+        <li class="breadcrumb-item text-muted">Исходящие тикеты отдела</li>
     </ul>
 @endsection
 
@@ -52,20 +52,6 @@
                         @endforeach
                     </select>
                 </div>
-
-                <div class="w-100 mw-200px">
-                    <select id="creatorFilter" class="form-select form-select-solid"
-                            data-control="select2"
-                            data-hide-search="true"
-                            data-placeholder="Мои все тикеты">
-                        <option value="all" {{ request('filter.creator') === 'all' ? 'selected' : '' }}>
-                            {{trans('common.my_tickets.filter_my_all')}}
-                        </option>
-                        <option value="own" {{ request('filter.creator') === 'own' ? 'selected' : '' }}>
-                            {{trans('common.my_tickets.filter_my_own')}}
-                        </option>
-                    </select>
-                </div>
             </div>
         </div>
         <div class="card-body pt-0">
@@ -75,11 +61,10 @@
                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                         <th class="">{{trans('tickets.table.ticket')}}</th>
                         <th class="min-w-125px">{{trans('tickets.table.creator')}}</th>
+                        <th>Исполнитель</th>
                         <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
                         <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
                         <th>{{trans('tickets.table.status')}}</th>
-                        <th>{{trans('tickets.table.ticket')}}</th>
-                        <th>{{trans('tickets.table.tags')}}</th>
                         <th>{{trans('tickets.create_modal.description')}}</th>
                     </tr>
                     </thead>
@@ -113,8 +98,11 @@
                                     <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1" style="width: fit-content;">
                                         {{$ticket->creator->name}}
                                     </a>
-                                    <span>{{$ticket->creator->getDepartment()?->name}}</span>
+                                    <span>{{$ticket->creator->email}}</span>
                                 </div>
+                            </td>
+                            <td>
+                                {{$ticket->department->name}}
                             </td>
                             <td>
                                 <span class="badge badge-light-{{$ticket->priority->class}} fw-bold fs-7">
@@ -126,30 +114,6 @@
                             </td>
                             <td id="ticket_status_{{$ticket->id}}">
                                 <x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge>
-                            </td>
-                            <td>
-                                @if($ticket->parent)
-                                    <a href="{{route('cabinet.tickets.show', $ticket->parent)}}" class="text-gray-800 text-hover-primary fw-bold" target="_blank">#{{$ticket->parent->id}}</a>
-                                @else
-                                    {{trans('tickets.table.no_parent')}}
-                                @endif
-                            </td>
-                            <td>
-                                @php
-                                    $tagsHtml = '';
-                                       if ($ticket->tags->isNotEmpty()) {
-                                        $tagsHtml = '<div>';
-                                        foreach ($ticket->tags as $tag) {
-                                            $tagsHtml .= "<p class='fs-6 fw-bold mb-0'>{$tag->text}</p>";
-                                        }
-                                        $tagsHtml .= '</div>';
-                                    }
-                                @endphp
-                                <span class="badge badge-light-secondary badge-circle cursor-help fw-bold fs-7"
-                                      data-bs-toggle="tooltip"
-                                      data-bs-html="true"
-                                      data-bs-original-title="{{ $tagsHtml }}"
-                                >{{count($ticket->tags)}}</span>
                             </td>
                             <td>
                                 <span class="cursor-help"
@@ -192,7 +156,7 @@
 @endpush
 
 @push('custom_js')
-    <script src="{{asset('assets/js/custom/tickets/table.js')}}"></script>
+    <script src="{{asset('assets/js/custom/tickets/dept_sent_tickets.js')}}"></script>
     <script>
         $(document).ready(function () {
             $('#statusFilter, #creatorFilter').on('change', function () {

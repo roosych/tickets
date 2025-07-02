@@ -11,11 +11,13 @@ return [
         ],
         'my' => [
             'text' => 'Mənim tiketlərim',
+            'link_inbox' => 'Gələnlər',
             'hint' => 'Sizin icra edəcəyiniz tiketlər',
         ],
         'sent' => [
             'text' => 'Göndərilənlər',
             'hint' => 'Sizin açdığınız tiketlər',
+            'sent_dept_hint' => 'Şöbə tərəfindən açılan tiketlər',
         ],
         'tags' => [
             'text' => 'Tiket taqları',

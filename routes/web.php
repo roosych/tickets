@@ -54,6 +54,7 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
         Route::get('/', [TicketController::class, 'index'])->name('index')->middleware('check.department.status');
         Route::get('inbox', [TicketController::class, 'inbox'])->name('inbox')->middleware('check.department.status');
         Route::get('sent', [TicketController::class, 'sent'])->name('sent');
+        Route::get('sent-dept', [TicketController::class, 'sentDept'])->name('sent-dept');
         Route::get('{ticket}', [TicketController::class, 'show'])->name('show')
             ->middleware(['check.private.ticket']);
         Route::post('store', [TicketController::class, 'store'])->name('store');

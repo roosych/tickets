@@ -111,6 +111,28 @@ class TicketController extends Controller
         );
     }
 
+    public function sentDept(Request $request)
+    {
+        $statusLabels = [];
+        foreach (TicketStatusEnum::cases() as $status) {
+            $statusLabels[$status->value] = $status->label();
+        }
+        $priorities = Priorities::getCachedPriorities();
+
+        $user = auth()->user();
+
+        // Получаем ID всех пользователей из отдела текущего пользователя
+        $departmentUserIds = $user->deptAllUsers()->pluck('id');
+        $tickets = Ticket::query()
+            ->whereIn('user_id', $departmentUserIds)
+            ->when($request->input('filter.status'), function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->latest()
+            ->get();
+        return view('cabinet.tickets.sent-dept', compact('tickets', 'priorities', 'statusLabels'));
+    }
+
     public function show(Request $request, Ticket $ticket)
     {
         //auth()->loginUsingId(151);

@@ -78,12 +78,12 @@
                         <th class="min-w-125px">{{trans('tickets.table.performer')}}</th>
                         <th>{{trans('tickets.table.tags')}}</th>
                         <th>{{trans('tickets.create_modal.description')}}</th>
-                        <th class="text-end">{{trans('tickets.table.actions')}}</th>
                     </tr>
                     </thead>
                     <tbody class="fw-semibold text-gray-600">
                     @foreach($tickets as $ticket)
-                        <tr class="position_row_{{$ticket->id}}">
+                        <tr class="position_row_{{$ticket->id}} clickable-row cursor-pointer"
+                            data-href="{{ route('cabinet.tickets.show', $ticket) }}">
                             <td class="ps-3">
                                 <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
                                 @if($ticket->allChildren()->exists())
@@ -107,10 +107,10 @@
                                     </a>
                                 </div>
                                 <div class="d-flex flex-column">
-                                    <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
+                                    <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1" style="width: fit-content;">
                                         {{$ticket->creator->name}}
                                     </a>
-                                    <span>{{$ticket->creator->department}}</span>
+                                    <span>{{$ticket->creator->getDepartment()?->name}}</span>
                                 </div>
                             </td>
                             <td>
@@ -154,18 +154,6 @@
                                       data-bs-html="true"
                                       data-bs-original-title="<p class='fs-6 fw-bold mb-0'>{{$ticket->text}}</p>"
                                 >{{Str::limit($ticket->text, 20)}}</span>
-                            </td>
-                            <td class="text-end pe-2">
-                                <div class="my-3 ms-9">
-                                    <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
-                                        <span data-bs-toggle="tooltip"
-                                              data-bs-trigger="hover"
-                                              aria-label="{{trans('tickets.table.more')}}"
-                                              data-bs-original-title="{{trans('tickets.table.more')}}">
-                                            <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
-                                        </span>
-                                    </a>
-                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -402,6 +390,14 @@
                     }
                 });
             }
+        });
+
+        $(document).ready(function () {
+            $('.clickable-row').on('click', function (e) {
+                // Не реагировать на клик по интерактивным элементам
+                if ($(e.target).closest('a, button, .btn, .dropdown, [data-bs-toggle]').length) return;
+                window.location.href = $(this).data('href');
+            });
         });
     </script>
 @stack('js_from_modal')

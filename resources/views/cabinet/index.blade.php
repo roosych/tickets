@@ -113,12 +113,12 @@
                                                 <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
                                                 <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
                                                 <th>{{trans('tickets.table.main_ticket')}}</th>
-                                                <th class="text-end min-w-100px"></th>
                                             </tr>
                                             </thead>
                                             <tbody class="fw-semibold text-gray-600">
                                             @foreach($openedTickets as $ticket)
-                                                <tr class="position_row_{{$ticket->id}}">
+                                                <tr class="position_row_{{$ticket->id}} clickable-row cursor-pointer"
+                                                    data-href="{{ route('cabinet.tickets.show', $ticket) }}">
                                                     <td class="ps-3">
                                                         <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
                                                         @if($ticket->allChildren()->exists())
@@ -142,10 +142,10 @@
                                                             </a>
                                                         </div>
                                                         <div class="d-flex flex-column">
-                                                            <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
+                                                            <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1" style="width: fit-content;">
                                                                 {{$ticket->creator->name}}
                                                             </a>
-                                                            <span>{{$ticket->creator->department}}</span>
+                                                            <span>{{$ticket->creator->getDepartment()?->name}}</span>
                                                         </div>
                                                     </td>
                                                     <td>
@@ -162,18 +162,6 @@
                                                         @else
                                                             {{trans('tickets.table.no_parent')}}
                                                         @endif
-                                                    </td>
-                                                    <td class="text-end pe-2">
-                                                        <div class="my-3 ms-9">
-                                                            <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
-                                                                <span data-bs-toggle="tooltip"
-                                                                      data-bs-trigger="hover"
-                                                                      aria-label="{{trans('tickets.table.more')}}"
-                                                                      data-bs-original-title="{{trans('tickets.table.more')}}">
-                                                                    <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
-                                                                </span>
-                                                            </a>
-                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -201,12 +189,12 @@
                                                 <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
                                                 <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
                                                 <th>{{trans('tickets.table.main_ticket')}}</th>
-                                                <th class="text-end min-w-100px"></th>
                                             </tr>
                                             </thead>
                                             <tbody class="fw-semibold text-gray-600">
                                             @foreach($myDoneTickets as $ticket)
-                                                <tr class="position_row_{{$ticket->id}}">
+                                                <tr class="position_row_{{$ticket->id}} clickable-row cursor-pointer"
+                                                    data-href="{{ route('cabinet.tickets.show', $ticket) }}">
                                                     <td class="ps-3">
                                                         <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
                                                         @if($ticket->allChildren()->exists())
@@ -230,10 +218,10 @@
                                                             </a>
                                                         </div>
                                                         <div class="d-flex flex-column">
-                                                            <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
+                                                            <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1" style="width: fit-content;">
                                                                 {{$ticket->creator->name}}
                                                             </a>
-                                                            <span>{{$ticket->creator->department}}</span>
+                                                            <span>{{$ticket->creator->getDepartment()?->name}}</span>
                                                         </div>
                                                     </td>
                                                     <td>
@@ -250,18 +238,6 @@
                                                         @else
                                                             {{trans('tickets.table.no_parent')}}
                                                         @endif
-                                                    </td>
-                                                    <td class="text-end pe-2">
-                                                        <div class="my-3 ms-9">
-                                                            <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
-                                                                <span data-bs-toggle="tooltip"
-                                                                      data-bs-trigger="hover"
-                                                                      aria-label="{{trans('tickets.table.more')}}"
-                                                                      data-bs-original-title="{{trans('tickets.table.more')}}">
-                                                                    <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
-                                                                </span>
-                                                            </a>
-                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -292,13 +268,13 @@
                                                 <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
                                                 <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
                                                 <th>{{trans('tickets.table.main_ticket')}}</th>
-                                                <th class="text-end min-w-100px"></th>
                                             </tr>
                                             </thead>
                                             <tbody class="fw-semibold text-gray-600">
 
                                             @foreach($sentTickets as $ticket)
-                                                <tr class="position_row_{{$ticket->id}}">
+                                                <tr class="position_row_{{$ticket->id}} clickable-row cursor-pointer"
+                                                    data-href="{{ route('cabinet.tickets.show', $ticket) }}">
                                                     <td class="ps-3">
                                                         <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
                                                         @if($ticket->allChildren()->exists())
@@ -330,10 +306,10 @@
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             @if($ticket->performer)
-                                                                <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
+                                                                <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1" style="width: fit-content;">
                                                                     {{$ticket->performer->name}}
                                                                 </a>
-                                                                <span>{{$ticket->performer->department}}</span>
+                                                                <span>{{$ticket->creator->getDepartment()?->name}}</span>
                                                             @else
                                                                 {{trans('tickets.sent.performer_empty')}}
                                                             @endif
@@ -354,18 +330,6 @@
                                                         @else
                                                             {{trans('tickets.table.no_parent')}}
                                                         @endif
-                                                    </td>
-                                                    <td class="text-end pe-2">
-                                                        <div class="my-3 ms-9">
-                                                            <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
-                                                                <span data-bs-toggle="tooltip"
-                                                                      data-bs-trigger="hover"
-                                                                      aria-label="{{trans('tickets.table.more')}}"
-                                                                      data-bs-original-title="{{trans('tickets.table.more')}}">
-                                                                    <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
-                                                                </span>
-                                                            </a>
-                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -396,7 +360,6 @@
                                                     <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
                                                     <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
                                                     <th>{{trans('tickets.table.main_ticket')}}</th>
-                                                    <th class="text-end min-w-100px"></th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="fw-semibold text-gray-600">
@@ -412,7 +375,8 @@
 
                                                 @foreach($doneTickets as $ticket)
                                                     @if(!in_array($ticket->id, $ticketsWithDoneChildren))
-                                                        <tr class="position_row_{{$ticket->id}}">
+                                                        <tr class="position_row_{{$ticket->id}} clickable-row cursor-pointer"
+                                                            data-href="{{ route('cabinet.tickets.show', $ticket) }}">
                                                             <td class="ps-3">
                                                                 <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
                                                                 @if($ticket->allChildren()->exists())
@@ -436,10 +400,10 @@
                                                                     </a>
                                                                 </div>
                                                                 <div class="d-flex flex-column">
-                                                                    <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1">
+                                                                    <a href="{{route('cabinet.users.show', $ticket->performer)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1" style="width: fit-content;">
                                                                         {{$ticket->performer->name}}
                                                                     </a>
-                                                                    <span>{{$ticket->performer->department}}</span>
+                                                                    <span>{{$ticket->creator->getDepartment()?->name}}</span>
                                                                 </div>
                                                             </td>
                                                             <td>
@@ -456,18 +420,6 @@
                                                                 @else
                                                                     {{trans('tickets.table.no_parent')}}
                                                                 @endif
-                                                            </td>
-                                                            <td class="text-end pe-2">
-                                                                <div class="my-3 ms-9">
-                                                                    <a href="{{route('cabinet.tickets.show', $ticket)}}" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary w-30px h-30px">
-                                                                <span data-bs-toggle="tooltip"
-                                                                      data-bs-trigger="hover"
-                                                                      aria-label="{{trans('tickets.table.more')}}"
-                                                                      data-bs-original-title="{{trans('tickets.table.more')}}">
-                                                                    <i class="ki-outline ki-black-right fs-2 text-gray-500"></i>
-                                                                </span>
-                                                                    </a>
-                                                                </div>
                                                             </td>
                                                         </tr>
                                                     @endif
@@ -839,6 +791,14 @@
             };
 
             KTChartsWidget44.init();
+        });
+
+        $(document).ready(function () {
+            $('.clickable-row').on('click', function (e) {
+                // Не реагировать на клик по интерактивным элементам
+                if ($(e.target).closest('a, button, .btn, .dropdown, [data-bs-toggle]').length) return;
+                window.location.href = $(this).data('href');
+            });
         });
     </script>
     @stack('js_from_modal')

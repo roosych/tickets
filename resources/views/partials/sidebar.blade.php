@@ -31,7 +31,106 @@
                                 </span>
                             </div>
                         </div>
+
+                        <div data-kt-menu-trigger="click" class="menu-item menu-accordion mb-1">
+                            <span class="menu-link">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">
+                                    {{trans('sidebar.tickets.dept.text')}}
+                                </span>
+                                <span class="menu-arrow"></span>
+                            </span>
+                            <div class="menu-sub menu-sub-accordion ms-3">
+
+                                @if(auth()->user()->getDepartment() && auth()->user()->getDepartment()->active)
+                                    <div class="menu-item">
+                                        <a class="menu-link" href="{{route('cabinet.tickets.index')}}"
+                                           title="{{trans('sidebar.tickets.dept.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                            <span class="menu-title">
+                                                {{trans('sidebar.tickets.my.link_inbox')}}
+                                            </span>
+                                        </a>
+                                    </div>
+                                @endif
+
+
+                                <div class="menu-item">
+                                    <a class="menu-link" href="{{route('cabinet.tickets.sent-dept')}}"
+                                       title="{{trans('sidebar.tickets.sent.sent_dept_hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">
+                                            {{trans('sidebar.tickets.sent.text')}}
+                                        </span>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div data-kt-menu-trigger="click" class="menu-item menu-accordion mb-1">
+                            <span class="menu-link">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">
+                                    {{trans('sidebar.tickets.my.text')}}
+                                </span>
+                                <span class="menu-arrow"></span>
+                            </span>
+                            <div class="menu-sub menu-sub-accordion ms-3">
+
+                                @if(auth()->user()->getDepartment() && auth()->user()->getDepartment()->active)
+                                    <div class="menu-item">
+                                        <a class="menu-link" href="{{route('cabinet.tickets.inbox')}}"
+                                           title="{{trans('sidebar.tickets.my.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                            <span class="menu-title">
+                                                {{trans('sidebar.tickets.my.link_inbox')}}
+                                            </span>
+                                        </a>
+                                    </div>
+                                @endif
+
+
+                                <div class="menu-item">
+                                    <a class="menu-link" href="{{route('cabinet.tickets.sent')}}"
+                                       title="{{trans('sidebar.tickets.sent.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                                <span class="menu-title">
+                                            {{trans('sidebar.tickets.sent.text')}}
+                                        </span>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+
                         <div class="menu-item">
+                            @if(auth()->user()->getDepartment() && auth()->user()->getDepartment()->active)
+                                <a class="menu-link" href="{{route('cabinet.tags.index')}}"
+                                   title="{{trans('sidebar.tickets.tags.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">
+                                        {{trans('sidebar.tickets.tags.text')}}
+                                    </span>
+                                </a>
+                            @endif
+                        </div>
+
+                        {{--<div class="menu-item">
                             @if(auth()->user()->getDepartment() && auth()->user()->getDepartment()->active)
                                 <a class="menu-link" href="{{route('cabinet.tickets.index')}}"
                                    title="{{trans('sidebar.tickets.dept.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
@@ -72,7 +171,7 @@
                                     </span>
                                 </a>
                             @endif
-                        </div>
+                        </div>--}}
                     </div>
                 </div>
 

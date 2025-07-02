@@ -10,7 +10,7 @@
         <li class="breadcrumb-item">
             <span class="bullet bg-gray-500 w-5px h-2px"></span>
         </li>
-        <li class="breadcrumb-item text-muted">{{trans('common.sent_tickets.title')}}</li>
+        <li class="breadcrumb-item text-muted">{{trans('sidebar.tickets.sent.text')}}</li>
     </ul>
 @endsection
 
@@ -299,4 +299,5 @@
 
     </script>
     @stack('js_from_modal')
+    @stack('scripts')
 @endpush

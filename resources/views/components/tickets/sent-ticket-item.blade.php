@@ -1,4 +1,5 @@
-<div class="card mb-6 mb-xl-9 ticket_item_{{$ticket->id}}">
+<div class="card mb-6 mb-xl-9 ticket_item_{{$ticket->id}} cursor-pointer clickable-card"
+     data-href="{{ route('cabinet.tickets.show', $ticket) }}">
     <div class="card-body">
         <div class="d-flex flex-stack mb-3">
             <div class="badge badge-light">
@@ -68,3 +69,16 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script>
+        $(document).ready(function () {
+            $('.clickable-card').on('click', function (e) {
+                // Если клик был по кнопке или ссылке — не переходить
+                if ($(e.target).closest('button, a').length) return;
+
+                window.location.href = $(this).data('href');
+            });
+        });
+    </script>
+@endpush
