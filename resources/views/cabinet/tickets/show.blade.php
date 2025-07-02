@@ -426,6 +426,24 @@
                                         {{$ticket->getCanceledTicketComment()}}
                                     </div>
                                 @endif
+
+                                @if($activity->status === \App\Enums\TicketStatusEnum::COMPLETED && $ticket->rating)
+                                    @php
+                                        $rating = $ticket->rating->rating ?? 0;
+                                    @endphp
+
+                                    <div class="rating justify-content-start">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <div class="rating-label {{ $i <= $rating ? 'checked' : '' }}">
+                                                <i class="ki-duotone ki-star fs-2"></i>
+                                            </div>
+                                        @endfor
+                                    </div>
+
+                                    <div class="p-5 mt-3 rounded bg-light-success text-gray-900 fw-semibold mw-lg-400px text-start">
+                                        {{$ticket->rating->comment}}
+                                    </div>
+                                @endif
                             @endif
                         @empty
                             <div class="text-center empty_activity">

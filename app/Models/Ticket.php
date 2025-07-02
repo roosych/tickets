@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 class Ticket extends Model
@@ -186,6 +187,11 @@ class Ticket extends Model
 
         // Если текущий пользователь - создатель и не исполнитель, рейтинг требуется
         return auth()->id() === $this->creator->id && auth()->id() !== $this->performer->id;
+    }
+
+    public function rating(): HasOne
+    {
+        return $this->hasOne(TicketRating::class, 'ticket_id');
     }
 
     protected $fillable = [
