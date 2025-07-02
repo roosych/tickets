@@ -144,9 +144,13 @@ class TicketController extends Controller
 //        );
 
         abort_unless(
-            auth()->user()->username === 'akarimov' //todo ВРЕМЕННО!!!
+            auth()->user()->username === 'akarimov' // todo: временно
             || auth()->user()->getDepartmentId() === $ticket->department_id
-            || auth()->id() === $ticket->creator->id,
+            || auth()->id() === $ticket->creator->id
+            || (
+                $ticket->creator &&                                     // создатель тикета существует
+                $ticket->creator->getDepartment()?->manager_id === auth()->id() // и текущий пользователь — менеджер его отдела
+            ),
             403,
             'Вы не можете просматривать тикеты другого отдела'
         );

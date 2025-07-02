@@ -41,9 +41,12 @@ class TicketService
         // Если здесь произойдет исключение, транзакция откатится
         DB::transaction(function () use ($ticket, $status, $comment) {
             $ticket->status = $status;
-            if ($ticket->performer === null) {
+
+            // Назначаем исполнителя только если статус НЕ отменен и исполнитель еще не назначен
+            if ($status !== TicketStatusEnum::CANCELED && $ticket->performer === null) {
                 $ticket->executor_id = Auth::id();
             }
+
             $ticket->save();
             // Перезагружаем отношение
             $ticket->load('performer');
