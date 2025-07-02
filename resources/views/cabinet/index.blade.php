@@ -578,10 +578,10 @@
 
 @push('custom_js')
     <script src="{{asset('assets/js/custom/tickets/create.js')}}"></script>
-    <script src="{{asset('assets/js/custom/index/opened_tickets_table.js')}}"></script>
-    <script src="{{asset('assets/js/custom/index/done_tickets_table.js')}}"></script>
-    <script src="{{asset('assets/js/custom/index/my_done_tickets_table.js')}}"></script>
-    <script src="{{asset('assets/js/custom/index/sent_tickets_table.js')}}"></script>
+    <script src="{{asset('assets/js/custom/index/opened_tickets_table.js?v=2')}}"></script>
+    <script src="{{asset('assets/js/custom/index/done_tickets_table.js?v=2')}}"></script>
+    <script src="{{asset('assets/js/custom/index/my_done_tickets_table.js?v=2')}}"></script>
+    <script src="{{asset('assets/js/custom/index/sent_tickets_table.js?v=2')}}"></script>
     <script>
         //filepond
         FilePond.registerPlugin(FilePondPluginFileValidateType);
