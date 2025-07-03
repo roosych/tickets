@@ -40,7 +40,7 @@ class TicketController extends Controller
         $departmentId = $user->getDepartmentId();
 
         $tickets = Ticket::query()
-            ->with(['priority', 'creator', 'tags', 'performer', 'department'])
+            ->with(['priority', 'creator', 'tags', 'performer', 'department', 'rating'])
             ->where('department_id', $departmentId)
             ->where(function ($query) {
                 $query->whereColumn('user_id', '!=', 'executor_id')
@@ -64,7 +64,7 @@ class TicketController extends Controller
         }
         $priorities = Priorities::getCachedPriorities();
         $tickets = Ticket::query()
-            ->with(['priority', 'creator', 'tags', 'performer'])
+            ->with(['priority', 'creator', 'tags', 'performer', 'rating'])
             ->where('executor_id', auth()->id())
             ->when($request->input('filter.status'), function ($query, $status) {
                 $query->where('status', $status);
@@ -124,6 +124,7 @@ class TicketController extends Controller
         // Получаем ID всех пользователей из отдела текущего пользователя
         $departmentUserIds = $user->deptAllUsers()->pluck('id');
         $tickets = Ticket::query()
+            ->with(['priority', 'creator', 'department', 'performer', 'comments'])
             ->whereIn('user_id', $departmentUserIds)
             ->when($request->input('filter.status'), function ($query, $status) {
                 $query->where('status', $status);
@@ -166,7 +167,7 @@ class TicketController extends Controller
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
-        $ticket = $ticket->load(['comments.creator', 'histories', 'tags']);
+        $ticket = $ticket->load(['comments.creator', 'histories', 'tags', 'rating']);
 
         $priorities = Priorities::getCachedPriorities();
         $departments = [];

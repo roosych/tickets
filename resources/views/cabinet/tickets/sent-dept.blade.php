@@ -178,7 +178,7 @@
         });
 
         $(document).ready(function () {
-            $('.clickable-row').on('click', function (e) {
+            $('#dept_tickets_table').on('click', '.clickable-row', function (e) {
                 // Не реагировать на клик по интерактивным элементам
                 if ($(e.target).closest('a, button, .btn, .dropdown, [data-bs-toggle]').length) return;
                 window.location.href = $(this).data('href');

@@ -105,7 +105,7 @@
                             <div class="tab-content" id="myTabContent">
                                 <div class="tab-pane fade show active" id="my_opened" role="tabpanel">
                                     @if(count($openedTickets))
-                                        <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="my_open_tickets_table">
+                                        <table class="clickable-table table align-middle table-hover table-row-dashed fs-6 gy-5" id="my_open_tickets_table">
                                             <thead>
                                             <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                                 <th class="">{{trans('tickets.table.ticket')}}</th>
@@ -181,7 +181,7 @@
 
                                 <div class="tab-pane fade" id="my_done" role="tabpanel">
                                     @if(count($myDoneTickets))
-                                        <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="my_done_tickets_table">
+                                        <table class="clickable-table table align-middle table-hover table-row-dashed fs-6 gy-5" id="my_done_tickets_table">
                                             <thead>
                                             <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                                 <th class="">{{trans('tickets.table.ticket')}}</th>
@@ -260,7 +260,7 @@
                                 <div class="tab-pane fade" id="my_out" role="tabpanel">
 
                                     @if(count($sentTickets))
-                                        <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="sent_tickets_table">
+                                        <table class="clickable-table table align-middle table-hover table-row-dashed fs-6 gy-5" id="sent_tickets_table">
                                             <thead>
                                             <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                                 <th class="">{{trans('tickets.table.ticket')}}</th>
@@ -352,7 +352,7 @@
                                 @if(auth()->user()->hasPermissions('close', \App\Models\Ticket::class))
                                     <div class="tab-pane fade" id="wait_closed" role="tabpanel">
                                         @if(count($doneTickets))
-                                            <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="done_tickets_table">
+                                            <table class="clickable-table table align-middle table-hover table-row-dashed fs-6 gy-5" id="done_tickets_table">
                                                 <thead>
                                                 <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                                                     <th class="">{{trans('tickets.table.ticket')}}</th>
@@ -794,8 +794,7 @@
         });
 
         $(document).ready(function () {
-            $('.clickable-row').on('click', function (e) {
-                // Не реагировать на клик по интерактивным элементам
+            $('.clickable-table').on('click', '.clickable-row', function (e) {
                 if ($(e.target).closest('a, button, .btn, .dropdown, [data-bs-toggle]').length) return;
                 window.location.href = $(this).data('href');
             });
