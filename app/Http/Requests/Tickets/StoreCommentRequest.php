@@ -16,6 +16,7 @@ class StoreCommentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'temp_folder' => ['nullable', 'string'],
             'text' => ['required', 'string', 'max:250'],
             'mentions' => ['nullable', 'array'],
             'mentions.*' => ['nullable', 'exists:users,id'],

@@ -16,6 +16,7 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
+            'temp_folder' => ['nullable', 'string'],
             'text' => ['required', 'string', 'max:10000'],
             'priority' => ['required', 'exists:priorities,id'],
             'department' => ['required', 'exists:departments,id'],
