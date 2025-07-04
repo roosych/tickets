@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TemporaryFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,73 +10,62 @@ class TemporaryFileController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'media' => ['file','mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx','max:10240'],
+            'media' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,ppt,pptx', 'max:10240'],
+            'folder' => ['required', 'string'],
         ]);
 
-        if($request->hasFile('media')) {
+        if ($request->hasFile('media')) {
             $image = $request->file('media');
+            $folder = $request->input('folder');
             $filename = $image->getClientOriginalName();
-            //$folder = uniqid() . time();
-            $folder = time() . mt_rand(1000, 9999);
 
-            // Получение размера файла в байтах
-            $size = $image->getSize();
-            $extension = $image->getClientOriginalExtension();
-            $uniqueFilename = uniqid() . '_' . time() . '.' . $extension;
-
-            // Путь для сохранения файла
             $path = 'uploads/tmp/' . $folder;
-            // Сохраняем файл в папку
             $image->storeAs($path, $filename, 'public');
 
-            TemporaryFile::create([
-                'folder' => $folder,
+            return response()->json([
+                'folder' => $folder, // UUID папки
                 'filename' => $filename,
-                'unique_filename' => $uniqueFilename,
-                'size' => $size,
-                'extension' => $extension,
+                'path' => $folder . '/' . $filename,
             ]);
-
-            //return $folder;
-            session(['uploaded_folder' => $folder]); // чтобы получить в методе delete()
-            return response()->json(['folder' => $folder]);
         }
-        //return '';
         return response()->json(['folder' => '']);
     }
 
-    public function delete()
+    public function delete(Request $request)
     {
-        // Получаем данные из запроса и декодируем их из строки JSON
-        $jsonString = request()->getContent(); // Получаем содержимое запроса как строку
-        $foldersArray = json_decode($jsonString, true); // Преобразуем строку JSON в массив
+        $data = json_decode($request->getContent(), true);
 
-        // Проверяем, является ли результат строкой, представляющей JSON-массив
-        if (is_string($foldersArray)) {
-            // Убираем кавычки с начала и конца строки
-            $foldersArray = trim($foldersArray, '"');
-            // Декодируем строку снова как JSON
-            $foldersArray = json_decode($foldersArray, true);
+        // Если пришла строка, а не массив — приведём к массиву
+        if (!is_array($data)) {
+            $data = [$data];
         }
 
-        if (!is_array($foldersArray)) {
-            $foldersArray = [];
-        }
+        foreach ($data as $filePath) {
+            if (!$filePath) {
+                continue;
+            }
 
-        // Проверка если в сессии есть сохраненная имя папки
-        if (session()->has('uploaded_folder')) {
-            $foldersArray[] = session('uploaded_folder');
-            session()->forget('uploaded_folder');
-        }
+            // Формируем путь к файлу в storage
+            $fullPath = 'uploads/tmp/' . $filePath;
 
-        foreach ($foldersArray as $folder) {
-            $tempFile = TemporaryFile::where('folder', $folder)->first(); //request()->getContent()
-            if($tempFile) {
-                Storage::disk('public')->deleteDirectory('uploads/tmp/' . $tempFile->folder);
-                $tempFile->delete();
+            if (Storage::disk('public')->exists($fullPath)) {
+                Storage::disk('public')->delete($fullPath);
             }
         }
-        //dd($foldersArray);
+
+        return response()->noContent();
+    }
+
+    public function deleteTempFolder(Request $request)
+    {
+        $folder = $request->input('folder');
+
+        if ($folder) {
+            $folderPath = 'uploads/tmp/' . $folder;
+            if (Storage::disk('public')->exists($folderPath)) {
+                Storage::disk('public')->deleteDirectory($folderPath);
+            }
+        }
 
         return response()->noContent();
     }

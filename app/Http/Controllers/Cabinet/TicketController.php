@@ -204,7 +204,8 @@ class TicketController extends Controller
     public function store(StoreRequest $request)
     {
         $data = $request->validated();
-        $ticket = $this->ticketService->createTicket($data);
+        $folder = $data['temp_folder']; // достаём из запроса
+        $ticket = $this->ticketService->createTicket($data, $folder);
 
         return response()->json(['status' => 'success', 'data' => $ticket], 201);
     }
@@ -312,7 +313,9 @@ class TicketController extends Controller
         }
 
         $data = $request->validated();
-        $comment = $this->ticketService->addComment($ticket, $data);
+        $folder = $data['temp_folder']; // достаём из запроса
+
+        $comment = $this->ticketService->addComment($ticket, $data, $folder);
         $comment->load('creator');
         return response()->json([
             'status' => 'success',

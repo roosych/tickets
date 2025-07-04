@@ -458,6 +458,7 @@
                     <form method="POST" id="send_comment_form">
                         @csrf
                         <div class="card-footer pt-4" id="kt_chat_messenger_footer">
+                            <input type="hidden" name="temp_folder" id="comment_temp_folder">
                             <textarea id="tribute" class="form-control form-control-flush mb-3 bg-light rounded" rows="3" name="text" placeholder="{{trans('tickets.send_comment')}}" style="resize: none; width: 100%;"></textarea>
                             <div class="fs-7 text-muted">
                                  {{trans('tickets.mention_hint')}}
@@ -516,6 +517,7 @@
     <script src="{{asset('assets/js/plugins/filepond.jquery.js')}}"></script>
     <script src="{{asset('assets/js/plugins/filepond-plugin-file-validate-type.js')}}"></script>
     <script src="{{asset('assets/js/plugins/filepond-plugin-file-validate-size.js')}}"></script>
+    <script src="{{asset('assets/js/custom/initFileUpload.js')}}"></script>
     <script src="{{asset('assets/js/plugins/tribute.js')}}"></script>
 @endpush
 
@@ -560,116 +562,67 @@
         }, 300));
     </script>
     <script>
-        //filepond
+        // Регистрируем плагины FilePond
         FilePond.registerPlugin(FilePondPluginFileValidateType);
         FilePond.registerPlugin(FilePondPluginFileValidateSize);
 
+        const uploadManager = FileUploadManager.create({
+            pondSelector: '.my-pond',
+            submitBtnSelector: '#create_ticket_form_submit',
+            formSelector: '#kt_modal_new_ticket_form',
+            modalSelector: '#kt_modal_new_ticket',
 
-        let pond;
-        pond = FilePond.create(document.querySelector('.comment_attach'), {
-            server: {
-                process: {
-                    url: '{{ route('cabinet.files.upload') }}',
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    onload: (response) => {
-                        let responseJson = JSON.parse(response);
-                        console.log(response)
-                        if (responseJson.folder) {
-                            // Получаем существующий массив папок из localStorage
-                            let uploadedFolders = JSON.parse(localStorage.getItem('uploadedFolders')) || [];
-                            // Добавляем новую папку в массив
-                            uploadedFolders.push(responseJson.folder);
-                            // Сохраняем обновленный массив в localStorage
-                            localStorage.setItem('uploadedFolders', JSON.stringify(uploadedFolders));
-                        }
-                    },
-                    onerror: (response) => {
-                        // Обработка ошибки
-                        console.error('Ошибка загрузки файла:', response);
-                    }
-                },
-                revert: {
-                    url: '{{ route('cabinet.files.delete') }}',
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                }
-            },
-            allowMultiple: true,
-            acceptedFileTypes: [
-                'image/png',
-                'image/jpg',
-                'image/jpeg',
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/vnd.ms-excel',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            ],
-            labelFileTypeNotAllowed: '{{trans('tickets.create_modal.format_error')}}',
-            maxFileSize: '3MB',
-            labelMaxFileSizeExceeded: '{{trans('tickets.create_modal.size_limit')}}',
+            uploadRoute: '{{ route('cabinet.files.upload') }}',
+            deleteRoute: '{{ route('cabinet.files.delete') }}',
+            deleteTempFolderRoute: '{{ route('cabinet.files.delete-temp-folder') }}',
+
+            csrfToken: '{{ csrf_token() }}',
+            requireFilesForSubmit: false,
+
+            labelFileTypeNotAllowed: '{{ trans('tickets.create_modal.format_error') }}',
+            labelMaxFileSizeExceeded: '{{ trans('tickets.create_modal.size_limit') }}',
+            labelIdle: '{{ trans('tickets.create_modal.attachments_hint') }}'
         });
 
-        $('.show-filepond').on('click', function(e) {
-            e.preventDefault();
-            pond.browse();
-        });
+        let commentUploadManager = null;
 
+        $(document).ready(function() {
+            // Создаём менеджер один раз, но НЕ инициализируем FilePond сразу
+            // (инициализация будет при создании менеджера)
+            commentUploadManager = FileUploadManager.create({
+                pondSelector: '.comment_attach',
+                submitBtnSelector: '#submit-comment-btn',
+                formSelector: '#comment-form',
+                tempFolderInputSelector: '#comment_temp_folder',
 
-        $('.my-pond').filepond({
-            server: {
-                process: {
-                    url: '{{ route('cabinet.files.upload') }}',
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    onload: (response) => {
-                        let responseJson = JSON.parse(response);
-                        if (responseJson.folder) {
-                            // Получаем существующий массив папок из localStorage
-                            let uploadedFolders = JSON.parse(localStorage.getItem('uploadedFolders')) || [];
-                            // Добавляем новую папку в массив
-                            uploadedFolders.push(responseJson.folder);
-                            // Сохраняем обновленный массив в localStorage
-                            localStorage.setItem('uploadedFolders', JSON.stringify(uploadedFolders));
-                        }
-                    },
-                    onerror: (response) => {
-                        // Обработка ошибки
-                        console.error('Ошибка загрузки файла:', response);
-                    }
-                },
-                revert: {
-                    url: '{{ route('cabinet.files.delete') }}',
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
+                uploadRoute: '{{ route('cabinet.files.upload') }}',
+                deleteRoute: '{{ route('cabinet.files.delete') }}',
+                deleteTempFolderRoute: '{{ route('cabinet.files.delete-temp-folder') }}',
+
+                csrfToken: '{{ csrf_token() }}',
+
+                requireFilesForSubmit: false,
+                autoGenerateTempFolder: true,
+                cleanupOnModalClose: false,
+
+                labelFileTypeNotAllowed: '{{ trans('tickets.create_modal.format_error') }}',
+                labelMaxFileSizeExceeded: '{{ trans('tickets.create_modal.size_limit') }}',
+                labelIdle: '{{ trans('tickets.create_modal.attachments_hint') }}',
+
+                onFileAdd: (file, uploadedFiles) => {
+                    console.log('Файл добавлен к комментарию:', file.filename);
                 }
-            },
-            allowMultiple: true,
-            acceptedFileTypes: [
-                'image/png',
-                'image/jpg',
-                'image/jpeg',
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/vnd.ms-excel',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            ],
-            labelFileTypeNotAllowed: '{{trans('tickets.create_modal.format_error')}}',
-            maxFileSize: '5MB',
-            labelMaxFileSizeExceeded: '{{trans('tickets.create_modal.size_limit')}}',
-            labelIdle: '{{trans('tickets.create_modal.attachments_hint')}}'
+            });
+
+            // По клику на кнопку открываем диалог выбора файлов
+            $('.show-filepond').on('click', function(e) {
+                e.preventDefault();
+                // Триггер клика по input FilePond, чтобы открыть окно выбора файлов
+                commentUploadManager.pondInstance.browse();
+            });
         });
     </script>
+
     <script>
         let token = $('meta[name="_token"]').attr('content');
 
@@ -728,7 +681,8 @@
                 data: {
                     _token: '{{csrf_token()}}',
                     text: $('#tribute').val(),
-                    mentions: selectedUsers.map(user => user.id)
+                    mentions: selectedUsers.map(user => user.id),
+                    temp_folder: $('#comment_temp_folder').val(),
                 },
                 success: function (response) {
                     console.log(response)
