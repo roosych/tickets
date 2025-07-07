@@ -464,7 +464,7 @@
                         @csrf
                         <div class="card-footer pt-4" id="kt_chat_messenger_footer">
                             <input type="hidden" name="temp_folder" id="comment_temp_folder">
-                            <textarea id="tribute" class="form-control form-control-flush mb-3 bg-light rounded" rows="3" name="text" placeholder="{{trans('tickets.send_comment')}}" style="resize: none; width: 100%;"></textarea>
+                            <textarea id="tribute" class="form-control form-control-flush mb-3 bg-light rounded" rows="3" name="text" placeholder="{{trans('tickets.send_comment')}}" style="width: 100%;"></textarea>
                             <div class="fs-7 text-muted">
                                  {{trans('tickets.mention_hint')}}
                             </div>
