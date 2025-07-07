@@ -20,7 +20,9 @@ use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class TicketService
@@ -167,7 +169,7 @@ class TicketService
         $this->updateTicketStatus($ticket, TicketStatusEnum::CANCELED, $comment);
     }
 
-    public function addComment(Ticket $ticket, array $data): Comment
+    public function addComment(Ticket $ticket, array $data, string $folder): Comment
     {
         $this->checkTicketStatus(
             $ticket,
@@ -175,7 +177,8 @@ class TicketService
             'Нельзя комментировать закрытый или отмененный тикет!'
         );
 
-        DB::transaction(function () use ($ticket, $data, &$comment) {
+        DB::beginTransaction();
+        try {
             // Создаем комментарий
             $comment = Comment::create([
                 'ticket_id' => $ticket->id,
@@ -200,30 +203,44 @@ class TicketService
                 $comment->mentions()->insert($mentions);
             }
 
-            // Обрабатываем временные файлы
-            $tempFiles = TemporaryFile::all();
-            foreach ($tempFiles as $tempFile) {
-                Storage::disk('public')->copy(
-                    'uploads/tmp/' . $tempFile->folder . '/' . $tempFile->filename,
-                    'uploads/comments/' . $comment->id . '/' . $tempFile->folder . '.' . $tempFile->extension
-                );
+            // Перемещение временных файлов
+            $tempPath = storage_path('app/public/uploads/tmp/' . $folder);
 
-                Storage::disk('public')->deleteDirectory('uploads/tmp/' . $tempFile->folder);
+            if (File::exists($tempPath)) {
+                $files = File::files($tempPath);
 
-                Media::create([
-                    'mediable_type' => Comment::class,
-                    'mediable_id' => $comment->id,
-                    'folder' => 'comments/' . $comment->id,
-                    'filename' => $tempFile->folder . '.' . $tempFile->extension,
-                    'unique_filename' => $tempFile->unique_filename,
-                    'size' => $tempFile->size,
-                    'extension' => $tempFile->extension,
-                ]);
+                foreach ($files as $file) {
+                    $filename = $file->getFilename();
+                    $uniqueFilename = Str::uuid();
+                    $extension = $file->getExtension();
+                    $size = $file->getSize();
 
-                // Удаляем временный файл
-                $tempFile->delete();
+                    $destinationPath = 'uploads/tickets/' . $ticket->id . '/comments/' . $uniqueFilename . '.' . $extension;
+
+                    // Копируем файл
+                    Storage::disk('public')->put($destinationPath, File::get($file));
+
+                    // Сохраняем в таблицу media
+                    Media::create([
+                        'mediable_type' => Comment::class,
+                        'mediable_id' => $comment->id,
+                        'folder' => 'comments/' . $comment->id,
+                        'filename' => $filename,
+                        'unique_filename' => $uniqueFilename,
+                        'size' => $size,
+                        'extension' => $extension,
+                    ]);
+                }
+
+                // Удаляем временную папку
+                Storage::disk('public')->deleteDirectory('uploads/tmp/' . $folder);
             }
-        });
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
 
         // Получатели уведомлений
         $recipients = $this->getRecipientsForComment($ticket, $comment);
@@ -332,7 +349,7 @@ class TicketService
         }
     }
 
-    public function createTicket(array $data): Ticket
+    public function createTicket(array $data, string $folder): Ticket
     {
         DB::beginTransaction();
         try {
@@ -359,26 +376,37 @@ class TicketService
             $ticket->tags()->sync($data['tags'] ?? []);
 
             // Перемещение временных файлов и создание записей в таблице Media
-            $tempFiles = TemporaryFile::all();
-            foreach ($tempFiles as $tempFile) {
-                Storage::disk('public')->copy(
-                    'uploads/tmp/' . $tempFile->folder . '/' . $tempFile->filename,
-                    'uploads/tickets/' . $ticket->id . '/' . $tempFile->filename
-                );
+            $tempPath = storage_path('app/public/uploads/tmp/' . $folder);
 
-                Storage::disk('public')->deleteDirectory('uploads/tmp/' . $tempFile->folder);
+            if (File::exists($tempPath)) {
+                $files = File::files($tempPath);
 
-                Media::create([
-                    'mediable_type' => Ticket::class,
-                    'mediable_id' => $ticket->id,
-                    'folder' => 'tickets/' . $ticket->id,
-                    'filename' => $tempFile->filename,
-                    'unique_filename' => $tempFile->unique_filename,
-                    'size' => $tempFile->size,
-                    'extension' => $tempFile->extension,
-                ]);
+                foreach ($files as $file) {
+                    $filename = $file->getFilename();
+                    $unique_filename = Str::uuid();
+                    $extension = $file->getExtension();
+                    $size = $file->getSize();
 
-                $tempFile->delete();
+                    // Куда копируем
+                    $destinationPath = 'uploads/tickets/' . $ticket->id . '/' . $unique_filename . '.' . $extension;
+
+                    // Копируем файл
+                    Storage::disk('public')->put($destinationPath, File::get($file));
+
+                    // Записываем в media
+                    Media::create([
+                        'mediable_type' => Ticket::class,
+                        'mediable_id' => $ticket->id,
+                        'folder' => 'tickets/' . $ticket->id,
+                        'filename' => $filename,
+                        'unique_filename' => $unique_filename,
+                        'size' => $size,
+                        'extension' => $extension,
+                    ]);
+                }
+
+                // Удаляем временную папку
+                Storage::disk('public')->deleteDirectory('uploads/tmp/' . $folder);
             }
 
             // Фиксируем транзакцию

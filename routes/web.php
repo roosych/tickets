@@ -28,6 +28,8 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
     //upload files (filepond)
     Route::post('upload', [TemporaryFileController::class, 'store'])->name('files.upload');
     Route::delete('delete', [TemporaryFileController::class, 'delete'])->name('files.delete');
+    Route::delete('delete-temp-folder', [TemporaryFileController::class, 'deleteTempFolder'])
+        ->name('files.delete-temp-folder');
 
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/{user:username}', [UserController::class, 'show'])->name('show');

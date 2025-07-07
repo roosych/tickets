@@ -16,6 +16,7 @@
                       method="POST"
                       enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="temp_folder" id="hidden_temp_folder">
                     <div class="mb-13 text-center">
                         <h1 class="mb-3">{{trans('tickets.create_modal.title')}}</h1>
                     </div>

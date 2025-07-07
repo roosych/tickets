@@ -43,10 +43,16 @@ class User extends Authenticatable implements LdapAuthenticatable
 
     public function getDepartment(): ?Department
     {
-        return Department::query()
-            //->with(['roles', 'tags']) // Жадная загрузка ролей
-            ->where('id', $this->getDepartmentId())
-            ->first();
+//        return Department::query()
+//            //->with(['roles', 'tags']) // Жадная загрузка ролей
+//            ->where('id', $this->getDepartmentId())
+//            ->first();
+        return $this->departmentRelation;
+    }
+
+    public function departmentRelation(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'department_id');
     }
 
     public function isManager(): bool

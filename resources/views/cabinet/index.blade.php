@@ -582,57 +582,29 @@
     <script src="{{asset('assets/js/custom/index/done_tickets_table.js?v=2')}}"></script>
     <script src="{{asset('assets/js/custom/index/my_done_tickets_table.js?v=2')}}"></script>
     <script src="{{asset('assets/js/custom/index/sent_tickets_table.js?v=2')}}"></script>
+    <script src="{{asset('assets/js/custom/initFileUpload.js')}}"></script>
+
     <script>
         //filepond
         FilePond.registerPlugin(FilePondPluginFileValidateType);
         FilePond.registerPlugin(FilePondPluginFileValidateSize);
 
-        $('.my-pond').filepond({
-            server: {
-                process: {
-                    url: '{{ route('cabinet.files.upload') }}',
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    onload: (response) => {
-                        let responseJson = JSON.parse(response);
-                        if (responseJson.folder) {
-                            // Получаем существующий массив папок из localStorage
-                            let uploadedFolders = JSON.parse(localStorage.getItem('uploadedFolders')) || [];
-                            // Добавляем новую папку в массив
-                            uploadedFolders.push(responseJson.folder);
-                            // Сохраняем обновленный массив в localStorage
-                            localStorage.setItem('uploadedFolders', JSON.stringify(uploadedFolders));
-                        }
-                    },
-                    onerror: (response) => {
-                        console.error('Ошибка загрузки файла:', response);
-                    }
-                },
-                revert: {
-                    url: '{{ route('cabinet.files.delete') }}',
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                }
-            },
-            allowMultiple: true,
-            acceptedFileTypes: [
-                'image/png',
-                'image/jpg',
-                'image/jpeg',
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/vnd.ms-excel',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            ],
-            labelFileTypeNotAllowed: '{{trans('tickets.create_modal.format_error')}}',
-            maxFileSize: '5MB',
-            labelMaxFileSizeExceeded: '{{trans('tickets.create_modal.size_limit')}}',
-            labelIdle: '{{trans('tickets.create_modal.attachments_hint')}}'
+        const uploadManager = FileUploadManager.create({
+            pondSelector: '.my-pond',
+            submitBtnSelector: '#create_ticket_form_submit',
+            formSelector: '#kt_modal_new_ticket_form',
+            modalSelector: '#kt_modal_new_ticket',
+
+            uploadRoute: '{{ route('cabinet.files.upload') }}',
+            deleteRoute: '{{ route('cabinet.files.delete') }}',
+            deleteTempFolderRoute: '{{ route('cabinet.files.delete-temp-folder') }}',
+
+            csrfToken: '{{ csrf_token() }}',
+            requireFilesForSubmit: false,
+
+            labelFileTypeNotAllowed: '{{ trans('tickets.create_modal.format_error') }}',
+            labelMaxFileSizeExceeded: '{{ trans('tickets.create_modal.size_limit') }}',
+            labelIdle: '{{ trans('tickets.create_modal.attachments_hint') }}'
         });
 
         let token = $('meta[name="_token"]').attr('content');
