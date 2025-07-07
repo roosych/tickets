@@ -207,6 +207,11 @@
                                             {{$ticket->creator->email}}
                                         </span>
                                     </div>
+                                    <div>
+                                        <span class="text-muted fw-semibold">
+                                            {{$ticket->creator->pager}}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
