@@ -110,6 +110,7 @@ return [
             'text_max' => 'Mətn çox uzundur',
             'text_min' => 'Mətn çox qısadır',
             'raiting' => 'Tiketin icra olunmasını qiymətləndirin',
+            'comment_empty' => 'Mətn daxil edin və ya fayl əlavə edin',
         ],
     ],
 ];

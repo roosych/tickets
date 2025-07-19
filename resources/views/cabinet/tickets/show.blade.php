@@ -252,7 +252,7 @@
                                     <div class="d-flex flex-aligns-center pe-10 pe-lg-20 mb-3">
                                         <img alt="" class="w-40px me-3" src="{{asset('assets/media/extensions/'.$item->extension.'.png')}}">
                                         <div class="ms-1 fw-semibold">
-                                            <a href="{{asset('storage/uploads/tickets/'.$ticket->id.'/'.$item->filename)}}" class="fs-6 text-hover-primary fw-bold" target="_blank">
+                                            <a href="{{asset('storage/uploads/tickets/'.$ticket->id.'/'.$item->unique_filename.'.'.$item->extension)}}" class="fs-6 text-hover-primary fw-bold" target="_blank">
                                                 {{$item->filename}}
                                             </a>
                                             <div class="text-gray-500">

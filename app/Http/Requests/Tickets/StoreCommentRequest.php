@@ -17,7 +17,7 @@ class StoreCommentRequest extends FormRequest
     {
         return [
             'temp_folder' => ['nullable', 'string'],
-            'text' => ['required', 'string', 'max:1000'],
+            'text' => ['nullable', 'string', 'max:1000'],
             'mentions' => ['nullable', 'array'],
             'mentions.*' => ['nullable', 'exists:users,id'],
         ];
@@ -31,4 +31,30 @@ class StoreCommentRequest extends FormRequest
             'text.max' => trans('tickets.validations.comment.text_max'),
         ];
     }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $hasText = $this->filled('text');
+            $hasFiles = $this->hasTempFiles();
+
+            if (!$hasText && !$hasFiles) {
+                $validator->errors()->add('text', trans('tickets.validations.comment.comment_empty'));
+            }
+        });
+    }
+
+    protected function hasTempFiles(): bool
+    {
+        $folder = $this->input('temp_folder');
+
+        if (!$folder) {
+            return false;
+        }
+
+        $tempPath = storage_path('app/public/uploads/tmp/' . $folder);
+
+        return \File::exists($tempPath) && count(\File::files($tempPath)) > 0;
+    }
+
 }
