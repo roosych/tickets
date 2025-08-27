@@ -24,7 +24,13 @@
                     </div>
                     <div class="symbol symbol-circle symbol-45px overflow-hidden me-3">
                         <div class="symbol-label">
-                            <img src="{{$performer->avatar}}" alt="{{$performer->name}}" class="w-100">
+                            @if($performer->avatar)
+                                <img src="{{ $performer->avatar }}" alt="{{ $performer->name }}" class="w-100" />
+                            @else
+                                <div class="symbol-label fs-3 bg-light-dark text-dark">
+                                    {{ get_initials($performer->name) }}
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="me-3">

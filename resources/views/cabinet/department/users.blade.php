@@ -51,7 +51,13 @@
                                     <div class="symbol symbol-circle symbol-40px overflow-hidden me-3">
                                         <a href="{{route('cabinet.users.show', $user)}}" target="_blank">
                                             <div class="symbol-label">
-                                                <img src="{{$user->avatar}}" alt="{{$user->name}}" class="w-100" />
+                                                @if($user->avatar)
+                                                    <img src="{{ $user->avatar }}" alt="{{ $user->name }}" class="w-100" />
+                                                @else
+                                                    <div class="symbol-label fs-3 bg-light-dark text-dark">
+                                                        {{ get_initials($user->name) }}
+                                                    </div>
+                                                @endif
                                             </div>
                                         </a>
                                     </div>
@@ -114,7 +120,13 @@
                                     <div class="symbol symbol-circle symbol-40px overflow-hidden me-3">
                                         <a href="{{route('cabinet.users.show', $user)}}" target="_blank">
                                             <div class="symbol-label">
-                                                <img src="{{$user->avatar}}" alt="{{$user->name}}" class="w-100" />
+                                                @if($user->avatar)
+                                                    <img src="{{ $user->avatar }}" alt="{{ $user->name }}" class="w-100" />
+                                                @else
+                                                    <div class="symbol-label fs-3 bg-light-dark text-dark">
+                                                        {{ get_initials($user->name) }}
+                                                    </div>
+                                                @endif
                                             </div>
                                         </a>
                                     </div>

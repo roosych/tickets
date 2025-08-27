@@ -58,7 +58,13 @@
                                     <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank">
                                         @if($ticket->creator->avatar)
                                             <div class="symbol-label">
-                                                <img src="{{$ticket->creator->avatar}}" alt="{{$ticket->creator->name}}" class="w-100" />
+                                                @if($ticket->creator->avatar)
+                                                    <img src="{{ $ticket->creator->avatar }}" alt="{{ $ticket->creator->name }}" class="w-100" />
+                                                @else
+                                                    <div class="symbol-label fs-3 bg-light-dark text-dark">
+                                                        {{ get_initials($ticket->creator->name) }}
+                                                    </div>
+                                                @endif
                                             </div>
                                         @else
                                             <div class="symbol-label fs-3 bg-light-dark text-dark">

@@ -23,7 +23,13 @@
                                     <div class="d-flex flex-stack py-4 border-bottom border-gray-300 border-bottom-dashed">
                                         <div class="d-flex align-items-center">
                                             <div class="symbol symbol-35px symbol-circle">
-                                                <img src="{{ $user->avatar }}" alt="{{ $user->name }}" class="w-100" />
+                                                @if($user->avatar)
+                                                    <img src="{{ $user->avatar }}" alt="{{ $user->name }}" class="w-100" />
+                                                @else
+                                                    <div class="symbol-label fs-3 bg-light-dark text-dark">
+                                                        {{ get_initials($user->name) }}
+                                                    </div>
+                                                @endif
                                             </div>
                                             <div class="ms-5">
                                                 <p class="fs-5 fw-bold text-gray-900 mb-0">{{ $user->name }}</p>

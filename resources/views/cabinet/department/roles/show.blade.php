@@ -123,7 +123,13 @@
                                             <a href="{{route('cabinet.users.show', $item)}}" target="_blank">
                                                 <div class="symbol-label">
                                                     <div class="symbol-label">
-                                                        <img src="{{$item->avatar}}" alt="{{$item->name}}" class="w-100" />
+                                                        @if($item->avatar)
+                                                            <img src="{{ $item->avatar }}" alt="{{ $item->name }}" class="w-100" />
+                                                        @else
+                                                            <div class="symbol-label fs-3 bg-light-dark text-dark">
+                                                                {{ get_initials($item->name) }}
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </a>
