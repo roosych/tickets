@@ -10,11 +10,12 @@
                 </p>
                 <div>
                     <span class="text-muted fs-7 mb-1">
-                       {{$comment->created_at->isoFormat('D MMMM, HH:mm')}}
+                        {{$comment->created_at->isoFormat('D MMMM, HH:mm')}}
                     </span>
                 </div>
             </div>
         </div>
+
         @if($comment->text)
             <div class="p-5 rounded bg-light-{{$comment->user_id === auth()->id() ? 'primary' : 'info'}} text-gray-900 fw-semibold mw-lg-400px text-start">
                 {!! nl2br(e($comment->text)) !!}
@@ -24,17 +25,17 @@
         @if($comment->media->isNotEmpty())
             <div class="d-flex flex-aligns-center mt-3">
                 @foreach($comment->media as $item)
-                        <a href="{{asset('storage/uploads/tickets/'.$comment->ticket->id.'/comments/'.$item->unique_filename.'.'.$item->extension)}}" class="fs-6 text-hover-primary fw-bold" target="_blank">
-                            <img alt="{{$item->filename}}" class="w-40px ms-3" src="{{asset('assets/media/extensions/'.$item->extension.'.png')}}">
-                            <div class="ms-1 fw-semibold">
-                                <a href="{{asset('storage/uploads/tickets/'.$comment->ticket->id.'/comments/'.$item->unique_filename.'.'.$item->extension)}}" class="fs-6 text-hover-primary fw-bold" target="_blank">
-                                    {{\Illuminate\Support\Str::limit($item->filename, 15)}}
-                                </a>
-                                <div class="text-gray-500">
-                                    {{bytes_to_mb($item->size)}}
-                                </div>
+                    <div class="d-flex flex-aligns-center pe-10 pe-lg-20 mb-3">
+                        <img alt="{{$item->filename}}" class="w-40px me-3" src="{{ asset('assets/media/extensions/'.$item->extension.'.png') }}">
+                        <div class="ms-1 fw-semibold">
+                            <a href="{{ route('cabinet.tickets.media.download', $item) }}" class="fs-6 text-hover-primary fw-bold" target="_blank">
+                                {{ \Illuminate\Support\Str::limit($item->filename, 15) }}
+                            </a>
+                            <div class="text-gray-500">
+                                {{ bytes_to_mb($item->size) }}
                             </div>
-                        </a>
+                        </div>
+                    </div>
                 @endforeach
             </div>
         @endif

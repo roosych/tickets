@@ -11,7 +11,9 @@ use App\Http\Requests\Tickets\CancelRequest;
 use App\Http\Requests\Tickets\CompleteRequest;
 use App\Http\Requests\Tickets\StoreCommentRequest;
 use App\Http\Requests\Tickets\StoreRequest;
+use App\Models\Comment;
 use App\Models\Department;
+use App\Models\Media;
 use App\Models\Mention;
 use App\Models\Priorities;
 use App\Models\Ticket;
@@ -19,6 +21,7 @@ use App\Models\User;
 use App\Services\TicketService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
 {
@@ -95,6 +98,7 @@ class TicketController extends Controller
                     ->orWhereNull('executor_id'); // Добавляем условие для NULL
             })
             ->where('user_id', auth()->id())
+            ->latest()
             ->get();
         $openTickets = $tickets->where('status', TicketStatusEnum::OPENED);
         $inProgressTickets = $tickets->where('status', TicketStatusEnum::IN_PROGRESS);
@@ -137,12 +141,6 @@ class TicketController extends Controller
     public function show(Request $request, Ticket $ticket)
     {
         //auth()->loginUsingId(151);
-//        abort_unless(
-//            auth()->user()->getDepartmentId() === $ticket->department_id
-//                    || auth()->id() === $ticket->creator->id,
-//            403,
-//            'Вы не можете просматривать тикеты другого отдела'
-//        );
 
         abort_unless(
             auth()->user()->username === 'akarimov' // todo: временно
@@ -170,7 +168,8 @@ class TicketController extends Controller
         $ticket = $ticket->load(['comments.creator', 'histories', 'tags', 'rating']);
 
         $priorities = Priorities::getCachedPriorities();
-        $departments = [];
+        //$departments = [];
+        $departments = Department::where('active', '=', true)->get();
         $comments = $ticket->comments;
         $histories = $ticket->histories;
         $departmentTags = auth()->user()->getDepartment()->tags;
@@ -371,4 +370,27 @@ class TicketController extends Controller
         ]);
     }
 
+    public function downloadMedia(Media $media)
+    {
+        $media->loadMissing('mediable');
+        switch ($media->mediable_type) {
+            case Ticket::class:
+                $folder = 'uploads/tickets/' . $media->mediable_id;
+                break;
+            case Comment::class:
+                $folder = 'uploads/tickets/' . $media->mediable->ticket_id . '/comments';
+                break;
+            default:
+                abort(404, 'Unknown media type');
+        }
+
+        $path = $folder . '/' . $media->unique_filename . '.' . $media->extension;
+
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404, 'File not found');
+        }
+
+        // Отдаём файл с оригинальным именем
+        return Storage::disk('public')->download($path, $media->filename);
+    }
 }

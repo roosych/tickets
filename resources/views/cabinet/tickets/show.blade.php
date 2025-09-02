@@ -93,6 +93,20 @@
                                 {{trans('tickets.buttons.done_ticket')}}
                             </button>
                         @endif
+
+                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED)
+                            && $ticket->creator->id === auth()->id())
+                                <button class="btn btn-sm btn-light-dark btn-active-dark me-2"
+                                        data-ticket_id="{{$ticket->id}}"
+                                        data-id="{{$ticket->id}}"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#edit_ticket_modal">
+                                    <i class="ki-outline ki-pencil fs-2"></i>
+                                    {{trans('common.roles.buttons.edit')}}
+                                </button>
+                        @endif
+
+
                     @endif
                 </div>
 
@@ -246,25 +260,26 @@
                             <p>{!! nl2br(e($ticket->text)) !!}</p>
                         </div>
 
-                        @if($ticket->media->isNotEmpty())
-                            <div class="my-5 pb-5">
-                                @foreach($ticket->media as $item)
-                                    <div class="d-flex flex-aligns-center pe-10 pe-lg-20 mb-3">
-                                        <img alt="" class="w-40px me-3" src="{{asset('assets/media/extensions/'.$item->extension.'.png')}}">
-                                        <div class="ms-1 fw-semibold">
-                                            <a href="{{asset('storage/uploads/tickets/'.$ticket->id.'/'.$item->unique_filename.'.'.$item->extension)}}" class="fs-6 text-hover-primary fw-bold" target="_blank">
-                                                {{$item->filename}}
-                                            </a>
-                                            <div class="text-gray-500">
-                                                {{bytes_to_mb($item->size)}}
-                                            </div>
+                    @if($ticket->media->isNotEmpty())
+                        <div class="my-5 pb-5">
+                            @foreach($ticket->media as $item)
+                                <div class="d-flex flex-aligns-center pe-10 pe-lg-20 mb-3">
+                                    <img alt="{{$item->filename}}" class="w-40px me-3" src="{{ asset('assets/media/extensions/'.$item->extension.'.png') }}">
+                                    <div class="ms-1 fw-semibold">
+                                        <a href="{{ route('cabinet.tickets.media.download', $item) }}" class="fs-6 text-hover-primary fw-bold" target="_blank">
+                                            {{ $item->filename }}
+                                        </a>
+                                        <div class="text-gray-500">
+                                            {{ bytes_to_mb($item->size) }}
                                         </div>
                                     </div>
-                                @endforeach
-                            </div>
-                        @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
 
-                        @if($ticket->department->id === auth()->user()->getDepartmentId())
+
+                @if($ticket->department->id === auth()->user()->getDepartmentId())
                                 @if($departmentTags->isNotEmpty())
                                     <select class="form-select form-select-solid"
                                             @if($ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
@@ -505,6 +520,9 @@
     @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE) && $ticket->requiresRating())
         @include('partials.modals.tickets.close_rating')
     @endif
+    @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED) && $ticket->creator->id === auth()->id())
+        {{--@include('partials.modals.tickets.edit')--}}
+    @endif
 @endpush
 
 @push('vendor_css')
@@ -518,6 +536,7 @@
 @endpush
 
 @push('vendor_js')
+    <script src="{{asset('assets/js/scripts.bundle.js')}}"></script>
     <script src="{{asset('assets/js/plugins/filepond.min.js')}}"></script>
     <script src="{{asset('assets/js/plugins/filepond.jquery.js')}}"></script>
     <script src="{{asset('assets/js/plugins/filepond-plugin-file-validate-type.js')}}"></script>
@@ -1129,4 +1148,6 @@
         });
         @endif
     </script>
+
+    @stack('modal_js')
 @endpush

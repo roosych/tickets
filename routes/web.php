@@ -71,6 +71,9 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
             ->middleware('check.department.status');
         Route::get('{ticket}/performers', [TicketController::class, 'getTicketPerformers'])->name('performers')
             ->middleware('check.department.status');
+
+        //маршрут для скачивания файлов тикета
+        Route::get('media/{media:unique_filename}', [TicketController::class, 'downloadMedia'])->name('media.download');
     });
 
     Route::resource('tags', TagController::class)->middleware('check.department.status')->except(
