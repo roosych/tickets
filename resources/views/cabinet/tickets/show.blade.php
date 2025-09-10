@@ -430,8 +430,18 @@
                                     @endif
 
 
-                                    <div class="symbol symbol-circle symbol-25px" data-bs-toggle="tooltip" data-bs-boundary="window" data-bs-placement="top" aria-label="{{ $activity->user->name }}" data-bs-original-title="{{ $activity->user->name }}">
-                                        <img src="{{ $activity->user->avatar }}" alt="img">
+                                    <div class="symbol symbol-circle symbol-25px" data-bs-toggle="tooltip"
+                                         data-bs-boundary="window"
+                                         data-bs-placement="top"
+                                         aria-label="{{ $activity->user->name }}"
+                                         data-bs-original-title="{{ $activity->user->name }}">
+                                        @if($activity->user->avatar)
+                                            <img src="{{ $activity->user->avatar }}" alt="{{ $activity->user->name }}">
+                                        @else
+                                            <div class="symbol-label fs-7 bg-light-dark text-gray-800">
+                                                {{ get_initials($activity->user->name) }}
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
 
