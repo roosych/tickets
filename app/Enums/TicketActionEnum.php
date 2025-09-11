@@ -8,6 +8,8 @@ enum TicketActionEnum :string
     case COMMENTED = 'commented';
     case ASSIGN_USER = 'assign_user';
     case CREATE_CHILD = 'create_child';
+    case VIEWED = 'viewed';
+    case UPDATE_DEADLINE = 'update_deadline';
 
     public function is(self $action): bool
     {

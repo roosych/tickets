@@ -20,6 +20,7 @@ class StoreRequest extends FormRequest
             'text' => ['required', 'string', 'max:10000'],
             'priority' => ['required', 'exists:priorities,id'],
             'department' => ['required', 'exists:departments,id'],
+            'due_date' => ['nullable', 'date_format:d-m-Y H:i', 'after_or_equal:now'],
             'user' => [
                 'nullable',
                 'exists:users,id',

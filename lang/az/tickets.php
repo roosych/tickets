@@ -17,6 +17,8 @@ return [
         'commented' => 'Yeni şərh',
         'assign_user' => 'İcraçı əlavə edildi',
         'create_child' => 'Alt tiket yaradıldı',
+        'viewed' => 'Tiketə baxılıb',
+        'update_deadline' => 'Bitmə vaxtı dəyişdirildi',
     ],
     'table' => [
         'search' => 'Axtar...',
@@ -54,6 +56,8 @@ return [
         'size_limit' => 'Fayl çox böyükdür',
         'private_title' => 'Məxfilik',
         'private_text' => 'Tiketi yalnız seçdiyiniz şöbənin rəhbəri görəcək.',
+        'deadline_label' => 'Bitmə tarixi',
+        'pick_date' => 'Tarix seçin',
     ],
     'cancel_modal' => [
         'title' => 'Ləğv etmək',
@@ -94,6 +98,14 @@ return [
     'empty_wait_close' => 'Bağlanmağı gözləyən tiketlər yoxdur',
     'has_children' => 'Alt tiketlər mövcuddur',
     'raiting_title' => 'Tiketi qiymətləndirin — bu, komandanın performansını yaxşılaşdırmağa dəstək olacaq.',
+    'deadline_expired' => 'Bitmə vaxtı keçib',
+    'deadline_after' => 'Bitmə vaxtına qalıb:',
+    'deadline_change_link' => 'Dəyiş',
+    'deadline_modal_title' => 'Bitmə vaxtını dəyişmək',
+    'time_units' => [
+        'day' => 'gün|gün|gün',
+        'hour' => 'saat|saat|saat',
+    ],
     'validations' => [
         'text_required' => 'Tiketin təsviri yazılmayıb',
         'text_max' => 'Təsvir 10000 simvoldan artıqdır',
@@ -111,6 +123,11 @@ return [
             'text_min' => 'Mətn çox qısadır',
             'raiting' => 'Tiketin icra olunmasını qiymətləndirin',
             'comment_empty' => 'Mətn daxil edin və ya fayl əlavə edin',
+        ],
+        'deadline' => [
+            'required' => 'İcra tarixini seçin',
+            'date' => 'Düzgün tarix daxil edin',
+            'after_or_equal' => 'Yeni tarix mövcud bitmə vaxtından əvvəl ola bilməz',
         ],
     ],
 ];

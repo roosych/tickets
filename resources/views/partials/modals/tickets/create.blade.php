@@ -32,7 +32,7 @@
 
                     <div class="row g-9 mb-8">
 
-                            <div class="col-md-6 fv-row">
+                            <div class="col-md-5 fv-row">
                                 <label class="required fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.department')}}</label>
                                 <select class="form-select form-select-solid"
                                         data-control="select2"
@@ -47,7 +47,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-6 fv-row">
+                            <div class="col-md-3 fv-row">
                                 <label class="required fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.priority')}}</label>
                                 <select class="form-select form-select-solid"
                                         data-control="select2"
@@ -58,6 +58,13 @@
                                         <option value="{{$item->id}}">{{$item->getNameByLocale()}}</option>
                                     @endforeach
                                 </select>
+                            </div>
+
+                            <div class="col-md-4 fv-row">
+                                <label class="fs-6 fw-semibold mb-2">{{trans('tickets.create_modal.deadline_label')}}</label>
+                                <input class="form-control form-control-solid flatpickr"
+                                       name="due_date"
+                                       placeholder="{{trans('tickets.create_modal.pick_date')}}"/>
                             </div>
                     </div>
 
@@ -165,6 +172,21 @@
 @push('js_from_modal')
     <script>
         $(document).ready(function() {
+            $(".flatpickr").flatpickr({
+                enableTime: true,
+                time_24hr: true,
+                dateFormat: "d-m-Y H:i",
+                minDate: "today",
+                defaultHour: 17,
+                defaultMinute: 59,
+                locale: {
+                    firstDayOfWeek: 1,
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    instance.close();
+                }
+            });
+
             let userDepartmentId = $('select[name="department"]').data('department-id');
 
             $('select[name="department"]').change(function() {

@@ -6,6 +6,7 @@ use App\Attributes\PolicyNameAttribute;
 use App\Attributes\PolicyPermissionNameAttribute;
 use App\Models\Ticket;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 
 #[PolicyNameAttribute(['az' => 'Tiketlər', 'en' => 'Tickets', 'ru' => 'Тикеты'])]
 class TicketPolicy
@@ -78,6 +79,28 @@ class TicketPolicy
         if ($ticket->department && $ticket->department->id === $user->getDepartmentId()) {
             return $user->hasPermissions('cancel', Ticket::class);
         }
+        return false;
+    }
+
+    #[PolicyPermissionNameAttribute(['az' => 'Müddəti dəyişmək', 'en' => 'Reschedule', 'ru' => 'Продление'])]
+    public function updateDeadline(User $user, Ticket $ticket): bool
+    {
+        // Пользователь с пермишеном может менять сколько угодно
+        if ($user->hasPermissions('updateDeadline', Ticket::class)) {
+            return true;
+        }
+
+        // Менеджер отдела может менять сколько угодно
+        if ($user->is_manager && $ticket->department && $user->getDepartmentId() === $ticket->department->id) {
+            return true;
+        }
+
+        // Обычный пользователь может менять только один раз
+        if ($ticket->deadlineChangesCountForUser($user) === 0) {
+            return true; // разрешаем
+        }
+
+        // Всё остальное — запрещено
         return false;
     }
 }

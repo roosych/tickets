@@ -105,20 +105,67 @@
                                     {{trans('common.roles.buttons.edit')}}
                                 </button>
                         @endif
-
-
                     @endif
                 </div>
 
                 </div>
                 <div class="card-body">
                     <div class="mb-5">
+                        @if($ticket->due_date)
+                            <div class="d-flex flex-column mb-5">
+                                <div class="d-flex justify-content-between w-100 fw-bold mb-3">
+                                    <div>
+                                        <i class="ki-outline ki-calendar fs-2 me-1"></i>
+                                        <span class="fw-semibold text-muted text-end me-3">
+                                        {{ \Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMMM, HH:mm') }}
+                                    </span>
+                                    </div>
+                                    <div>
+                                        <i class="ki-outline ki-calendar-remove text-danger fs-2 me-1"></i>
+                                        <span class="fw-bold text-danger text-end me-3">
+                                        {{ \Carbon\Carbon::parse($ticket->due_date)->isoFormat('D MMMM, HH:mm') }}
+                                    </span>
+                                    </div>
+                                </div>
+
+                                <div class="h-8px bg-light rounded mb-3">
+                                    <div class="bg-{{$ticket->isDue() ? 'danger' : 'success'}} rounded h-8px" role="progressbar"
+                                         style="width: {{ $ticket->dueProgress() }}%;"
+                                         aria-valuenow="{{$ticket->dueProgress()}}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+
+                                <div class="fw-semibold {{ $ticket->isDue() ? 'text-danger' : 'text-gray-600' }}">
+                                    <span>
+                                        @if($ticket->isDue())
+                                            {{trans('tickets.deadline_expired')}}
+                                        @else
+                                            {{trans('tickets.deadline_after')}} {{ $ticket->timeUntilDueFull() }}.
+                                        @endif
+                                    </span>
+                                    @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED) || $ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS))
+                                        <a href="javascript:void(0);" class="ms-2 d-inline"
+                                           data-ticket_id="{{$ticket->id}}"
+                                           data-id="{{$ticket->id}}"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#update_deadline_modal">
+                                            {{trans('tickets.deadline_change_link')}}
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <i class="ki-outline ki-calendar fs-2 me-2"></i>
-                                <span class="fw-semibold text-muted text-end me-3">
-                                {{ \Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMMM, HH:mm') }}
-                            </span>
+                                @if(!$ticket->due_date)
+                                    <i class="ki-outline ki-calendar fs-2 me-1"></i>
+                                    <span class="fw-semibold text-muted text-end me-3">
+                                        {{ \Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMMM, HH:mm') }}
+                                    </span>
+                                @endif
                             </div>
 
                             <div class="d-flex">
@@ -409,26 +456,48 @@
                 </div>
 
                 <div class="card-body" id="kt_chat_messenger_body">
-                    <div class="scroll-y me-n5 pe-5 h-300px h-lg-auto" id="chat-messages" data-kt-element="messages" data-kt-scroll="true" data-kt-scroll-activate="{default: false, lg: true}" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_header, #kt_app_header, #kt_app_toolbar, #kt_toolbar, #kt_footer, #kt_app_footer, #kt_chat_messenger_header, #kt_chat_messenger_footer" data-kt-scroll-wrappers="#kt_content, #kt_app_content, #kt_chat_messenger_body" data-kt-scroll-offset="5px">
+                    <div class="scroll-y me-n5 pe-5 h-300px h-lg-auto" id="chat-messages"
+                         data-kt-element="messages"
+                         data-kt-scroll="true"
+                         data-kt-scroll-activate="{default: false, lg: true}"
+                         data-kt-scroll-max-height="300px"
+                         data-kt-scroll-dependencies="#kt_header, #kt_app_header, #kt_app_toolbar, #kt_toolbar, #kt_footer, #kt_app_footer, #kt_chat_messenger_header, #kt_chat_messenger_footer"
+                         data-kt-scroll-wrappers="#kt_content, #kt_app_content, #kt_chat_messenger_body"
+                         data-kt-scroll-offset="5px">
                         @forelse($activities as $activity)
                             @if($activity instanceof \App\Models\Comment)
                                 <x-ticket-comment :comment="$activity"></x-ticket-comment>
                             @elseif($activity instanceof \App\Models\TicketHistory)
                                 <div class="d-flex align-items-center justify-content-start mt-1 fs-6 mb-5">
+
                                     @if($activity->action->is(\App\Enums\TicketActionEnum::ASSIGN_USER))
-                                        <div class="text-muted me-2 fs-7">{{ $activity->action->label() }}
-                                            <strong class="text-gray-800 me-1">
-                                                {{$activity->assignUser->name}}
+                                        <div class="text-muted me-2 fs-7">
+                                            {{ $activity->action->label() }}
+                                            <strong class="text-gray-800 me-1">{{ $activity->assignUser->name }}</strong>
+                                            {{ $activity->created_at->isoFormat('D MMM, HH:mm') }}
+                                        </div>
+                                    @elseif($activity->action->is(\App\Enums\TicketActionEnum::VIEWED))
+                                        <div class="text-muted me-2 fs-7">
+                                            {{trans('tickets.actions.viewed')}}
+                                            {{ $activity->created_at->isoFormat('D MMM, HH:mm') }}
+                                        </div>
+
+                                    @elseif($activity->action->is(\App\Enums\TicketActionEnum::UPDATE_DEADLINE))
+                                        <div class="text-muted me-2 fs-7">
+                                            <strong class="text-gray-800">
+                                                {{trans('tickets.actions.update_deadline')}}
                                             </strong>
                                             {{ $activity->created_at->isoFormat('D MMM, HH:mm') }}
                                         </div>
                                     @else
-                                        <div class="text-muted me-2 fs-7">{{ $activity->action->label() }}
-                                            <span class="badge badge-light-{{$activity->status->color()}}">{{ $activity->status->label() }}</span>
+                                        <div class="text-muted me-2 fs-7">
+                                            {{ $activity->action->label() }}
+                                            <span class="badge badge-light-{{$activity->status->color()}}">
+                                                {{ $activity->status->label() }}
+                                            </span>
                                             {{ $activity->created_at->isoFormat('D MMM, HH:mm') }}
                                         </div>
                                     @endif
-
 
                                     <div class="symbol symbol-circle symbol-25px" data-bs-toggle="tooltip"
                                          data-bs-boundary="window"
@@ -444,6 +513,12 @@
                                         @endif
                                     </div>
                                 </div>
+
+                                @if($activity->action->is(\App\Enums\TicketActionEnum::UPDATE_DEADLINE))
+                                    <div class="p-5 mb-10 rounded bg-light-primary text-gray-900 fw-semibold mw-lg-400px text-start">
+                                        {{$activity->comment}}
+                                    </div>
+                                @endif
 
                                 @if($activity->status === \App\Enums\TicketStatusEnum::DONE)
                                     <div class="p-5 mb-10 rounded bg-light-primary text-gray-900 fw-semibold mw-lg-400px text-start">
@@ -532,6 +607,9 @@
     @endif
     @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED) && $ticket->creator->id === auth()->id())
         {{--@include('partials.modals.tickets.edit')--}}
+    @endif
+    @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED) || $ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS))
+        @include('partials.modals.tickets.update_deadline')
     @endif
 @endpush
 

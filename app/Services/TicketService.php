@@ -17,6 +17,7 @@ use App\Models\Ticket;
 use App\Models\TicketHistory;
 use App\Models\TicketRating;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -361,6 +362,10 @@ class TicketService
                 ? ($department->manager->id ?? null)
                 : ($data['user'] ?? null);
 
+            $dueDate = isset($data['due_date'])
+                ? Carbon::createFromFormat('d-m-Y H:i', $data['due_date'])
+                : null;
+
             $ticket = Ticket::query()->create([
                 'text' => $data['text'],
                 'user_id' => $data['client'] ?? auth()->id(),
@@ -370,6 +375,7 @@ class TicketService
                 'executor_id' => $executorId,
                 'parent_id' => $data['parent_id'] ?? null,
                 'is_private' => $isPrivate,
+                'due_date' => $dueDate,
             ]);
 
             // Синхронизация тегов

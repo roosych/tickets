@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Cabinet;
 
+use App\Enums\TicketActionEnum;
 use App\Enums\TicketStatusEnum;
 use App\Exceptions\TicketAccessException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tickets\AttachTagsRequest;
 use App\Http\Requests\Tickets\AttachUserRequest;
 use App\Http\Requests\Tickets\CancelRequest;
+use App\Http\Requests\Tickets\ChangeDeadlineRequest;
 use App\Http\Requests\Tickets\CompleteRequest;
 use App\Http\Requests\Tickets\StoreCommentRequest;
 use App\Http\Requests\Tickets\StoreRequest;
@@ -21,6 +23,7 @@ use App\Models\User;
 use App\Services\TicketService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
@@ -164,6 +167,23 @@ class TicketController extends Controller
             ->where('user_id', auth()->id())
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
+
+        // Добавляем запись о просмотре тикета
+        if ($ticket->status === TicketStatusEnum::OPENED) {
+            $lastView = $ticket->histories()
+                ->where('action', TicketActionEnum::VIEWED)
+                ->where('user_id', auth()->id())
+                ->latest()
+                ->first();
+
+            if (!$lastView || $lastView->created_at->diffInMinutes(now()) > Ticket::VIEW_INTERVAL_MINUTES) {
+                $ticket->histories()->create([
+                    'user_id' => auth()->id(),
+                    'action' => TicketActionEnum::VIEWED,
+                    'status' => $ticket->status,
+                ]);
+            }
+        }
 
         $ticket = $ticket->load(['comments.creator', 'histories', 'tags', 'rating']);
 
@@ -392,5 +412,37 @@ class TicketController extends Controller
 
         // Отдаём файл с оригинальным именем
         return Storage::disk('public')->download($path, $media->filename);
+    }
+
+    public function updateDeadline(ChangeDeadlineRequest $request, Ticket $ticket)
+    {
+        try {
+            $this->authorize('updateDeadline', $ticket);
+        } catch (AuthorizationException $e) {
+            // проверяем количество изменений, чтобы показать свой текст
+            if ($ticket->deadlineChangesCountForUser(auth()->user()) > 0) {
+                throw new AuthorizationException('Вы уже меняли дедлайн один раз');
+            }
+            throw new AuthorizationException('У вас нет прав менять дедлайн');
+        }
+
+        $data = $request->validated();
+
+        DB::transaction(function () use ($ticket, $data) {
+            // сохраняем новый дедлайн
+            $ticket->update([
+                'due_date' => $data['due_date'],
+            ]);
+
+            // создаём историю
+            $ticket->histories()->create([
+                'user_id' => auth()->id(),
+                'action'  => TicketActionEnum::UPDATE_DEADLINE,
+                'comment' => $data['deadline_comment'],
+                'status' => $ticket->status,
+            ]);
+        });
+
+        return response()->json(['success' => true]);
     }
 }

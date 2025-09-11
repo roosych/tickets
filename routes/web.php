@@ -67,6 +67,8 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
         Route::post('{ticket}/comment', [TicketController::class, 'storeComment'])->name('comment.store');
         Route::post('attach_users', [TicketController::class, 'attachUsers'])->name('attach_users')
             ->middleware('check.department.status');
+        Route::post('{ticket}/deadline', [TicketController::class, 'updateDeadline'])->name('update_deadline')
+            ->middleware('check.department.status');
         Route::post('{ticket}/attach_tags', [TicketController::class, 'attachTags'])->name('attach_tags')
             ->middleware('check.department.status');
         Route::get('{ticket}/performers', [TicketController::class, 'getTicketPerformers'])->name('performers')

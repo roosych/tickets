@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TicketActionEnum;
 use App\Enums\TicketStatusEnum;
 use App\Traits\MediaTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,6 +17,9 @@ use Illuminate\Support\Carbon;
 class Ticket extends Model
 {
     use MediaTrait;
+
+    // Минимальный интервал между записями просмотра в минутах
+    public const VIEW_INTERVAL_MINUTES = 15;
 
     public function creator(): BelongsTo
     {
@@ -79,6 +83,94 @@ class Ticket extends Model
     {
         return $this->hasMany(TicketHistory::class);
     }
+
+    public function deadlineChangesCountForUser(User $user): int
+    {
+        return $this->histories()
+            ->where('user_id', $user->id)
+            ->where('action', TicketActionEnum::UPDATE_DEADLINE) // если используешь action для записи
+            ->count();
+    }
+
+    // Метод для получения просмотров
+    public function views(): HasMany
+    {
+        return $this->histories()->where('action', TicketActionEnum::VIEWED);
+    }
+
+    public function isDue(): bool
+    {
+        return $this->due_date && now()->greaterThan($this->due_date);
+    }
+
+    public function timeUntilDueFull(): ?string
+    {
+        if (!$this->due_date) {
+            return null; // дедлайна нет
+        }
+
+        $now = now();
+
+        if ($now->greaterThanOrEqualTo($this->due_date)) {
+            return 'Дедлайн наступил';
+        }
+
+        $diff = $now->diff($this->due_date);
+
+        $days = $diff->d;
+        $hours = $diff->h;
+
+        $parts = [];
+
+        if ($days > 0) {
+            $parts[] = $days . ' ' . trans_choice('tickets.time_units.day', $days, ['count' => $days]);
+        }
+
+        if ($hours > 0) {
+            $parts[] = $hours . ' ' . trans_choice('tickets.time_units.hour', $hours, ['count' => $hours]);
+        }
+
+        if (empty($parts)) {
+            $parts[] = '< 1 час';
+        }
+
+        return implode(' ', $parts);
+    }
+
+
+    public function dueProgress(): int
+    {
+        if (!$this->due_date) {
+            return 0;
+        }
+
+        $start = $this->created_at;
+        $end = $this->due_date;
+        $now = now();
+
+        // Если дедлайн прошёл
+        if ($now->greaterThanOrEqualTo($end)) {
+            return 100;
+        }
+
+        // Если тикет ещё не стартовал (маловероятно)
+        if ($now->lessThan($start)) {
+            return 0;
+        }
+
+        // Общее время интервала
+        $totalSeconds = $end->timestamp - $start->timestamp;
+
+        // Прошедшее время с момента создания
+        $passedSeconds = $now->timestamp - $start->timestamp;
+
+        // Процент прошедшего времени
+        $progress = ($passedSeconds / $totalSeconds) * 100;
+
+        return max(0, min(100, (int) round($progress)));
+    }
+
+
 
     public function tags(): BelongsToMany
     {
@@ -203,6 +295,7 @@ class Ticket extends Model
         'executor_id',
         'priorities_id',
         'status',
+        'due_date',
         'client_id',
         'is_private',
         'is_hidden',
@@ -210,5 +303,6 @@ class Ticket extends Model
 
     protected $casts = [
         'status' => TicketStatusEnum::class,
+        'due_date' => 'datetime',
     ];
 }
