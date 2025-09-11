@@ -97,6 +97,7 @@ return [
     'empty_out' => 'Siz heç bir tiket açmamısız',
     'empty_wait_close' => 'Bağlanmağı gözləyən tiketlər yoxdur',
     'has_children' => 'Alt tiketlər mövcuddur',
+    'has_deadline' => 'Bitmə tarixi göstərilib',
     'raiting_title' => 'Tiketi qiymətləndirin — bu, komandanın performansını yaxşılaşdırmağa dəstək olacaq.',
     'deadline_expired' => 'Bitmə vaxtı keçib',
     'deadline_after' => 'Bitmə vaxtına qalıb:',
