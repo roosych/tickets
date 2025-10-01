@@ -92,6 +92,40 @@ class Ticket extends Model
             ->count();
     }
 
+    /**
+     * Выполнен ли тикет в срок (по статусу DONE).
+     */
+    public function isCompletedInTime(): bool
+    {
+        $lastDone = $this->histories()
+            ->where('status', TicketStatusEnum::DONE)
+            ->orderByDesc('created_at')
+            ->first();
+
+        if (!$lastDone || !$this->due_date) {
+            return false;
+        }
+
+        return $lastDone->created_at->lte($this->due_date);
+    }
+
+    /**
+     * Выполнен ли тикет с опозданием.
+     */
+    public function isCompletedLate(): bool
+    {
+        $lastDone = $this->histories()
+            ->where('status', TicketStatusEnum::DONE)
+            ->orderByDesc('created_at')
+            ->first();
+
+        if (!$lastDone || !$this->due_date) {
+            return false;
+        }
+
+        return $lastDone->created_at->gt($this->due_date);
+    }
+
     // Метод для получения просмотров
     public function views(): HasMany
     {

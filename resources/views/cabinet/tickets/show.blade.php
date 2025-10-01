@@ -128,16 +128,32 @@
                                     </div>
                                 </div>
 
-                                <div class="h-8px bg-light rounded mb-3">
-                                    <div class="bg-{{$ticket->isDue() ? 'danger' : 'success'}} rounded h-8px" role="progressbar"
-                                         style="width: {{ $ticket->dueProgress() }}%;"
-                                         aria-valuenow="{{$ticket->dueProgress()}}"
-                                         aria-valuemin="0"
-                                         aria-valuemax="100">
-                                    </div>
-                                </div>
+                                @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE)
+                                || $ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED))
+                                    {{--если послденяя история со статусом done меньше чем дедлайн - то выполнен в срок--}}
 
-                                <div class="fw-semibold {{ $ticket->isDue() ? 'text-danger' : 'text-gray-600' }}">
+                                    @if($ticket->isCompletedInTime())
+                                        <div class="text-success fw-bold fs-6">
+                                            <i class="ki-outline ki-check-circle text-success fw-bold fs-2 me-1"></i>
+                                            Выполнен в срок
+                                        </div>
+                                    @elseif($ticket->isCompletedLate())
+                                        <div class="text-danger fw-bold fs-6">
+                                            <i class="ki-outline ki-cross-circle text-danger fw-bold fs-2 me-1"></i>
+                                            Выполнен с опозданием
+                                        </div>
+                                    @endif
+                                @else
+                                    <div class="h-8px bg-light rounded mb-3">
+                                        <div class="bg-{{$ticket->isDue() ? 'danger' : 'success'}} rounded h-8px" role="progressbar"
+                                             style="width: {{ $ticket->dueProgress() }}%;"
+                                             aria-valuenow="{{$ticket->dueProgress()}}"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100">
+                                        </div>
+                                    </div>
+
+                                    <div class="fw-semibold {{ $ticket->isDue() ? 'text-danger' : 'text-gray-600' }}">
                                     <span>
                                         @if($ticket->isDue())
                                             {{trans('tickets.deadline_expired')}}
@@ -145,16 +161,17 @@
                                             {{trans('tickets.deadline_after')}} {{ $ticket->timeUntilDueFull() }}.
                                         @endif
                                     </span>
-                                    @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED) || $ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS))
-                                        <a href="javascript:void(0);" class="ms-2 d-inline"
-                                           data-ticket_id="{{$ticket->id}}"
-                                           data-id="{{$ticket->id}}"
-                                           data-bs-toggle="modal"
-                                           data-bs-target="#update_deadline_modal">
-                                            {{trans('tickets.deadline_change_link')}}
-                                        </a>
-                                    @endif
-                                </div>
+                                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED) || $ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS))
+                                            <a href="javascript:void(0);" class="ms-2 d-inline"
+                                               data-ticket_id="{{$ticket->id}}"
+                                               data-id="{{$ticket->id}}"
+                                               data-bs-toggle="modal"
+                                               data-bs-target="#update_deadline_modal">
+                                                {{trans('tickets.deadline_change_link')}}
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                         @endif
 
