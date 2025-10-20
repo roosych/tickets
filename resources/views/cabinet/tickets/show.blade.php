@@ -343,42 +343,73 @@
                     @endif
 
 
-                @if($ticket->department->id === auth()->user()->getDepartmentId())
-                                @if($departmentTags->isNotEmpty())
-                                    <select class="form-select form-select-solid"
-                                            @if($ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
-                                                || $ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
-                                                disabled
-                                            @endif
-                                            name="tags"
-                                            data-control="select2"
-                                            data-close-on-select="false"
-                                            data-placeholder="{{trans('tickets.table.tags')}}"
-                                            data-allow-clear="true" multiple="multiple">
-                                        <option></option>
-                                        @foreach($departmentTags as $tag)
-                                            <option
-                                                value="{{$tag->id}}" {{ in_array($tag->id, $ticket->tags->pluck('id')->toArray()) ? 'selected' : '' }}>
-                                                {{$tag->text}}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                @else
-                                    <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed  p-6">
-                                        <div class="d-flex flex-stack flex-grow-1 ">
-                                            <div class=" fw-semibold">
-                                                <div class="fs-6 text-gray-700">
-                                                    {{trans('tickets.tags_text1')}}
-                                                    @can('create', \App\Models\Tag::class)
-                                                        {{trans('tickets.tags_text2')}}
-                                                        <a href="{{route('cabinet.tags.index')}}" class="fw-bold" target="_blank">{{trans('tickets.tags_text_link')}}</a>.
-                                                    @endcan
-                                                </div>
-                                            </div>
+                    @if($ticket->department->id === auth()->user()->getDepartmentId())
+                        @if($departmentTags->isNotEmpty())
+                            <select class="form-select form-select-solid"
+                                    @if($ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
+                                        || $ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
+                                        disabled
+                                    @endif
+                                    name="tags"
+                                    data-control="select2"
+                                    data-close-on-select="false"
+                                    data-placeholder="{{trans('tickets.table.tags')}}"
+                                    data-allow-clear="true" multiple="multiple">
+                                <option></option>
+                                @foreach($departmentTags as $tag)
+                                    <option
+                                        value="{{$tag->id}}" {{ in_array($tag->id, $ticket->tags->pluck('id')->toArray()) ? 'selected' : '' }}>
+                                        {{$tag->text}}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @else
+                            <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed  p-6">
+                                <div class="d-flex flex-stack flex-grow-1 ">
+                                    <div class=" fw-semibold">
+                                        <div class="fs-6 text-gray-700">
+                                            {{trans('tickets.tags_text1')}}
+                                            @can('create', \App\Models\Tag::class)
+                                                {{trans('tickets.tags_text2')}}
+                                                <a href="{{route('cabinet.tags.index')}}" class="fw-bold" target="_blank">{{trans('tickets.tags_text_link')}}</a>.
+                                            @endcan
                                         </div>
                                     </div>
-                                @endif
-                            @endif
+                                </div>
+                            </div>
+                        @endif
+                    @endif
+
+                    <div class="card card-flush mt-8 py-2">
+                        <div class="card-header">
+                            <div class="card-title flex-column">
+                                <h3 class="fs-5 fw-bold mb-1">
+                                    Одобрения тикета
+                                </h3>
+                                <div class="fs-6 text-gray-500">
+                                    Решения ответственных сотрудников
+                                </div>
+                            </div>
+
+                            <div class="card-toolbar">
+                                <button class="btn btn-sm btn-light-primary btn-active-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#approved_users_modal">
+                                    <i class="ki-outline ki-send fs-2"></i>
+                                    Отправить запрос
+                                </button>
+                            </div>
+                        </div>
+
+                        @if($ticket->approvalRequests->count())
+                            <div class="card-body d-flex flex-column p-8 py-3">
+                                @foreach($ticket->approvalRequests as $request)
+                                    @include('partials.modals.approval_requests.approval_item', ['request' => $request])
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+
                 </div>
             </div>
             @if($ticket->department->id === auth()->user()->getDepartmentId())
@@ -572,6 +603,51 @@
                                 <img src="{{asset('assets/media/misc/13.png')}}" class="w-200px" alt="">
                             </div>
                         @endforelse
+
+
+                        @foreach($ticket->approvalHistories() as $history)
+                                @php
+                                    $requester = $history->user;
+                                    $approver = $history->approvalRequest->approver;
+                                @endphp
+                                @if($requester && $approver)
+                                    <div class="text-muted me-2 mb-4 fs-7">
+
+                                        @if($history->status->is(\App\Enums\TicketApprovalRequestStatusEnum::APPROVED))
+                                            <div>
+                                                <span class="fw-bold text-gray-800">
+                                                    {{ $approver->name }}:
+                                                </span>
+                                                <span class="badge badge-light-{{$history->status->color()}} fw-bold fs-7">
+                                                    {{$history->status->label()}}
+                                                </span>
+                                                <span class="me-1">{{ $history->created_at->isoFormat('D MMM, HH:mm') }}</span>
+                                            </div>
+                                            @elseif($history->status->is(\App\Enums\TicketApprovalRequestStatusEnum::DENIED))
+                                                <div>
+                                                    <span class="fw-bold text-gray-800">
+                                                        {{ $approver->name }}:
+                                                    </span>
+                                                    <span class="badge badge-light-{{$history->status->color()}} fw-bold fs-7">
+                                                        {{$history->status->label()}}
+                                                    </span>
+                                                    <span class="me-1">{{ $history->created_at->isoFormat('D MMM, HH:mm') }}</span>
+                                                </div>
+                                            @else
+                                            <div class="text-muted me-2 fs-7">
+                                                Запрос на одобрение,
+                                                <span>{{ $history->created_at->isoFormat('D MMM, HH:mm') }}</span>
+
+                                                <div class="fw-bold text-gray-800 me-2 fs-7 mt-1">
+                                                    {{ $requester->name }}
+                                                    <i class="ki-duotone ki-black-right fs-5 mx-2"></i>
+                                                    {{ $approver->name }}
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+                        @endforeach
                     </div>
                 </div>
 
@@ -628,6 +704,7 @@
     @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED) || $ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS))
         @include('partials.modals.tickets.update_deadline')
     @endif
+    @include('partials.modals.approval_requests.users')
 @endpush
 
 @push('vendor_css')
@@ -1252,7 +1329,107 @@
             });
         });
         @endif
+
+
+
+        // create approve request
+        $(document).ready(function() {
+
+            $('#approved_users_form').on('submit', function(e) {
+                e.preventDefault();
+                let $form = $(this);
+                let url = $form.attr('action');
+                let data = $form.serialize();
+                applyWait($('body'));
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: data,
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        removeWait($('body'));
+                        let errorMessage = '{{trans('common.swal.error_text')}}';
+                        // проверяем ошибки валидации
+                        if (xhr.status === 422 && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            errorMessage = '';
+                            for (const key in errors) {
+                                errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
+                            }
+                        }
+                        // другие ошибки
+                        else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.responseText) {
+                            errorMessage = xhr.responseText;
+                        }
+
+                        Swal.fire('{{trans('common.swal.error_title')}}', errorMessage, 'error');
+                    }
+                });
+            });
+
+        });
+
+
+
     </script>
+
+    @if(auth()->user()->is_approver)
+        <script>
+            $(document).ready(function() {
+
+                function handleApproval(url, token, id) {
+                    applyWait($('body'));
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            token: token
+                        },
+                        success: function(response) {
+                            // removeWait($('body'));
+                            location.reload();
+                            // $('.approve[data-id="' + id + '"], .deny[data-id="' + id + '"]').hide();
+                            // $('#status-' + id).html(response.badgeHtml);
+                        },
+                        error: function(response) {
+                            removeWait($('body'));
+                            let errorMessage = '';
+                            if (response.status === 422 && response.responseJSON.errors) {
+                                const errors = response.responseJSON.errors;
+                                for (const key in errors) {
+                                    errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
+                                }
+                            } else if (response.responseText) {
+                                errorMessage = response.responseText;
+                            } else {
+                                errorMessage = 'Произошла ошибка';
+                            }
+
+                            Swal.fire('Произошла ошибка!', errorMessage, 'error');
+                        }
+                    });
+                }
+
+                $(document).on('click', '.approve', function() {
+                    let id = $(this).data('id');
+                    let token = $(this).data('token');
+                    handleApproval('{{ route("approval.approve.ajax", ":token") }}'.replace(':token', token), token, id);
+                });
+
+                $(document).on('click', '.deny', function() {
+                    let id = $(this).data('id');
+                    let token = $(this).data('token');
+                    handleApproval('{{ route("approval.deny.ajax", ":token") }}'.replace(':token', token), token, id);
+                });
+
+            });
+        </script>
+    @endif
 
     @stack('modal_js')
 @endpush

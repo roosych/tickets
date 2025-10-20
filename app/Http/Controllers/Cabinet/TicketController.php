@@ -145,17 +145,7 @@ class TicketController extends Controller
     {
         //auth()->loginUsingId(151);
 
-        abort_unless(
-            auth()->user()->username === 'akarimov' // todo: временно
-            || auth()->user()->getDepartmentId() === $ticket->department_id
-            || auth()->id() === $ticket->creator->id
-            || (
-                $ticket->creator &&                                     // создатель тикета существует
-                $ticket->creator->getDepartment()?->manager_id === auth()->id() // и текущий пользователь — менеджер его отдела
-            ),
-            403,
-            'Вы не можете просматривать тикеты другого отдела'
-        );
+        $this->authorize('view', $ticket);
 
         $backUrl = $request->query('back') ?? url()->previous();
 
@@ -185,7 +175,23 @@ class TicketController extends Controller
             }
         }
 
-        $ticket = $ticket->load(['comments.creator', 'histories', 'tags', 'rating']);
+        $ticket = $ticket->load([
+            'comments.creator',
+            'histories.user',
+            'histories.assignUser',
+            'tags',
+            'rating',
+            'department.tags',
+            'creator',
+            'performer',
+            'approvalRequests.creator',
+            'approvalRequests.approver',
+            'approvalRequests.histories.user',
+            'completedHistory',
+            'parent',
+        ]);
+
+        auth()->user()->load('departmentRelation.tags');
 
         $priorities = Priorities::getCachedPriorities();
         //$departments = [];
@@ -213,7 +219,13 @@ class TicketController extends Controller
         })->toJson();
         //dd($mentions);
 
-        return view('cabinet.tickets.show', compact('ticket', 'departments', 'priorities', 'activities', 'departmentTags', 'mentions', 'backUrl'));
+        $approvers = User::where('is_approver', true)
+            ->where('id', '!=', auth()->id())
+            ->get();
+
+        //dd($approvers);
+
+        return view('cabinet.tickets.show', compact('ticket', 'departments', 'priorities', 'activities', 'departmentTags', 'mentions', 'backUrl', 'approvers'));
     }
 
 

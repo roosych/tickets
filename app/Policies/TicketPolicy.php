@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Attributes\PolicyNameAttribute;
 use App\Attributes\PolicyPermissionNameAttribute;
+use App\Enums\TicketApprovalRequestStatusEnum;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -57,9 +58,19 @@ class TicketPolicy
             return true;
         }
 
-        // Пользователь имеет разрешение на комментирование и департамент пользователя совпадает с департаментом тикета
-        return $user->hasPermissions('comment', Ticket::class)
-            && $user->getDepartmentId() === $ticket->department->id;
+        // Пользователь имеет разрешение и тот же департамент
+        if (
+            $user->hasPermissions('comment', Ticket::class) &&
+            $user->getDepartmentId() === $ticket->department->id
+        ) {
+            return true;
+        }
+
+        // Добавляем: согласующий (approver) тоже может комментировать
+        return $ticket->approvalRequests()
+            ->where('approver_id', $user->id)
+            ->where('status', '!=', TicketApprovalRequestStatusEnum::EXPIRED)
+            ->exists();
     }
 
     #[PolicyPermissionNameAttribute(['az' => 'Ləğv etmək', 'en' => 'Cancel', 'ru' => 'Отмена'])]
@@ -102,5 +113,28 @@ class TicketPolicy
 
         // Всё остальное — запрещено
         return false;
+    }
+
+    public function view(User $user, Ticket $ticket): bool
+    {
+        return
+            $user->username === 'akarimov' ||
+            $user->getDepartmentId() === $ticket->department_id ||
+            $user->id === $ticket->creator->id ||
+            (
+                $ticket->creator &&
+                $ticket->creator->getDepartment()?->manager_id === $user->id
+            ) ||
+
+            // является ли пользователь согласующим по этому тикету
+            $ticket->approvalRequests()
+                ->where('approver_id', $user->id)
+                ->where('status', '!=', TicketApprovalRequestStatusEnum::EXPIRED)
+                ->exists();
+    }
+
+    public function canApprovalRequest(User $user, Ticket $ticket): bool
+    {
+        return $this->view($user, $ticket) && $user->is_approver;
     }
 }

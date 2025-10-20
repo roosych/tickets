@@ -2,10 +2,12 @@
 
 namespace App\Jobs;
 
+use App\Models\ApprovalRequest;
 use App\Models\Comment;
 use App\Models\Ticket;
 use App\Models\TicketHistory;
 use App\Models\User;
+use App\Notifications\TicketApprovalRequestNotification;
 use App\Notifications\TicketCommentNotification;
 use App\Notifications\TicketCreatedNotification;
 use App\Notifications\TicketStatusUpdatedNotification;
@@ -56,6 +58,19 @@ class SendTicketNotification implements ShouldQueue
                 TicketHistory::find($this->additionalData['ticket_history_id'])),
 
             'assigned' => new UserAssignedToTicketNotification($this->ticket),
+
+            // Новый action для approval
+            'approval_requested' => isset($this->additionalData['approval_request'])
+                ? new TicketApprovalRequestNotification(
+                    $this->ticket,
+                    $this->additionalData['approval_request']
+                )
+                : null,
+//            'approval_updated' => new \App\Notifications\TicketApprovalUpdatedNotification(
+//                $this->ticket,
+//                $this->additionalData['approval_request_id']
+//            ),
+
             default => null,
         };
     }

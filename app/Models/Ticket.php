@@ -63,10 +63,20 @@ class Ticket extends Model
 
     public function getUsersByDepartment($departmentId): Collection
     {
+        // Кэшируем результат, чтобы избежать повторных запросов
+        static $cache = [];
+
+        if (isset($cache[$departmentId])) {
+            return $cache[$departmentId];
+        }
+
         $managers = User::where('department_id', $departmentId)->get();
         $users = User::whereIn('manager', $managers->pluck('distinguishedname'))->get();
-        // Объединяем пользователей и менеджеров в одну коллекцию
-        return $users->concat($managers);
+
+        // Объединяем и кэшируем
+        $cache[$departmentId] = $users->concat($managers);
+
+        return $cache[$departmentId];
     }
 
 //    public function user(): BelongsTo
@@ -92,21 +102,23 @@ class Ticket extends Model
             ->count();
     }
 
+    public function completedHistory(): HasOne
+    {
+        return $this->hasOne(TicketHistory::class)
+            ->where('status', TicketStatusEnum::DONE)
+            ->latestOfMany();
+    }
+
     /**
      * Выполнен ли тикет в срок (по статусу DONE).
      */
     public function isCompletedInTime(): bool
     {
-        $lastDone = $this->histories()
-            ->where('status', TicketStatusEnum::DONE)
-            ->orderByDesc('created_at')
-            ->first();
-
-        if (!$lastDone || !$this->due_date) {
+        if (!$this->completedHistory || !$this->due_date) {
             return false;
         }
 
-        return $lastDone->created_at->lte($this->due_date);
+        return $this->completedHistory->created_at->lte($this->due_date);
     }
 
     /**
@@ -114,16 +126,11 @@ class Ticket extends Model
      */
     public function isCompletedLate(): bool
     {
-        $lastDone = $this->histories()
-            ->where('status', TicketStatusEnum::DONE)
-            ->orderByDesc('created_at')
-            ->first();
-
-        if (!$lastDone || !$this->due_date) {
+        if (!$this->completedHistory || !$this->due_date) {
             return false;
         }
 
-        return $lastDone->created_at->gt($this->due_date);
+        return $this->completedHistory->created_at->gt($this->due_date);
     }
 
     // Метод для получения просмотров
@@ -318,6 +325,19 @@ class Ticket extends Model
     public function rating(): HasOne
     {
         return $this->hasOne(TicketRating::class, 'ticket_id');
+    }
+
+    public function approvalRequests(): HasMany
+    {
+        return $this->hasMany(ApprovalRequest::class)->latest();
+    }
+
+    public function approvalHistories()
+    {
+        return $this->approvalRequests
+            ->map(fn($request) => $request->histories) // берём коллекцию историй каждого запроса
+            ->flatten()                                // объединяем в одну коллекцию
+            ->sortBy('created_at');                    // сортируем по времени
     }
 
     protected $fillable = [

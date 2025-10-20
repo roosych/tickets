@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Cabinet\ApproveRequestController;
 use App\Http\Controllers\Cabinet\DepartmentController;
 use App\Http\Controllers\Cabinet\IndexController;
 use App\Http\Controllers\Cabinet\MentionController;
@@ -76,6 +77,8 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
 
         //маршрут для скачивания файлов тикета
         Route::get('media/{media:unique_filename}', [TicketController::class, 'downloadMedia'])->name('media.download');
+        Route::post('/{ticket}/approval-requests', [ApproveRequestController::class, 'store'])
+            ->name('approval.store');
     });
 
     Route::resource('tags', TagController::class)->middleware('check.department.status')->except(
@@ -101,6 +104,16 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
     });
 });
 
+Route::prefix('approval')->name('approval.')->group(function () {
+    // Для ссылок из письма (GET)
+    Route::get('/{approvalRequest:uuid}', [ApproveRequestController::class, 'show'])->name('show');
+    Route::get('/approve/{approvalRequest:uuid}/{token}', [ApproveRequestController::class, 'approve'])->name('approve');
+    Route::get('/deny/{approvalRequest:uuid}/{token}', [ApproveRequestController::class, 'deny'])->name('deny');
+
+    // Для AJAX на сайте (POST)
+    Route::post('/approve/{token}', [ApproveRequestController::class, 'approveAjax'])->name('approve.ajax');
+    Route::post('/deny/{token}', [ApproveRequestController::class, 'denyAjax'])->name('deny.ajax');
+});
 
 Route::post('bot/'.config('services.telegram.bot_token').'/setwebhook', function () {
     $response = Telegram::setWebhook(['url' => 'https://f4ec-81-17-91-221.ngrok-free.app/bot/'.config('services.telegram.bot_token').'/webhook']);

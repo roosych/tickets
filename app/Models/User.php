@@ -182,6 +182,7 @@ class User extends Authenticatable implements LdapAuthenticatable
         'active',
         'tg_notify',
         'email_notify',
+        'is_approver',
     ];
 
     protected $hidden = [
