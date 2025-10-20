@@ -380,7 +380,7 @@
                         @endif
                     @endif
 
-                    <div class="card card-flush mt-8 py-2">
+                        <div class="card card-flush mt-8 py-2">
                         <div class="card-header">
                             <div class="card-title flex-column">
                                 <h3 class="fs-5 fw-bold mb-1">
@@ -391,14 +391,17 @@
                                 </div>
                             </div>
 
-                            <div class="card-toolbar">
-                                <button class="btn btn-sm btn-light-primary btn-active-primary"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#approved_users_modal">
-                                    <i class="ki-outline ki-send fs-2"></i>
-                                    Отправить запрос
-                                </button>
-                            </div>
+                            @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
+                            && !$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
+                                <div class="card-toolbar">
+                                    <button class="btn btn-sm btn-light-primary btn-active-primary"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#approved_users_modal">
+                                        <i class="ki-outline ki-send fs-2"></i>
+                                        Отправить запрос
+                                    </button>
+                                </div>
+                            @endif
                         </div>
 
                         @if($ticket->approvalRequests->count())
@@ -1377,58 +1380,61 @@
 
     </script>
 
-    @if(auth()->user()->is_approver)
-        <script>
-            $(document).ready(function() {
+    @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
+        && !$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
+        @if(auth()->user()->is_approver)
+            <script>
+                $(document).ready(function() {
 
-                function handleApproval(url, token, id) {
-                    applyWait($('body'));
-                    $.ajax({
-                        url: url,
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            token: token
-                        },
-                        success: function(response) {
-                            // removeWait($('body'));
-                            location.reload();
-                            // $('.approve[data-id="' + id + '"], .deny[data-id="' + id + '"]').hide();
-                            // $('#status-' + id).html(response.badgeHtml);
-                        },
-                        error: function(response) {
-                            removeWait($('body'));
-                            let errorMessage = '';
-                            if (response.status === 422 && response.responseJSON.errors) {
-                                const errors = response.responseJSON.errors;
-                                for (const key in errors) {
-                                    errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
+                    function handleApproval(url, token, id) {
+                        applyWait($('body'));
+                        $.ajax({
+                            url: url,
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                token: token
+                            },
+                            success: function(response) {
+                                // removeWait($('body'));
+                                location.reload();
+                                // $('.approve[data-id="' + id + '"], .deny[data-id="' + id + '"]').hide();
+                                // $('#status-' + id).html(response.badgeHtml);
+                            },
+                            error: function(response) {
+                                removeWait($('body'));
+                                let errorMessage = '';
+                                if (response.status === 422 && response.responseJSON.errors) {
+                                    const errors = response.responseJSON.errors;
+                                    for (const key in errors) {
+                                        errorMessage += `<p class="mb-0">${errors[key][0]}</p>`;
+                                    }
+                                } else if (response.responseText) {
+                                    errorMessage = response.responseText;
+                                } else {
+                                    errorMessage = 'Произошла ошибка';
                                 }
-                            } else if (response.responseText) {
-                                errorMessage = response.responseText;
-                            } else {
-                                errorMessage = 'Произошла ошибка';
+
+                                Swal.fire('Произошла ошибка!', errorMessage, 'error');
                             }
+                        });
+                    }
 
-                            Swal.fire('Произошла ошибка!', errorMessage, 'error');
-                        }
+                    $(document).on('click', '.approve', function() {
+                        let id = $(this).data('id');
+                        let token = $(this).data('token');
+                        handleApproval('{{ route("approval.approve.ajax", ":token") }}'.replace(':token', token), token, id);
                     });
-                }
 
-                $(document).on('click', '.approve', function() {
-                    let id = $(this).data('id');
-                    let token = $(this).data('token');
-                    handleApproval('{{ route("approval.approve.ajax", ":token") }}'.replace(':token', token), token, id);
+                    $(document).on('click', '.deny', function() {
+                        let id = $(this).data('id');
+                        let token = $(this).data('token');
+                        handleApproval('{{ route("approval.deny.ajax", ":token") }}'.replace(':token', token), token, id);
+                    });
+
                 });
-
-                $(document).on('click', '.deny', function() {
-                    let id = $(this).data('id');
-                    let token = $(this).data('token');
-                    handleApproval('{{ route("approval.deny.ajax", ":token") }}'.replace(':token', token), token, id);
-                });
-
-            });
-        </script>
+            </script>
+        @endif
     @endif
 
     @stack('modal_js')
