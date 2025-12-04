@@ -574,6 +574,7 @@ class TicketService
     {
         $tickets = QueryBuilder::for(Ticket::class)
             ->allowedFilters(TicketFilter::filter())
+            ->defaultSort('-created_at') // новые сверху
             ->when(isset($data['date_range']), function ($query) use ($data) {
                 return $query->filterByDateRange($data['date_range']);
             })
