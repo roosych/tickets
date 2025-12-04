@@ -26,6 +26,8 @@ class TicketsReportExport implements FromCollection, WithHeadings
                 'Статус' => $ticket->status?->label() ?? '',
                 'Приоритет' => $ticket->priority?->getNameByLocale() ?? '',
                 'Дата создания' => $ticket->created_at?->format('d.m.Y H:i') ?? '',
+                'Начало выполнения' => optional($ticket->inProgressAt())->format('d.m.Y H:i'),
+                'Выполнен' => optional($ticket->doneAt())->format('d.m.Y H:i'),
             ];
         });
     }
@@ -40,6 +42,8 @@ class TicketsReportExport implements FromCollection, WithHeadings
             'Статус',
             'Приоритет',
             'Дата создания',
+            'Начало выполнения',
+            'Выполнен',
         ];
     }
 }

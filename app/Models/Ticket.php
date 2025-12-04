@@ -347,6 +347,26 @@ class Ticket extends Model
         });
     }
 
+    public function statusChangedAt(TicketStatusEnum $status): ?\Carbon\Carbon
+    {
+        // Последняя запись о смене статуса
+        return $this->histories()
+            ->where('status', $status)
+            ->where('action', TicketActionEnum::UPDATE_STATUS)
+            ->latest('created_at')
+            ->value('created_at'); // возвращает Carbon или null
+    }
+
+    public function inProgressAt(): ?\Carbon\Carbon
+    {
+        return $this->statusChangedAt(TicketStatusEnum::IN_PROGRESS);
+    }
+
+    public function doneAt(): ?\Carbon\Carbon
+    {
+        return $this->statusChangedAt(TicketStatusEnum::DONE);
+    }
+
     protected $fillable = [
         'user_id',
         'text',
