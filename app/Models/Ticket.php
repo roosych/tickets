@@ -340,6 +340,13 @@ class Ticket extends Model
             ->sortBy('created_at');                    // сортируем по времени
     }
 
+    public function scopeFilterByDepartment($query, $departmentId)
+    {
+        return $query->whereHas('creator', function ($q) use ($departmentId) {
+            $q->where('department_id', $departmentId);
+        });
+    }
+
     protected $fillable = [
         'user_id',
         'text',

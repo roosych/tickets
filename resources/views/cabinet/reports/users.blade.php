@@ -43,7 +43,7 @@
                             </select>
                         </div>
 
-                       {{-- <div class="mb-5">
+                        <div class="mb-5">
                             <label class="fs-6 form-label fw-bold text-gray-900">
                                 Отделы
                             </label>
@@ -59,7 +59,7 @@
                                     </option>
                                 @endforeach
                             </select>
-                        </div>--}}
+                        </div>
 
                         <div class="mb-5">
                             <label class="fs-6 form-label fw-bold text-gray-900">

@@ -12,7 +12,7 @@ class TicketFilter extends QueryBuilder
         return [
             AllowedFilter::exact('executor_id'),
             AllowedFilter::exact('priorities_id'),
-            AllowedFilter::exact('department_id'),
+            AllowedFilter::scope('department_id', 'filterByDepartment'),
             AllowedFilter::scope('date_range', 'filterByDateRange'),
             AllowedFilter::exact('status'),
             AllowedFilter::exact('creator'),
