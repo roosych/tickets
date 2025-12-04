@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Cabinet;
 
 use App\Enums\FilterGroupingEnum;
+use App\Exports\TicketsReportExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tickets\FilterRequest;
 use App\Models\Department;
 use App\Models\Priorities;
 use App\Services\TicketService;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
@@ -51,5 +54,36 @@ class ReportController extends Controller
             FilterGroupingEnum::PRIORITY => $tickets->groupBy('priority_id'),
             default => $tickets->groupBy('executor_id'),
         };
+    }
+
+    public function exportTickets(Request $request)
+    {
+        $this->authorize('users', 'report');
+
+        // Получаем сгруппированные тикеты с фильтрами
+        $tickets = $this->ticketService->getFilteredAndGroupedTickets($request->all());
+
+        // Разворачиваем группы в плоскую коллекцию
+        $flatTickets = collect();
+
+        foreach ($tickets as $group) {
+            if ($group instanceof Collection) {
+                foreach ($group as $item) {
+                    // если элемент массива ['ticket' => ..., 'tag' => ...]
+                    if (is_array($item) && isset($item['ticket']) && $item['ticket'] instanceof \App\Models\Ticket) {
+                        $flatTickets->push($item['ticket']->loadMissing(['creator', 'performer', 'priority']));
+                    }
+                    // если элемент — сразу Ticket
+                    elseif ($item instanceof \App\Models\Ticket) {
+                        $flatTickets->push($item->loadMissing(['creator', 'performer', 'priority']));
+                    }
+                }
+            }
+        }
+
+        // Сортировка по дате создания
+        $flatTickets = $flatTickets->sortBy('created_at')->values();
+
+        return Excel::download(new TicketsReportExport($flatTickets), 'tickets_report.xlsx');
     }
 }

@@ -4,6 +4,23 @@
             {{trans('common.reports.title_by_employee')}}
         </h3>
     </div>
+
+    <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
+        <button type="button" class="btn btn-light-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+            <i class="ki-outline ki-exit-up fs-2"></i>Export</button>
+        <div id="kt_ecommerce_report_customer_orders_export_menu" class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-6 w-200px py-4" data-kt-menu="true">
+            <div class="menu-item px-3">
+                <a href="{{ route('cabinet.reports.export', request()->query()) }}" class="menu-link px-3">
+                    Excel
+                </a>
+            </div>
+            <div class="menu-item px-3">
+                <a href="#" class="menu-link px-3">
+                    PDF
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="users_tickets_accordion" class="card-body pt-0">

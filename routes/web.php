@@ -89,6 +89,7 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
         Route::get('/tickets', [ReportController::class, 'tickets'])->name('tickets');
         Route::get('/depts', [ReportController::class, 'depts'])->name('depts');
         Route::get('/tags', [ReportController::class, 'tags'])->name('tags');
+        Route::get('/tickets/export', [ReportController::class, 'exportTickets'])->name('export');
     });
 
     Route::prefix('settings')->name('settings.')->middleware('admin')->group(function () {
@@ -102,13 +103,15 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
     Route::prefix('mentions')->name('mentions.')->group(function () {
         Route::get('/unread', [MentionController::class, 'getUnreadMentions'])->name('unread');
     });
+
+    Route::get('/approvals', [ApproveRequestController::class, 'index'])->name('approvals.index');
 });
 
 Route::prefix('approval')->name('approval.')->group(function () {
     // Для ссылок из письма (GET)
-    Route::get('/{approvalRequest:uuid}', [ApproveRequestController::class, 'show'])->name('show');
     Route::get('/approve/{approvalRequest:uuid}/{token}', [ApproveRequestController::class, 'approve'])->name('approve');
     Route::get('/deny/{approvalRequest:uuid}/{token}', [ApproveRequestController::class, 'deny'])->name('deny');
+    Route::get('/{approvalRequest:uuid}', [ApproveRequestController::class, 'show'])->name('show');
 
     // Для AJAX на сайте (POST)
     Route::post('/approve/{token}', [ApproveRequestController::class, 'approveAjax'])->name('approve.ajax');
