@@ -161,4 +161,10 @@ class ApproveRequestController extends Controller
         return redirect()->route('approval.show', $approvalRequest->uuid);
     }
 
+    public function index()
+    {
+        $approvals = auth()->user()->assignedApprovalRequests;
+
+        return view('cabinet.approvals.index', compact('approvals'));
+    }
 }

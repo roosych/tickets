@@ -170,6 +170,22 @@ class User extends Authenticatable implements LdapAuthenticatable
         return $query->where('distinguishedname', 'NOT LIKE', '%Fired_Employees%');
     }
 
+    /**
+     * Запросы на одобрение, созданные пользователем
+     */
+    public function createdApprovalRequests(): HasMany
+    {
+        return $this->hasMany(ApprovalRequest::class, 'creator_id');
+    }
+
+    /**
+     * Запросы на одобрение, которые нужно одобрить/отклонить пользователю
+     */
+    public function assignedApprovalRequests(): HasMany
+    {
+        return $this->hasMany(ApprovalRequest::class, 'approver_id');
+    }
+
     protected $fillable = [
         'name',
         'email',

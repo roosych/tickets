@@ -17,7 +17,7 @@
                     </span>
                 </div>
 
-                <div data-kt-menu-trigger="{default: 'click', lg: 'click'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.tickets*', 'cabinet.tags*'])}} py-2">
+                <div data-kt-menu-trigger="{default: 'click', lg: 'click'}" data-kt-menu-placement="right-start" class="menu-item {{active_link(['cabinet.tickets*', 'cabinet.tags*', 'cabinet.approvals*'])}} py-2">
                     <span class="menu-link menu-center">
                         <span class="menu-icon me-0">
                             <i class="ki-outline ki-mouse-circle fs-2x"></i>
@@ -116,6 +116,20 @@
                             </div>
                         </div>
 
+                        @if(auth()->user()->is_approver)
+                            <div class="menu-item">
+                                <a class="menu-link" href="{{route('cabinet.approvals.index')}}"
+                                   title="Просмотр и управление запросами на одобрение и отклонение тикетов" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">
+                                        Одобрения
+                                    </span>
+                                </a>
+                            </div>
+                        @endif
+
                         <div class="menu-item">
                             @if(auth()->user()->getDepartment() && auth()->user()->getDepartment()->active)
                                 <a class="menu-link" href="{{route('cabinet.tags.index')}}"
@@ -129,49 +143,6 @@
                                 </a>
                             @endif
                         </div>
-
-                        {{--<div class="menu-item">
-                            @if(auth()->user()->getDepartment() && auth()->user()->getDepartment()->active)
-                                <a class="menu-link" href="{{route('cabinet.tickets.index')}}"
-                                   title="{{trans('sidebar.tickets.dept.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">
-                                        {{trans('sidebar.tickets.dept.text')}}
-                                    </span>
-                                </a>
-                                <a class="menu-link" href="{{route('cabinet.tickets.inbox')}}"
-                                   title="{{trans('sidebar.tickets.my.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">
-                                        {{trans('sidebar.tickets.my.text')}}
-                                    </span>
-                                </a>
-                            @endif
-                            <a class="menu-link" href="{{route('cabinet.tickets.sent')}}"
-                               title="{{trans('sidebar.tickets.sent.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">
-                                    {{trans('sidebar.tickets.sent.text')}}
-                                </span>
-                            </a>
-                            @if(auth()->user()->getDepartment() && auth()->user()->getDepartment()->active)
-                                <a class="menu-link" href="{{route('cabinet.tags.index')}}"
-                                   title="{{trans('sidebar.tickets.tags.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">
-                                        {{trans('sidebar.tickets.tags.text')}}
-                                    </span>
-                                </a>
-                            @endif
-                        </div>--}}
                     </div>
                 </div>
 
