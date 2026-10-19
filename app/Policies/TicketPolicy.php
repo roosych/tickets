@@ -67,6 +67,20 @@ class TicketPolicy
         }
 
         // Добавляем: согласующий (approver) тоже может комментировать
+        return $this->isActiveApprover($user, $ticket);
+    }
+
+    /**
+     * Согласующий с неистёкшим запросом (без запроса в БД, если связь уже загружена).
+     */
+    private function isActiveApprover(User $user, Ticket $ticket): bool
+    {
+        if ($ticket->relationLoaded('approvalRequests')) {
+            return $ticket->approvalRequests
+                ->where('approver_id', $user->id)
+                ->contains(fn ($request) => $request->status !== TicketApprovalRequestStatusEnum::EXPIRED);
+        }
+
         return $ticket->approvalRequests()
             ->where('approver_id', $user->id)
             ->where('status', '!=', TicketApprovalRequestStatusEnum::EXPIRED)

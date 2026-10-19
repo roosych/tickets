@@ -23,195 +23,42 @@
 @endsection
 
 @section('content')
+    @php
+        $me = auth()->user();
+        $st = $ticket->status;
+        $isFinal = $st->is(\App\Enums\TicketStatusEnum::COMPLETED) || $st->is(\App\Enums\TicketStatusEnum::CANCELED);
+        $isOwnDept = $me->getDepartmentId() === $ticket->department->id;
+        $parentCanceled = $ticket->parent && $ticket->parent->status->is(\App\Enums\TicketStatusEnum::CANCELED);
+
+        // Кто и когда видит кнопки (те же условия, что проверяет сервер)
+        $canCancel = ! $isFinal && ! $parentCanceled && $me->can('cancel', $ticket);
+        $canReopen = $st->is(\App\Enums\TicketStatusEnum::DONE) && $me->can('close', $ticket);
+        $canClose = $st->is(\App\Enums\TicketStatusEnum::DONE) && $me->can('close', $ticket);
+        $canStart = $st->is(\App\Enums\TicketStatusEnum::OPENED) && (! $ticket->performer || $ticket->performer->id === $me->id) && $isOwnDept;
+        $canComplete = $st->is(\App\Enums\TicketStatusEnum::IN_PROGRESS) && $ticket->performer && $ticket->performer->id === $me->id;
+        $canChangeDeadline = ($st->is(\App\Enums\TicketStatusEnum::OPENED) || $st->is(\App\Enums\TicketStatusEnum::IN_PROGRESS)) && $me->can('updateDeadline', $ticket);
+        $canRequestApproval = ! $isFinal && $me->can('canApprovalRequest', $ticket);
+        $canComment = ! $isFinal && $me->can('comment', $ticket);
+        $hasMenu = $canCancel || $canReopen;
+        $approvalRequestsById = $ticket->approvalRequests->keyBy('id');
+
+        // Хронология тикета
+        $statusTimes = $ticket->histories->where('action', \App\Enums\TicketActionEnum::UPDATE_STATUS);
+        $firstTakenAt = $statusTimes->where('status', \App\Enums\TicketStatusEnum::IN_PROGRESS)->sortBy('created_at')->first()?->created_at;
+        $doneAt = $ticket->doneAt();
+        $closedAt = $st->is(\App\Enums\TicketStatusEnum::COMPLETED) ? $ticket->statusChangedAt(\App\Enums\TicketStatusEnum::COMPLETED) : null;
+        $canceledAt = $st->is(\App\Enums\TicketStatusEnum::CANCELED) ? $ticket->statusChangedAt(\App\Enums\TicketStatusEnum::CANCELED) : null;
+        $finishedAt = $closedAt ?? $canceledAt ?? $doneAt;
+        $reactionMin = $firstTakenAt ? (int) $ticket->created_at->diffInMinutes($firstTakenAt) : null;
+        $workMin = ($firstTakenAt && $doneAt && $doneAt->gte($firstTakenAt)) ? (int) $firstTakenAt->diffInMinutes($doneAt) : null;
+        $totalMin = (int) ($finishedAt ? $ticket->created_at->diffInMinutes($finishedAt) : $ticket->created_at->diffInMinutes(now()));
+    @endphp
+
     <div class="row g-xxl-9">
         <div class="col-xxl-8">
             <div class="card">
-                <div class="card-header align-items-center py-5 gap-5">
-                    <div class="d-flex">
-                        <a href="{{$backUrl}}" class="btn btn-sm btn-icon btn-clear btn-active-light-primary me-3"
-                           data-bs-toggle="tooltip" data-bs-placement="top" title="{{trans('common.back')}}">
-                            <i class="ki-outline ki-arrow-left fs-1 m-0"></i>
-                        </a>
-                    </div>
-                <div>
-
-                    @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED) && !$ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED))
-                        @can('cancel', $ticket)
-                            @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED)
-                                && (!$ticket->parent || !$ticket->parent->status->is(\App\Enums\TicketStatusEnum::CANCELED)))
-                                <button class="btn btn-sm btn-light-danger btn-active-danger me-2 cancel-ticket-btn"
-                                        data-ticket_id="{{$ticket->id}}"
-                                        data-id="{{$ticket->id}}"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#cancel_ticket_modal">
-                                    <i class="ki-outline ki-cross-square fs-2"></i>
-                                    {{trans('tickets.buttons.cancel_ticket')}}
-                                </button>
-                            @endif
-                        @endcan
-
-                            @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE))
-                                @can('close', $ticket)
-                                    <button class="btn btn-sm btn-light-success btn-active-success me-2 closed-ticket-btn"
-                                            data-ticket_id="{{$ticket->id}}"
-                                            @if(auth()->id() === $ticket->creator->id)
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#close_ticket_modal"
-                                            @else
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="{{trans('tickets.buttons.close_ticket')}}"
-                                            @endif
-                                            >
-                                        <i class="ki-outline ki-check-square fs-2"></i>
-                                        {{trans('tickets.buttons.close_ticket')}}
-                                    </button>
-                                @endcan
-                            @endif
-
-                            @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED))
-                                @if((!$ticket->performer || $ticket->performer->id === auth()->id()) && auth()->user()->getDepartmentId() === $ticket->department->id)
-                                    <button class="btn btn-sm btn-light-warning btn-active-warning me-2 start-task-btn"
-                                            data-ticket_id="{{$ticket->id}}"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            title="{{ trans('tickets.buttons.start_ticket') }}">
-                                        <i class="ki-outline ki-timer fs-2"></i>
-                                        {{ trans('tickets.buttons.start_ticket') }}
-                                    </button>
-                                @endif
-                            @endif
-                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS)
-                            && $ticket->performer
-                            && $ticket->performer->id === auth()->id())
-                            <button class="btn btn-sm btn-light-primary btn-active-primary me-2"
-                                    data-ticket_id="{{$ticket->id}}"
-                                    data-id="{{$ticket->id}}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#complete_ticket_modal">
-                                <i class="ki-outline ki-timer fs-2"></i>
-                                {{trans('tickets.buttons.done_ticket')}}
-                            </button>
-                        @endif
-
-                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED)
-                            && $ticket->creator->id === auth()->id())
-                                <button class="btn btn-sm btn-light-dark btn-active-dark me-2"
-                                        data-ticket_id="{{$ticket->id}}"
-                                        data-id="{{$ticket->id}}"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#edit_ticket_modal">
-                                    <i class="ki-outline ki-pencil fs-2"></i>
-                                    {{trans('common.roles.buttons.edit')}}
-                                </button>
-                        @endif
-                    @endif
-                </div>
-
-                </div>
+@include('partials.tickets.show.header')
                 <div class="card-body">
-                    <div class="mb-5">
-                        @if($ticket->due_date)
-                            <div class="d-flex flex-column mb-5">
-                                <div class="d-flex justify-content-between w-100 fw-bold mb-3">
-                                    <div>
-                                        <i class="ki-outline ki-calendar fs-2 me-1"></i>
-                                        <span class="fw-semibold text-muted text-end me-3">
-                                        {{ \Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMMM YYYY, HH:mm') }}
-                                    </span>
-                                    </div>
-                                    <div>
-                                        <i class="ki-outline ki-calendar-remove text-danger fs-2 me-1"></i>
-                                        <span class="fw-bold text-danger text-end me-3">
-                                        {{ \Carbon\Carbon::parse($ticket->due_date)->isoFormat('D MMMM YYYY, HH:mm') }}
-                                    </span>
-                                    </div>
-                                </div>
-
-                                @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE)
-                                || $ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED))
-                                    {{--если послденяя история со статусом done меньше чем дедлайн - то выполнен в срок--}}
-
-                                    @if($ticket->isCompletedInTime())
-                                        <div class="text-success fw-bold fs-6">
-                                            <i class="ki-outline ki-check-circle text-success fw-bold fs-2 me-1"></i>
-                                            Выполнен в срок
-                                        </div>
-                                    @elseif($ticket->isCompletedLate())
-                                        <div class="text-danger fw-bold fs-6">
-                                            <i class="ki-outline ki-cross-circle text-danger fw-bold fs-2 me-1"></i>
-                                            Выполнен с опозданием
-                                        </div>
-                                    @endif
-                                @else
-                                    <div class="h-8px bg-light rounded mb-3">
-                                        <div class="bg-{{$ticket->isDue() ? 'danger' : 'success'}} rounded h-8px" role="progressbar"
-                                             style="width: {{ $ticket->dueProgress() }}%;"
-                                             aria-valuenow="{{$ticket->dueProgress()}}"
-                                             aria-valuemin="0"
-                                             aria-valuemax="100">
-                                        </div>
-                                    </div>
-
-                                    <div class="fw-semibold {{ $ticket->isDue() ? 'text-danger' : 'text-gray-600' }}">
-                                    <span>
-                                        @if($ticket->isDue())
-                                            {{trans('tickets.deadline_expired')}}
-                                        @else
-                                            {{trans('tickets.deadline_after')}} {{ $ticket->timeUntilDueFull() }}.
-                                        @endif
-                                    </span>
-                                        @if($ticket->status->is(\App\Enums\TicketStatusEnum::OPENED) || $ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS))
-                                            <a href="javascript:void(0);" class="ms-2 d-inline"
-                                               data-ticket_id="{{$ticket->id}}"
-                                               data-id="{{$ticket->id}}"
-                                               data-bs-toggle="modal"
-                                               data-bs-target="#update_deadline_modal">
-                                                {{trans('tickets.deadline_change_link')}}
-                                            </a>
-                                        @endif
-                                    </div>
-                                @endif
-                            </div>
-                        @endif
-
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                @if(!$ticket->due_date)
-                                    <i class="ki-outline ki-calendar fs-2 me-1"></i>
-                                    <span class="fw-semibold text-muted text-end me-3">
-                                        {{ \Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMMM YYYY, HH:mm') }}
-                                    </span>
-                                @endif
-                            </div>
-
-                            <div class="d-flex">
-                                <div class="d-flex me-10">
-                                    <div class="text-gray-800 fw-bold fs-12">
-                                        {{trans('tickets.table.priority')}}:
-                                    </div>
-                                    <span class="badge badge-light-{{$ticket->priority->class}} ms-2 fw-bold fs-7">
-                                        {{$ticket->priority->getNameByLocale()}}
-                                    </span>
-                                </div>
-
-                                <span class="text-gray-800 fw-bold fs-12 me-2">
-                                    {{trans('tickets.table.status')}}:
-                                </span>
-                                <div class="ticket_status_label">
-                                    <x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge>
-                                </div>
-
-                                    @if($ticket->status->is(\App\Enums\TicketStatusEnum::DONE))
-                                        @can('close', $ticket)
-                                            <a href="javascript:void(0);" class="reject_ticket" data-ticket-id="{{$ticket->id}}">
-                                                <i class="ki-outline ki-arrow-circle-left text-gray-800 fs-2 ms-2"></i>
-                                            </a>
-                                        @endcan
-                                    @endif
-                            </div>
-                        </div>
-                    </div>
 
                     @if($ticket->parent)
                         @if($ticket->parent->status->is(App\Enums\TicketStatusEnum::CANCELED))
@@ -256,7 +103,7 @@
                             </div>
                         </div>
 
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex flex-wrap justify-content-between gap-5">
                         <div>
                             <div class="d-flex text-gray-800 fw-bold fs-12 mb-3 ms-1">
                                 {{trans('tickets.table.creator')}}:
@@ -299,15 +146,14 @@
                                 {{trans('tickets.responsible')}}:
                                 @if($ticket->status->is(\App\Enums\TicketStatusEnum::IN_PROGRESS) || $ticket->status->is(\App\Enums\TicketStatusEnum::OPENED))
                                     @if($ticket->performer)
-                                        <a href="javascript:void(0);"
-                                           @can('assign', $ticket)
+                                        @can('assign', $ticket)
+                                            <a href="javascript:void(0);"
                                                data-bs-toggle="modal"
                                                data-bs-target="#attach_users_modal"
-                                               data-ticket-id="{{ $ticket->id }}"
-                                            @endcan
-                                        >
-                                            <i class="ki-outline ki-arrows-loop text-gray-800 fs-2 ms-2 mt-1"></i>
-                                        </a>
+                                               data-ticket-id="{{ $ticket->id }}">
+                                                <i class="ki-outline ki-arrows-loop text-gray-800 fs-2 ms-2 mt-1"></i>
+                                            </a>
+                                        @endcan
                                     @endif
                                 @endif
 
@@ -320,6 +166,7 @@
                         </div>
                     </div>
 
+@include('partials.tickets.show.deadline_time')
                         <div class="py-5 mt-2">
                             <p>{!! nl2br(e($ticket->text)) !!}</p>
                         </div>
@@ -391,8 +238,7 @@
                                 </div>
                             </div>
 
-                            @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
-                            && !$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
+                            @if($canRequestApproval)
                                 <div class="card-toolbar">
                                     <button class="btn btn-sm btn-light-primary btn-active-primary"
                                             data-bs-toggle="modal"
@@ -415,278 +261,10 @@
 
                 </div>
             </div>
-            @if($ticket->department->id === auth()->user()->getDepartmentId())
-                @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
-                    && !$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
-                    <div class="d-flex flex-wrap flex-stack my-6">
-                        <h3 class="fw-bold my-2">
-                            {{$ticket->allChildren->isNotEmpty() ? trans('tickets.children_title') : trans('tickets.children_title_empty')}}
-                        </h3>
-
-                        <div class="d-flex align-items-center my-2">
-                            <button class="btn btn-success"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#kt_modal_new_ticket">
-                                <i class="ki-outline ki-plus-square fs-2"></i>
-                                {{trans('tickets.buttons.create')}}
-                            </button>
-                        </div>
-                    </div>
-                @endif
-                <div class="row my-6">
-                    @foreach($ticket->allChildren as $item)
-                        <div class="col-lg-6">
-                            <div class="card mb-6 mb-xl-9">
-                                <div class="card-body">
-                                    <div class="d-flex flex-stack mb-3">
-                                        <div class="badge badge-light-{{$item->status->color()}}">
-                                            {{$item->status->label()}}
-                                        </div>
-                                        <div>
-                                        <span class="text-gray-800 fw-bold fs-12">
-                                            {{trans('tickets.table.priority')}}:
-                                        </span>
-                                            <span class="badge badge-light-{{$item->priority->class}} ms-2 my-1 fw-bold fs-7">
-                                            {{$item->priority->getNameByLocale()}}
-                                    </span>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-2">
-                                        <a href="{{route('cabinet.tickets.show', $item->id)}}" class="fs-4 fw-bold mb-1 text-gray-900 text-hover-primary" target="_blank">
-                                            #{{$item->parent->id}}<i class="ki-duotone ki-right fs-6"></i>{{$item->id}}
-                                        </a>
-                                    </div>
-
-                                    <div class="fs-6 fw-semibold text-gray-800 mb-5">
-                                        {{$item->text}}
-                                    </div>
-
-                                    <div class="d-flex flex-stack flex-wrap">
-                                        @if($item->performer)
-                                            <div class="symbol-group symbol-hover flex-nowrap">
-                                                <div class="symbol symbol-35px symbol-circle"
-                                                     data-bs-toggle="tooltip"
-                                                     aria-label="{{$item->performer->name}}"
-                                                     data-bs-original-title="{{$item->performer->name}}">
-                                                    <img alt="avatar" src="{{$item->performer->avatar}}">
-                                                </div>
-                                            </div>
-                                        @else
-                                            <div>
-                                                <a href="#" class="symbol symbol-35px symbol-circle border border-gray-300 border-dashed"
-                                                   data-bs-toggle="modal"
-                                                   data-bs-target="#kt_modal_view_users">
-                                                    <span class="symbol-label bg-light text-gray-400 fs-8 fw-bold" style="width: 34px;height: 34px">
-                                                        +
-                                                    </span>
-                                                </a>
-                                            </div>
-
-                                        @endif
-
-                                        <a href="{{route('cabinet.tickets.show', $item->id)}}" class="d-flex align-items-center text-primary opacity-75-hover fs-6 fw-semibold" target="_blank">
-                                            {{strtolower(trans('tickets.table.more'))}}
-                                            <i class="ki-outline ki-exit-right-corner fs-4 ms-1"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
+            @include('partials.tickets.show.children')
         </div>
 
-        <div class="col-xxl-4">
-            <div class="card" id="kt_chat_messenger">
-                <div class="card-header" id="kt_chat_messenger_header">
-                    <div class="card-title">
-                        {{trans('tickets.activity')}}
-                    </div>
-                </div>
-
-                <div class="card-body" id="kt_chat_messenger_body">
-                    <div class="scroll-y me-n5 pe-5 h-300px h-lg-auto" id="chat-messages"
-                         data-kt-element="messages"
-                         data-kt-scroll="true"
-                         data-kt-scroll-activate="{default: false, lg: true}"
-                         data-kt-scroll-max-height="300px"
-                         data-kt-scroll-dependencies="#kt_header, #kt_app_header, #kt_app_toolbar, #kt_toolbar, #kt_footer, #kt_app_footer, #kt_chat_messenger_header, #kt_chat_messenger_footer"
-                         data-kt-scroll-wrappers="#kt_content, #kt_app_content, #kt_chat_messenger_body"
-                         data-kt-scroll-offset="5px">
-                        @forelse($activities as $activity)
-                            @if($activity instanceof \App\Models\Comment)
-                                <x-ticket-comment :comment="$activity"></x-ticket-comment>
-                            @elseif($activity instanceof \App\Models\TicketHistory)
-                                <div class="d-flex align-items-center justify-content-start mt-1 fs-6 mb-5">
-
-                                    @if($activity->action->is(\App\Enums\TicketActionEnum::ASSIGN_USER))
-                                        <div class="text-muted me-2 fs-7">
-                                            {{ $activity->action->label() }}
-                                            <strong class="text-gray-800 me-1">{{ $activity->assignUser->name }}</strong>
-                                            {{ $activity->created_at->isoFormat('D MMM YYYY, HH:mm') }}
-                                        </div>
-                                    @elseif($activity->action->is(\App\Enums\TicketActionEnum::VIEWED))
-                                        <div class="text-muted me-2 fs-7">
-                                            {{trans('tickets.actions.viewed')}}
-                                            {{ $activity->created_at->isoFormat('D MMM YYYY, HH:mm') }}
-                                        </div>
-
-                                    @elseif($activity->action->is(\App\Enums\TicketActionEnum::UPDATE_DEADLINE))
-                                        <div class="text-muted me-2 fs-7">
-                                            <strong class="text-gray-800">
-                                                {{trans('tickets.actions.update_deadline')}}
-                                            </strong>
-                                            {{ $activity->created_at->isoFormat('D MMM YYYY, HH:mm') }}
-                                        </div>
-                                    @else
-                                        <div class="text-muted me-2 fs-7">
-                                            {{ $activity->action->label() }}
-                                            <span class="badge badge-light-{{$activity->status->color()}}">
-                                                {{ $activity->status->label() }}
-                                            </span>
-                                            {{ $activity->created_at->isoFormat('D MMM YYYY, HH:mm') }}
-                                        </div>
-                                    @endif
-
-                                    <div class="symbol symbol-circle symbol-25px" data-bs-toggle="tooltip"
-                                         data-bs-boundary="window"
-                                         data-bs-placement="top"
-                                         aria-label="{{ $activity->user->name }}"
-                                         data-bs-original-title="{{ $activity->user->name }}">
-                                        @if($activity->user->avatar)
-                                            <img src="{{ $activity->user->avatar }}" alt="{{ $activity->user->name }}">
-                                        @else
-                                            <div class="symbol-label fs-7 bg-light-dark text-gray-800">
-                                                {{ get_initials($activity->user->name) }}
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                @if($activity->action->is(\App\Enums\TicketActionEnum::UPDATE_DEADLINE))
-                                    <div class="p-5 mb-10 rounded bg-light-primary text-gray-900 fw-semibold mw-lg-400px text-start">
-                                        {{$activity->comment}}
-                                    </div>
-                                @endif
-
-                                @if($activity->status === \App\Enums\TicketStatusEnum::DONE)
-                                    <div class="p-5 mb-10 rounded bg-light-primary text-gray-900 fw-semibold mw-lg-400px text-start">
-                                        {{$ticket->getDoneTicketComment()}}
-                                    </div>
-                                @endif
-
-                                @if($activity->status === \App\Enums\TicketStatusEnum::CANCELED)
-                                    <div class="p-5 mb-10 rounded bg-light-danger text-gray-900 fw-semibold mw-lg-400px text-start">
-                                        {{$ticket->getCanceledTicketComment()}}
-                                    </div>
-                                @endif
-
-                                @if($activity->status === \App\Enums\TicketStatusEnum::COMPLETED && $ticket->rating)
-                                    @php
-                                        $rating = $ticket->rating->rating ?? 0;
-                                    @endphp
-
-                                    <div class="rating justify-content-start">
-                                        @for ($i = 1; $i <= 5; $i++)
-                                            <div class="rating-label {{ $i <= $rating ? 'checked' : '' }}">
-                                                <i class="ki-duotone ki-star fs-2"></i>
-                                            </div>
-                                        @endfor
-                                    </div>
-
-                                    <div class="p-5 mt-3 rounded bg-light-success text-gray-900 fw-semibold mw-lg-400px text-start">
-                                        {{$ticket->rating->comment}}
-                                    </div>
-                                @endif
-                            @endif
-                        @empty
-                            <div class="text-center empty_activity">
-                                <img src="{{asset('assets/media/misc/13.png')}}" class="w-200px" alt="">
-                            </div>
-                        @endforelse
-
-
-                        @foreach($ticket->approvalHistories() as $history)
-                                @php
-                                    $requester = $history->user;
-                                    $approver = $history->approvalRequest->approver;
-                                @endphp
-                                @if($requester && $approver)
-                                    <div class="text-muted me-2 mb-4 fs-7">
-
-                                        @if($history->status->is(\App\Enums\TicketApprovalRequestStatusEnum::APPROVED))
-                                            <div>
-                                                <span class="fw-bold text-gray-800">
-                                                    {{ $approver->name }}:
-                                                </span>
-                                                <span class="badge badge-light-{{$history->status->color()}} fw-bold fs-7">
-                                                    {{$history->status->label()}}
-                                                </span>
-                                                <span class="me-1">{{ $history->created_at->isoFormat('D MMM YYYY, HH:mm') }}</span>
-                                            </div>
-                                            @elseif($history->status->is(\App\Enums\TicketApprovalRequestStatusEnum::DENIED))
-                                                <div>
-                                                    <span class="fw-bold text-gray-800">
-                                                        {{ $approver->name }}:
-                                                    </span>
-                                                    <span class="badge badge-light-{{$history->status->color()}} fw-bold fs-7">
-                                                        {{$history->status->label()}}
-                                                    </span>
-                                                    <span class="me-1">{{ $history->created_at->isoFormat('D MMM YYYY, HH:mm') }}</span>
-                                                </div>
-                                            @else
-                                            <div class="text-muted me-2 fs-7">
-                                                Запрос на одобрение,
-                                                <span>{{ $history->created_at->isoFormat('D MMM YYYY, HH:mm') }}</span>
-
-                                                <div class="fw-bold text-gray-800 me-2 fs-7 mt-1">
-                                                    {{ $requester->name }}
-                                                    <i class="ki-duotone ki-black-right fs-5 mx-2"></i>
-                                                    {{ $approver->name }}
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
-                                @endif
-                        @endforeach
-                    </div>
-                </div>
-
-                @if(!$ticket->status->is(\App\Enums\TicketStatusEnum::COMPLETED)
-                    && !$ticket->status->is(\App\Enums\TicketStatusEnum::CANCELED))
-                    <form method="POST" id="send_comment_form">
-                        @csrf
-                        <div class="card-footer pt-4" id="kt_chat_messenger_footer">
-                            <input type="hidden" name="temp_folder" id="comment_temp_folder">
-                            <textarea id="tribute" class="form-control form-control-flush mb-3 bg-light rounded" rows="3" name="text" placeholder="{{trans('tickets.send_comment')}}" style="width: 100%;"></textarea>
-                            <div class="fs-7 text-muted">
-                                 {{trans('tickets.mention_hint')}}
-                            </div>
-
-                            <div id="comment_filepond">
-                                <input type="file" class="comment_attach" name="media" multiple />
-                            </div>
-
-                            <div class="d-flex flex-stack">
-                                <div class="d-flex align-items-center me-2">
-                                    <button class="btn btn-sm btn-icon btn-active-light-primary me-1 show-filepond" type="button">
-                                        <i class="ki-outline ki-paper-clip fs-3"></i>
-                                    </button>
-                                </div>
-                                <button id="send_comment_btn"
-                                        class="btn btn-primary"
-                                        type="submit">
-                                    <i class="ki-outline ki-send fs-2"></i>
-                                    {{trans('tickets.buttons.send')}}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                @endif
-            </div>
-        </div>
+        @include('partials.tickets.show.feed')
     </div>
 @endsection
 
@@ -731,6 +309,30 @@
 @endpush
 
 @push('custom_js')
+    <style>
+        .feed-hide-views .feed-item[data-type="view"] { display: none; }
+        .feed-item.feed-filtered { display: none; }
+    </style>
+    <script>
+        $(function () {
+            const $feed = $('#chat-messages');
+            $('#feed_show_views').on('change', function () {
+                $feed.toggleClass('feed-hide-views', !this.checked);
+            });
+            $('[data-feed-filter]').on('click', function () {
+                const f = $(this).data('feed-filter');
+                const groups = {comment: ['comment'], status: ['status', 'approval', 'view']};
+                $('[data-feed-filter]').removeClass('active');
+                $(this).addClass('active');
+                $feed.find('.feed-item').each(function () {
+                    const t = $(this).data('type');
+                    $(this).toggleClass('feed-filtered', f !== 'all' && !groups[f].includes(t));
+                });
+                $feed[0].scrollTop = $feed[0].scrollHeight;
+            });
+        });
+    </script>
+
     <script>
         let mentions = {!! $mentions !!};
         let tribute = new Tribute({

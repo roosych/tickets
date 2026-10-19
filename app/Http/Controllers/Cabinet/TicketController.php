@@ -200,6 +200,10 @@ class TicketController extends Controller
             'approvalRequests.histories.user',
             'completedHistory',
             'parent',
+            'media',
+            'comments.media',
+            'allChildren.performer',
+            'allChildren.priority',
         ]);
 
         auth()->user()->load('departmentRelation.tags');
@@ -210,7 +214,7 @@ class TicketController extends Controller
         $comments = $ticket->comments;
         $histories = $ticket->histories;
         $departmentTags = auth()->user()->getDepartment()->tags;
-        $activities = $comments->concat($histories)->sortBy('created_at');
+        $activities = $comments->concat($histories)->concat($ticket->approvalHistories())->sortBy('created_at')->values();
 
         //$deptUsers = auth()->user()->deptAllUsers();
         $deptUsers = $ticket->getUsersByDepartment($ticket->department_id)

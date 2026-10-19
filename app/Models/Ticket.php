@@ -96,6 +96,13 @@ class Ticket extends Model
 
     public function deadlineChangesCountForUser(User $user): int
     {
+        if ($this->relationLoaded('histories')) {
+            return $this->histories
+                ->where('user_id', $user->id)
+                ->where('action', TicketActionEnum::UPDATE_DEADLINE)
+                ->count();
+        }
+
         return $this->histories()
             ->where('user_id', $user->id)
             ->where('action', TicketActionEnum::UPDATE_DEADLINE) // если используешь action для записи
