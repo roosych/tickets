@@ -27,6 +27,17 @@
 @section('content')
     <div class="d-flex flex-column flex-lg-row">
         <div class="flex-lg-row-fluid me-lg-15 order-2 order-lg-1 mb-10 mb-lg-0">
+            @unless($user->active)
+                <div class="alert alert-warning d-flex align-items-center mb-6">
+                    <i class="ki-outline ki-information-5 fs-2 text-warning me-3"></i>
+                    <div>
+                        Сотрудник неактивен.
+                        @if($stuckCount > 0)
+                            У него остались незакрытые тикеты (<strong>{{$stuckCount}}</strong>) — их нужно переназначить.
+                        @endif
+                    </div>
+                </div>
+            @endunless
             <div class="row g-5 mb-6">
                 @foreach([
                     ['Новые', $counts[\App\Enums\TicketStatusEnum::OPENED->value] ?? 0, 'gray-800'],
@@ -39,6 +50,22 @@
                             <div class="card-body py-5">
                                 <div class="fs-2hx fw-bold text-{{$color}}">{{$value}}</div>
                                 <div class="text-gray-600 fw-semibold fs-6">{{$label}}</div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            <div class="row g-5 mb-6">
+                @foreach([
+                    ['Всего тикетов', $metrics['total'], 'gray-800'],
+                    ['Выполнено в срок', $metrics['on_time_percent'] === null ? '—' : $metrics['on_time_percent'] . '%', 'primary'],
+                    ['Среднее время выполнения', formatMinutes($metrics['avg_minutes']), 'gray-800'],
+                ] as [$label, $value, $color])
+                    <div class="col-6 col-md-4">
+                        <div class="card card-flush h-100">
+                            <div class="card-body py-5">
+                                <div class="fs-2 fw-bold text-{{$color}} lh-1 mb-2">{{$value}}</div>
+                                <div class="text-gray-600 fw-semibold fs-7">{{$label}}</div>
                             </div>
                         </div>
                     </div>
@@ -280,7 +307,13 @@
                                 <div class="badge badge-lg badge-light-secondary d-inline">
                                     {{$user->position}}
                                 </div>
+                                @unless($user->active)
+                                    <div class="badge badge-lg badge-light-danger d-inline ms-1">Неактивен</div>
+                                @endunless
                             </div>
+                            <a href="{{route('cabinet.reports.tickets', ['filter' => ['executor_id' => $user->id]])}}" class="btn btn-sm btn-light-primary">
+                                <i class="ki-outline ki-chart-simple fs-4"></i>Полный отчёт
+                            </a>
 
                         </div>
                         <div class="separator separator-dashed mb-7"></div>

@@ -6,21 +6,34 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\AttachPermissionsRequest;
 use App\Http\Requests\User\AttachRolesRequest;
 use App\Enums\TicketStatusEnum;
+use App\Models\Department;
 use App\Models\Permission;
+use App\Models\Priorities;
 use App\Models\User;
+use App\Services\TicketReportMetrics;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    public function __construct(private readonly TicketReportMetrics $metrics)
+    {
+    }
+
     public function show(Request $request, User $user)
     {
         $permissions = Permission::all();
         $groupedPermissions = $permissions->groupBy('group');
 
         if (Auth::user()->getDepartmentId() != $user->getDepartmentId()) {
-            return view('cabinet.users.show-stranger-user', compact('user'));
+            $user->load(['permissions', 'roles.permissions']);
+            $department = $user->getDepartment();
+
+            $priorities = Priorities::getCachedPriorities();
+            $departments = Department::where('active', true)->get();
+
+            return view('cabinet.users.show-stranger-user', compact('user', 'department', 'priorities', 'departments'));
         }
 
         $period = trim((string) $request->query('period'));
@@ -56,8 +69,12 @@ class UserController extends Controller
 
         $overdueCount = $activeTickets->filter(fn ($ticket) => $ticket->isDue())->count();
 
+        $metricTickets = $tickets->load('histories');
+        $metrics = $this->metrics->summarize($metricTickets);
+        $stuckCount = $user->active ? 0 : $activeTickets->count();
+
         return view('cabinet.users.show2', compact(
-            'user', 'groupedPermissions', 'counts', 'activeTickets', 'finishedTickets', 'canceledTickets', 'overdueCount', 'period'
+            'user', 'groupedPermissions', 'counts', 'activeTickets', 'finishedTickets', 'canceledTickets', 'overdueCount', 'period', 'metrics', 'stuckCount'
         ));
     }
 
