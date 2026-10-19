@@ -16,6 +16,12 @@ class TagPolicy
         return $user->hasPermissions('create', Tag::class);
     }
 
+    // Редактирование доступно тем же, кто может создавать теги (отдельное право не вводим)
+    public function update(User $user, Tag $tag): bool
+    {
+        return $user->hasPermissions('create', Tag::class);
+    }
+
     #[PolicyPermissionNameAttribute(['az' => 'Silmək', 'en' => 'Delete', 'ru' => 'Удаление'])]
     public function delete(User $user): bool
     {

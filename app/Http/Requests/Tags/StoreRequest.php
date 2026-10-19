@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tags;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRequest extends FormRequest
 {
@@ -14,7 +15,10 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'text' => ['required', 'string', 'max:100'],
+            'text' => [
+                'required', 'string', 'max:100',
+                Rule::unique('tags', 'text')->where('department_id', auth()->user()->getDepartmentId()),
+            ],
             'color' => ['required', 'string', 'hex_color'],
         ];
     }
@@ -24,6 +28,7 @@ class StoreRequest extends FormRequest
         return [
             'text.required' => 'Заполните название тега',
             'text.max' => 'Слишком длинное название',
+            'text.unique' => 'Тег с таким названием уже существует',
         ];
     }
 
