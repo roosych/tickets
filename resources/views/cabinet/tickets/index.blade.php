@@ -19,6 +19,19 @@
 @endsection
 
 @section('content')
+    @php
+        $activeSt = [\App\Enums\TicketStatusEnum::OPENED, \App\Enums\TicketStatusEnum::IN_PROGRESS];
+        $isOverdue = fn ($t) => in_array($t->status, $activeSt) && $t->due_date && $t->due_date->isPast();
+        $chips = [
+            'all' => [trans('tickets.table.chip_all'), $tickets->count(), 'primary'],
+            'new' => [trans('tickets.table.chip_new'), $tickets->where('status', \App\Enums\TicketStatusEnum::OPENED)->count(), 'secondary'],
+            'in_progress' => [trans('tickets.table.chip_in_progress'), $tickets->where('status', \App\Enums\TicketStatusEnum::IN_PROGRESS)->count(), 'warning'],
+            'overdue' => [trans('tickets.table.chip_overdue'), $tickets->filter($isOverdue)->count(), 'danger'],
+            'unassigned' => [trans('tickets.table.chip_unassigned'), $tickets->filter(fn ($t) => !$t->executor_id && in_array($t->status, $activeSt))->count(), 'dark'],
+            'done' => [trans('tickets.table.chip_await_close'), $tickets->where('status', \App\Enums\TicketStatusEnum::DONE)->count(), 'success'],
+        ];
+        $performers = $tickets->pluck('performer')->filter()->unique('id')->sortBy('name');
+    @endphp
     <div class="card card-flush">
         <div class="card-header align-items-center py-5 gap-2 gap-md-5">
             <div class="card-title">
@@ -30,6 +43,25 @@
             </div>
             <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
                 @if(count($tickets))
+                    <div class="w-100 mw-200px">
+                        <select class="form-select form-select-solid" data-control="select2" data-hide-search="false"
+                                data-placeholder="{{trans('tickets.table.all_performers')}}" data-dept-tickets-filter="performer">
+                            <option></option>
+                            <option value="all">{{trans('tickets.table.all_performers')}}</option>
+                            @foreach($performers as $performer)
+                                <option value="{{$performer->id}}">{{$performer->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="position-relative">
+                        <i class="ki-outline ki-calendar fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                        <input type="text" id="dept_tickets_period" class="form-control form-control-solid ps-12 w-200px"
+                               placeholder="{{trans('tickets.table.period')}}" autocomplete="off" readonly>
+                    </div>
+                    <label class="form-check form-switch form-check-custom form-check-solid">
+                        <input class="form-check-input" type="checkbox" data-dept-tickets-filter="mine" data-user-id="{{auth()->id()}}">
+                        <span class="form-check-label fw-semibold text-gray-700">{{trans('tickets.table.only_mine')}}</span>
+                    </label>
                     <div class="w-100 mw-250px">
                         <select class="form-select form-select-solid"
                                 data-control="select2"
@@ -67,6 +99,15 @@
         </div>
         <div class="card-body pt-0">
             @if(count($tickets))
+                <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x border-transparent fs-4 fw-semibold mb-5" id="dept_tickets_chips">
+                    @foreach($chips as $key => [$label, $count, $color])
+                        <li class="nav-item">
+                            <a href="#" data-chip="{{$key}}" class="nav-link text-active-primary d-flex align-items-center pb-5 {{$loop->first ? 'active' : ''}}">
+                                {{$label}} (<span class="{{ $key === 'overdue' && $count > 0 ? 'text-danger' : 'text-gray-800' }}">{{$count}}</span>)
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
                 <table class="table align-middle table-hover table-row-dashed fs-6 gy-5" id="dept_tickets_table">
                     <thead>
                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
@@ -74,23 +115,33 @@
                         <th class="min-w-125px">{{trans('tickets.table.creator')}}</th>
                         <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
                         <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
+                        <th class="min-w-150px">{{trans('tickets.table.deadline')}}</th>
                         <th>{{trans('tickets.table.status')}}</th>
                         <th class="min-w-125px">{{trans('tickets.table.performer')}}</th>
                         <th>{{trans('tickets.table.tags')}}</th>
-                        <th>{{trans('tickets.create_modal.description')}}</th>
+                        <th class="min-w-250px">{{trans('tickets.create_modal.description')}}</th>
                     </tr>
                     </thead>
                     <tbody class="fw-semibold text-gray-600">
                     @foreach($tickets as $ticket)
+                        @php
+                            $overdue = $isOverdue($ticket);
+                            $isActive = in_array($ticket->status, $activeSt);
+                        @endphp
                         <tr class="position_row_{{$ticket->id}} clickable-row cursor-pointer"
-                            data-href="{{ route('cabinet.tickets.show', $ticket) }}">
+                            data-href="{{ route('cabinet.tickets.show', $ticket) }}"
+                            data-status="{{$ticket->status->value}}"
+                            data-overdue="{{$overdue ? 1 : 0}}"
+                            data-unassigned="{{ !$ticket->executor_id && $isActive ? 1 : 0 }}"
+                            data-executor="{{$ticket->executor_id}}"
+                            data-created="{{$ticket->created_at->timestamp}}">
                             <td class="ps-3">
                                 <div class="d-flex align-items-center">
                                     <a href="{{ route('cabinet.tickets.show', $ticket) }}" class="text-gray-800 text-hover-primary fw-bold me-2">
                                         #{{ $ticket->id }}
                                     </a>
 
-                                    @if($ticket->allChildren()->exists())
+                                    @if($ticket->children_count > 0)
                                         <div class="ms-1" data-bs-toggle="tooltip" aria-label="{{ trans('tickets.has_children') }}" data-bs-original-title="{{ trans('tickets.has_children') }}">
                                             <i class="ki-outline ki-note-2 fs-2"></i>
                                         </div>
@@ -105,7 +156,7 @@
                             </td>
 
                             <td class="d-flex align-items-center border-bottom-1">
-                                <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
+                                <div class="symbol symbol-circle symbol-35px overflow-hidden me-3">
                                     <a href="{{route('cabinet.users.show', $ticket->creator)}}">
                                         @if($ticket->creator->avatar)
                                             <div class="symbol-label">
@@ -119,10 +170,10 @@
                                     </a>
                                 </div>
                                 <div class="d-flex flex-column">
-                                    <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1" style="width: fit-content;">
+                                    <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary" style="width: fit-content;">
                                         {{$ticket->creator->name}}
                                     </a>
-                                    <span>{{$ticket->creator->getDepartment()?->name}}</span>
+                                    <span class="fs-8 text-muted">{{$ticket->creator->getDepartment()?->name}}</span>
                                 </div>
                             </td>
                             <td>
@@ -130,8 +181,18 @@
                                     {{$ticket->priority->getNameByLocale()}}
                                 </span>
                             </td>
-                            <td>
-                                {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMMM YYYY, HH:mm')}}
+                            <td data-order="{{$ticket->created_at->timestamp}}">
+                                {{$ticket->created_at->isoFormat('D MMMM YYYY, HH:mm')}}
+                            </td>
+                            <td data-order="{{ $isActive && $ticket->due_date ? $ticket->due_date->timestamp : PHP_INT_MAX }}">
+                                @if($ticket->due_date)
+                                    {{$ticket->due_date->isoFormat('D MMM YYYY, HH:mm')}}
+                                    @if($isActive)
+                                        <div class="fs-7 {{ $overdue ? 'text-danger fw-bold' : 'text-muted' }}">{{$ticket->timeUntilDueFull()}}</div>
+                                    @endif
+                                @else
+                                    {{trans('tickets.table.no_deadline')}}
+                                @endif
                             </td>
                             <td id="ticket_status_{{$ticket->id}}">
                                 <x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge>
@@ -178,7 +239,7 @@
                                       data-bs-toggle="tooltip"
                                       data-bs-html="true"
                                       data-bs-original-title="<p class='fs-6 fw-bold mb-0'>{{$ticket->text}}</p>"
-                                >{{Str::limit($ticket->text, 20)}}</span>
+                                >{{Str::limit(strip_tags($ticket->text), 70)}}</span>
                             </td>
                         </tr>
                     @endforeach
@@ -221,7 +282,19 @@
 @endpush
 
 @push('custom_js')
-    <script src="{{asset('assets/js/custom/tickets/table.js')}}"></script>
+    <script>
+        window.deptTicketsI18n = {
+            today: "{{trans('common.reports.period.today')}}",
+            yesterday: "{{trans('common.reports.period.yesterday')}}",
+            days7: "{{trans('common.reports.period.7_days')}}",
+            days30: "{{trans('common.reports.period.30_days')}}",
+            month: "{{trans('common.reports.period.this_month')}}",
+            custom: "{{trans('common.reports.period.custom_date')}}",
+            apply: "{{trans('common.reports.apply_btn')}}",
+            reset: "{{trans('common.roles.buttons.cancel')}}",
+        };
+    </script>
+    <script src="{{asset('assets/js/custom/tickets/dept_table.js?v=2')}}"></script>
     <script src="{{asset('assets/js/custom/tickets/create.js')}}"></script>
     <script src="{{asset('assets/js/custom/initFileUpload.js')}}"></script>
 

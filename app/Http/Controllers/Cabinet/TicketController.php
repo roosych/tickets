@@ -46,7 +46,8 @@ class TicketController extends Controller
         $departmentId = $user->getDepartmentId();
 
         $tickets = Ticket::query()
-            ->with(['priority', 'creator', 'tags', 'performer', 'department', 'rating'])
+            ->with(['priority', 'creator.departmentRelation', 'tags', 'performer', 'department', 'rating'])
+            ->withCount('children')
             ->where('department_id', $departmentId)
             ->where(function ($query) {
                 $query->whereColumn('user_id', '!=', 'executor_id')
