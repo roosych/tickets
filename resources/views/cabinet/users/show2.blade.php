@@ -27,48 +27,109 @@
 @section('content')
     <div class="d-flex flex-column flex-lg-row">
         <div class="flex-lg-row-fluid me-lg-15 order-2 order-lg-1 mb-10 mb-lg-0">
-            <div class="card pt-4 pb-10 mb-6 mb-xl-9">
-                <div class="card-header border-0">
-                    <div class="card-title">
-                        <h2>Последняя активность</h2>
+            <div class="row g-5 mb-6">
+                @foreach([
+                    ['Новые', $counts[\App\Enums\TicketStatusEnum::OPENED->value] ?? 0, 'gray-800'],
+                    ['В работе', $counts[\App\Enums\TicketStatusEnum::IN_PROGRESS->value] ?? 0, 'warning'],
+                    ['Просрочено', $overdueCount, 'danger'],
+                    ['Выполнено', ($counts[\App\Enums\TicketStatusEnum::DONE->value] ?? 0) + ($counts[\App\Enums\TicketStatusEnum::COMPLETED->value] ?? 0), 'success'],
+                ] as [$label, $value, $color])
+                    <div class="col-6 col-md-3">
+                        <div class="card card-flush h-100">
+                            <div class="card-body py-5">
+                                <div class="fs-2hx fw-bold text-{{$color}}">{{$value}}</div>
+                                <div class="text-gray-600 fw-semibold fs-6">{{$label}}</div>
+                            </div>
+                        </div>
                     </div>
+                @endforeach
+            </div>
 
+            @php
+                $ticketTabs = [
+                    'user_tickets_active' => ['В работе', $activeTickets],
+                    'user_tickets_finished' => ['Выполненные', $finishedTickets],
+                    'user_tickets_canceled' => ['Отменённые', $canceledTickets],
+                ];
+            @endphp
+            <div class="card card-flush mb-6 mb-xl-9">
+                <div class="card-header pt-5">
+                    <div class="card-title"><h2 class="mb-0">Тикеты сотрудника</h2></div>
                     <div class="card-toolbar">
-                        <button type="button" class="btn btn-sm btn-light-primary">
-                            Посмотреть все
-                        </button>
+                        <form method="GET" class="d-flex align-items-center gap-2">
+                            <div class="position-relative">
+                                <i class="ki-outline ki-calendar fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                                <input type="text" id="user_period" name="period" value="{{$period}}"
+                                       class="form-control ps-12 w-250px" placeholder="{{trans('common.reports.period.all_time')}}"
+                                       autocomplete="off" readonly>
+                            </div>
+                            @if($period !== '')
+                                <a href="{{url()->current()}}" class="btn btn-icon btn-light" data-bs-toggle="tooltip" title="Сбросить">
+                                    <i class="ki-outline ki-cross fs-2"></i>
+                                </a>
+                            @endif
+                        </form>
                     </div>
                 </div>
-
-                <div class="card-body py-0 scroll-y mh-300px">
-                    <table class="table align-middle table-row-dashed fs-6 text-gray-600 fw-semibold gy-5">
-                        <tbody>
-                            @forelse($user->ticketHistories->take(10) as $item)
-                                <tr>
-                                    <td class="min-w-400px">
-                                        <a href="{{route('cabinet.tickets.show', $item->ticket->id)}}" class="fw-bold text-gray-900 text-hover-primary" target="_blank">
-                                            #{{$item->ticket->id}}
-                                        </a> -
-                                        {{$item->action->label()}}
-                                        <span class="badge badge-light-{{$item->status->color()}}">{{$item->status->label()}}</span>
-                                    </td>
-                                    <td class="pe-0 text-gray-600 text-end min-w-200px">
-                                        {{\Carbon\Carbon::parse($item->created_at)->isoFormat('D MMM Y, HH:mm')}}
-                                    </td>
-                                </tr>
-                            @empty
-                                <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed p-6 my-4">
-                                    <div class="d-flex flex-stack flex-grow-1 ">
-                                        <div class=" fw-semibold">
-                                            <div class="fs-6 text-gray-700">
-                                                Нет активности
-                                            </div>
-                                        </div>
+                <div class="card-body pt-2">
+                    <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-semibold mb-5">
+                        @foreach($ticketTabs as $id => [$title, $list])
+                            <li class="nav-item">
+                                <a class="nav-link text-active-primary pb-4 {{$loop->first ? 'active' : ''}}" data-bs-toggle="tab" href="#{{$id}}">
+                                    {{$title}} <span class="badge badge-light ms-2">{{$list->count()}}</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                    <div class="tab-content">
+                        @foreach($ticketTabs as $id => [$title, $list])
+                            <div class="tab-pane fade {{$loop->first ? 'show active' : ''}}" id="{{$id}}" role="tabpanel">
+                                @if($list->isEmpty())
+                                    <div class="text-gray-600 py-5">Нет тикетов</div>
+                                @else
+                                    <div class="table-responsive mh-500px scroll-y">
+                                        <table class="table align-middle table-row-dashed fs-6 gy-3">
+                                            <thead>
+                                                <tr class="text-start text-muted fw-bold fs-7 text-uppercase">
+                                                    <th>Тикет</th>
+                                                    <th>Автор</th>
+                                                    <th>Приоритет</th>
+                                                    <th>Статус</th>
+                                                    <th>Создан</th>
+                                                    <th>Дедлайн</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="text-gray-700 fw-semibold">
+                                                @foreach($list as $ticket)
+                                                    <tr>
+                                                        <td class="min-w-250px">
+                                                            <a href="{{route('cabinet.tickets.show', $ticket)}}" class="fw-bold text-gray-900 text-hover-primary" target="_blank">#{{$ticket->id}}</a>
+                                                            <div class="text-gray-600 fw-normal">{{\Illuminate\Support\Str::limit(strip_tags($ticket->text), 80)}}</div>
+                                                        </td>
+                                                        <td>{{$ticket->creator?->name}}</td>
+                                                        <td>
+                                                            @if($ticket->priority)
+                                                                <span class="badge badge-light-{{$ticket->priority->class}}">{{$ticket->priority->getNameByLocale()}}</span>
+                                                            @endif
+                                                        </td>
+                                                        <td><span class="badge badge-light-{{$ticket->status->color()}}">{{$ticket->status->label()}}</span></td>
+                                                        <td class="text-nowrap">{{$ticket->created_at->isoFormat('D MMM YYYY, HH:mm')}}</td>
+                                                        <td class="text-nowrap">
+                                                            @if($ticket->due_date)
+                                                                <span class="{{$loop->parent->first && $ticket->isDue() ? 'text-danger fw-bold' : ''}}">{{$ticket->due_date->isoFormat('D MMM YYYY, HH:mm')}}</span>
+                                                            @else
+                                                                —
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
                                     </div>
-                                </div>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
@@ -255,6 +316,27 @@
 @push('custom_js')
     <script>
         let token = $('meta[name="_token"]').attr('content');
+
+        $('#user_period').daterangepicker({
+            autoUpdateInput: false,
+            ranges: {
+                "{{trans('common.reports.period.today')}}": [moment(), moment()],
+                "{{trans('common.reports.period.yesterday')}}": [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                "{{trans('common.reports.period.7_days')}}": [moment().subtract(6, 'days'), moment()],
+                "{{trans('common.reports.period.30_days')}}": [moment().subtract(29, 'days'), moment()],
+                "{{trans('common.reports.period.this_month')}}": [moment().startOf('month'), moment().endOf('month')],
+            },
+            locale: {
+                customRangeLabel: "{{trans('common.reports.period.custom_date')}}",
+                format: 'DD.MM.YYYY',
+                firstDay: 1,
+                applyLabel: "{{trans('common.reports.apply_btn')}}",
+                cancelLabel: "{{trans('common.roles.buttons.cancel')}}",
+            },
+        }, function (start, end) {
+            $('#user_period').val(start.format('DD.MM.YYYY') + ' - ' + end.format('DD.MM.YYYY'));
+            $('#user_period').closest('form').submit();
+        });
 
         // check all checkbox
         $("#select_all_permissions").click(function() {
