@@ -10,7 +10,7 @@
                 </p>
                 <div>
                     <span class="text-muted fs-7 mb-1">
-                        {{$comment->created_at->isoFormat('D MMMM, HH:mm')}}
+                        {{$comment->created_at->isoFormat('D MMMM YYYY, HH:mm')}}
                     </span>
                 </div>
             </div>

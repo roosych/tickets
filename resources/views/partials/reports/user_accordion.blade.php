@@ -111,11 +111,11 @@
                                 </span>
                             </td>
                             <td>
-                                {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
+                                {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM YYYY, HH:mm')}}
                             </td>
 
                             <td>
-                                {{ \Carbon\Carbon::parse($startTime)->isoFormat('D MMM, HH:mm') }}
+                                {{ \Carbon\Carbon::parse($startTime)->isoFormat('D MMM YYYY, HH:mm') }}
                             </td>
                             <td>
                                 @if ($lastStatusInProgressTime)

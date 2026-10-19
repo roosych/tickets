@@ -81,7 +81,7 @@
                                 </div>
                             </td>
                             <td>
-                                {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
+                                {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM YYYY, HH:mm')}}
                             </td>
                             <td>
                                 <span class="badge badge-light-{{$ticket->status->color()}} fw-bold fs-7">

@@ -154,7 +154,7 @@
                                                 </span>
                                                     </td>
                                                     <td>
-                                                        {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
+                                                        {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM YYYY, HH:mm')}}
                                                     </td>
                                                     <td>
                                                         @if($ticket->parent)
@@ -230,7 +230,7 @@
                                                 </span>
                                                     </td>
                                                     <td>
-                                                        {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
+                                                        {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM YYYY, HH:mm')}}
                                                     </td>
                                                     <td>
                                                         @if($ticket->parent)
@@ -322,7 +322,7 @@
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
+                                                        {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM YYYY, HH:mm')}}
                                                     </td>
                                                     <td>
                                                         @if($ticket->parent)
@@ -412,7 +412,7 @@
                                                         </span>
                                                             </td>
                                                             <td>
-                                                                {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM, HH:mm')}}
+                                                                {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM YYYY, HH:mm')}}
                                                             </td>
                                                             <td>
                                                                 @if($ticket->parent)

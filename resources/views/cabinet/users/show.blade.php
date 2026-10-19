@@ -60,7 +60,7 @@
                             <div class="fw-bold mt-5">Последний вход</div>
                             <div class="text-gray-600">
                                 @if($user->last_login)
-                                    {{\Carbon\Carbon::parse($user->last_login)->isoFormat('D MMMM, HH:mm')}}
+                                    {{\Carbon\Carbon::parse($user->last_login)->isoFormat('D MMMM YYYY, HH:mm')}}
                                 @else
                                     <em>не входил(а)</em>
                                 @endif

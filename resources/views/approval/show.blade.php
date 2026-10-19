@@ -77,7 +77,7 @@
                             <div>
                                 <i class="ki-outline ki-calendar fs-2 me-1"></i>
                                 <span class="fw-semibold text-muted text-end me-3">
-                                {{ \Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMMM, HH:mm') }}
+                                {{ \Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMMM YYYY, HH:mm') }}
                             </span>
                             </div>
 

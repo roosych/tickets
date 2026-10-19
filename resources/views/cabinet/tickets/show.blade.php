@@ -117,13 +117,13 @@
                                     <div>
                                         <i class="ki-outline ki-calendar fs-2 me-1"></i>
                                         <span class="fw-semibold text-muted text-end me-3">
-                                        {{ \Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMMM, HH:mm') }}
+                                        {{ \Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMMM YYYY, HH:mm') }}
                                     </span>
                                     </div>
                                     <div>
                                         <i class="ki-outline ki-calendar-remove text-danger fs-2 me-1"></i>
                                         <span class="fw-bold text-danger text-end me-3">
-                                        {{ \Carbon\Carbon::parse($ticket->due_date)->isoFormat('D MMMM, HH:mm') }}
+                                        {{ \Carbon\Carbon::parse($ticket->due_date)->isoFormat('D MMMM YYYY, HH:mm') }}
                                     </span>
                                     </div>
                                 </div>
@@ -180,7 +180,7 @@
                                 @if(!$ticket->due_date)
                                     <i class="ki-outline ki-calendar fs-2 me-1"></i>
                                     <span class="fw-semibold text-muted text-end me-3">
-                                        {{ \Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMMM, HH:mm') }}
+                                        {{ \Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMMM YYYY, HH:mm') }}
                                     </span>
                                 @endif
                             </div>
@@ -525,12 +525,12 @@
                                         <div class="text-muted me-2 fs-7">
                                             {{ $activity->action->label() }}
                                             <strong class="text-gray-800 me-1">{{ $activity->assignUser->name }}</strong>
-                                            {{ $activity->created_at->isoFormat('D MMM, HH:mm') }}
+                                            {{ $activity->created_at->isoFormat('D MMM YYYY, HH:mm') }}
                                         </div>
                                     @elseif($activity->action->is(\App\Enums\TicketActionEnum::VIEWED))
                                         <div class="text-muted me-2 fs-7">
                                             {{trans('tickets.actions.viewed')}}
-                                            {{ $activity->created_at->isoFormat('D MMM, HH:mm') }}
+                                            {{ $activity->created_at->isoFormat('D MMM YYYY, HH:mm') }}
                                         </div>
 
                                     @elseif($activity->action->is(\App\Enums\TicketActionEnum::UPDATE_DEADLINE))
@@ -538,7 +538,7 @@
                                             <strong class="text-gray-800">
                                                 {{trans('tickets.actions.update_deadline')}}
                                             </strong>
-                                            {{ $activity->created_at->isoFormat('D MMM, HH:mm') }}
+                                            {{ $activity->created_at->isoFormat('D MMM YYYY, HH:mm') }}
                                         </div>
                                     @else
                                         <div class="text-muted me-2 fs-7">
@@ -546,7 +546,7 @@
                                             <span class="badge badge-light-{{$activity->status->color()}}">
                                                 {{ $activity->status->label() }}
                                             </span>
-                                            {{ $activity->created_at->isoFormat('D MMM, HH:mm') }}
+                                            {{ $activity->created_at->isoFormat('D MMM YYYY, HH:mm') }}
                                         </div>
                                     @endif
 
@@ -624,7 +624,7 @@
                                                 <span class="badge badge-light-{{$history->status->color()}} fw-bold fs-7">
                                                     {{$history->status->label()}}
                                                 </span>
-                                                <span class="me-1">{{ $history->created_at->isoFormat('D MMM, HH:mm') }}</span>
+                                                <span class="me-1">{{ $history->created_at->isoFormat('D MMM YYYY, HH:mm') }}</span>
                                             </div>
                                             @elseif($history->status->is(\App\Enums\TicketApprovalRequestStatusEnum::DENIED))
                                                 <div>
@@ -634,12 +634,12 @@
                                                     <span class="badge badge-light-{{$history->status->color()}} fw-bold fs-7">
                                                         {{$history->status->label()}}
                                                     </span>
-                                                    <span class="me-1">{{ $history->created_at->isoFormat('D MMM, HH:mm') }}</span>
+                                                    <span class="me-1">{{ $history->created_at->isoFormat('D MMM YYYY, HH:mm') }}</span>
                                                 </div>
                                             @else
                                             <div class="text-muted me-2 fs-7">
                                                 Запрос на одобрение,
-                                                <span>{{ $history->created_at->isoFormat('D MMM, HH:mm') }}</span>
+                                                <span>{{ $history->created_at->isoFormat('D MMM YYYY, HH:mm') }}</span>
 
                                                 <div class="fw-bold text-gray-800 me-2 fs-7 mt-1">
                                                     {{ $requester->name }}

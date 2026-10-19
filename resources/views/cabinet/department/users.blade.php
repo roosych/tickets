@@ -83,7 +83,7 @@
                                 </td>
                                 <td>
                                     @if($user->last_login)
-                                        {{\Carbon\Carbon::parse($user->last_login)->isoFormat('D MMMM, HH:mm')}}
+                                        {{\Carbon\Carbon::parse($user->last_login)->isoFormat('D MMMM YYYY, HH:mm')}}
                                     @else
                                         {{trans('users.not_logined')}}
                                     @endif
