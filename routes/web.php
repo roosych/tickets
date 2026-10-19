@@ -96,6 +96,7 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
         Route::get('/users', [SettingsController::class, 'users'])->name('users');
         Route::post('/users/{id}/toggle-setting/{setting}', [SettingsController::class, 'toggleUserSetting'])->name('users.toggleUserSetting');
         Route::get('/departments', [SettingsController::class, 'departments'])->name('departments');
+        Route::post('/departments', [SettingsController::class, 'storeDepartment'])->name('departments.create');
         Route::get('/departments/{department}/show', [SettingsController::class, 'show'])->name('departments.show');
         Route::post('/departments/{department}/show', [SettingsController::class, 'store'])->name('departments.store');
     });
