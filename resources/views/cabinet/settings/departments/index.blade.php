@@ -19,6 +19,15 @@
 @endsection
 
 @section('content')
+    @foreach(['success' => 'success', 'error' => 'danger'] as $key => $color)
+        @if(session($key))
+            <div class="alert alert-{{$color}} d-flex align-items-center mb-6">
+                <i class="ki-outline ki-{{$key === 'success' ? 'check-circle' : 'information-5'}} fs-2 text-{{$color}} me-3"></i>
+                <div>{{session($key)}}</div>
+            </div>
+        @endif
+    @endforeach
+
     <div class="row g-5 mb-6">
         @foreach([
             ['Департаментов', $stats['total'], 'gray-800', 'all'],

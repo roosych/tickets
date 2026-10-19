@@ -19,6 +19,9 @@ class UpdateDepartmentRequest extends FormRequest
             'users' => ['nullable', 'array'],
             'users.*' => ['exists:users,id'],
             'active' => ['required', 'boolean'],
+            'tg_chat_id' => ['nullable', 'string', 'max:255'],
+            'tg_topic_id' => ['nullable', 'string', 'max:255'],
+            'revoke_old_manager' => ['nullable', 'boolean'],
         ];
     }
 
@@ -35,6 +38,9 @@ class UpdateDepartmentRequest extends FormRequest
 
             'users.array' => 'Список сотрудников должен быть массивом.',
             'users.*.exists' => 'Один или несколько выбранных сотрудников не найдены в системе.',
+
+            'tg_chat_id.max' => 'ID чата Telegram слишком длинный.',
+            'tg_topic_id.max' => 'ID темы Telegram слишком длинный.',
 
             'active.required' => 'Необходимо указать статус департамента.',
             'active.boolean' => 'Поле "Активен" должно быть булевым значением.',

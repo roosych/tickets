@@ -98,6 +98,7 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
         Route::get('/departments', [SettingsController::class, 'departments'])->name('departments');
         Route::post('/departments', [SettingsController::class, 'storeDepartment'])->name('departments.create');
         Route::get('/departments/{department}/show', [SettingsController::class, 'show'])->name('departments.show');
+        Route::delete('/departments/{department}', [SettingsController::class, 'destroy'])->name('departments.destroy');
         Route::post('/departments/{department}/show', [SettingsController::class, 'store'])->name('departments.store');
     });
 

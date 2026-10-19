@@ -77,20 +77,67 @@ class SettingsController extends Controller
     // Страница конкретного департамента
     public function show(Department $department)
     {
-        $managerId = $department->manager?->id; // null если менеджера нет
+        $openStatuses = [TicketStatusEnum::OPENED->value, TicketStatusEnum::IN_PROGRESS->value];
 
+        // Все текущие участники (в т.ч. неактивные и скрытые) + доступные для добавления
         $users = User::query()
-//            ->where(function ($query) use ($managerId) {
-//                $query->whereNull('department_id');
-//                if ($managerId !== null) {
-//                    $query->orWhere('department_id', '!=', $managerId);
-//                }
-//            })
-            ->where('visible', true)
-            ->where('active', true)
+            ->with('departmentRelation')
+            ->withCount(['ticketsByExecutor as open_tickets_count' => fn ($q) => $q->whereIn('status', $openStatuses)])
+            ->where(function ($query) use ($department) {
+                $query->where('department_id', $department->id)
+                    ->orWhere(fn ($q) => $q->where('visible', true)->where('active', true));
+            })
+            ->orderBy('name')
             ->get();
 
-        return view('cabinet.settings.departments.show', compact('department', 'users'));
+        $department->loadCount([
+            'tags',
+            'roles',
+            'tickets as total_tickets_count',
+            'tickets as open_tickets_count' => fn ($q) => $q->whereIn('status', $openStatuses),
+        ]);
+
+        $members = $users->where('department_id', $department->id);
+        $memberTotal = User::where('department_id', $department->id)->count();
+
+        $stats = [
+            'members_active' => $members->where('active', true)->count(),
+            'members_total' => $memberTotal,
+            'open_tickets' => $department->open_tickets_count,
+            'tags' => $department->tags_count,
+            'roles' => $department->roles_count,
+        ];
+
+        $deleteBlockers = array_values(array_filter([
+            $memberTotal ? "сотрудников: {$memberTotal}" : null,
+            $department->total_tickets_count ? "тикетов: {$department->total_tickets_count}" : null,
+            $department->tags_count ? "тегов: {$department->tags_count}" : null,
+            $department->roles_count ? "ролей: {$department->roles_count}" : null,
+        ]));
+
+        return view('cabinet.settings.departments.show', compact('department', 'users', 'stats', 'deleteBlockers'));
+    }
+
+    public function destroy(Department $department)
+    {
+        $blockers = [
+            User::where('department_id', $department->id)->exists(),
+            $department->tickets()->exists(),
+            $department->tags()->exists(),
+            $department->roles()->exists(),
+        ];
+
+        if (in_array(true, $blockers, true)) {
+            return redirect()
+                ->route('cabinet.settings.departments.show', $department)
+                ->with('error', 'Департамент нельзя удалить: в нём есть сотрудники, тикеты, теги или роли.');
+        }
+
+        $department->delete();
+
+        return redirect()
+            ->route('cabinet.settings.departments')
+            ->with('success', 'Департамент удалён');
     }
 
 
@@ -114,34 +161,41 @@ class SettingsController extends Controller
         $usersToKeep = array_unique($usersToKeep);
 
         // Обновление менеджера департамента
+        $newManagerId = $data['manager_id'] ?? null;
+
         $department->update([
             'name' => $data['name'],
-            'manager_id' => $data['manager_id'] ?? null,
+            'manager_id' => $newManagerId,
             'active' => $data['active'],
+            'tg_chat_id' => $data['tg_chat_id'] ?? null,
+            'tg_topic_id' => $data['tg_topic_id'] ?? null,
         ]);
 
         // Переназначаем права, если менеджер изменился
-        if ($oldManagerId != $data['manager_id']) {
+        if ($oldManagerId != $newManagerId) {
             $allPermissionIds = Permission::pluck('id')->toArray();
 
-            if ($oldManagerId) {
+            if ($oldManagerId && ($data['revoke_old_manager'] ?? true)) {
                 $oldManager = User::find($oldManagerId);
                 $oldManager?->permissions()->detach($allPermissionIds);
             }
 
-            $newManager = User::find($data['manager_id']);
+            $newManager = $newManagerId ? User::find($newManagerId) : null;
             $newManager?->permissions()->syncWithoutDetaching($allPermissionIds);
         }
 
-        // Обновляем департамент для пользователей
+        // Меняем только тех, кто реально добавлен или убран (остальных не трогаем)
         DB::transaction(function () use ($usersToKeep, $department) {
-            // Отключаем всех пользователей из департамента
-            User::where('department_id', $department->id)
-                ->update(['department_id' => null]);
+            $currentIds = User::where('department_id', $department->id)->pluck('id')->all();
 
-            // Обновляем каждого пользователя по очереди
-            foreach ($usersToKeep as $userId) {
-                User::where('id', $userId)->update(['department_id' => $department->id]);
+            $toRemove = array_diff($currentIds, $usersToKeep);
+            if ($toRemove) {
+                User::whereIn('id', $toRemove)->update(['department_id' => null]);
+            }
+
+            $toAdd = array_diff($usersToKeep, $currentIds);
+            if ($toAdd) {
+                User::whereIn('id', $toAdd)->update(['department_id' => $department->id]);
             }
         });
 
