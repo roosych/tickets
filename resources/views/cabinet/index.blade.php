@@ -1,8 +1,16 @@
 @extends('layouts.app')
 @section('content')
-    <h1 class="page-heading d-flex align-items-center text-gray-900 fw-bold fs-3 mb-8">
-        <span class="fs-1 me-2">👋</span> {{trans('common.index.greeting')}} {{auth()->user()->name}}!
-    </h1>
+    <div class="d-flex flex-stack flex-wrap gap-3 mb-8">
+        <h1 class="page-heading d-flex align-items-center text-gray-900 fw-bold fs-3 mb-0">
+            <span class="fs-1 me-2">👋</span> {{trans('common.index.greeting')}} {{auth()->user()->name}}!
+        </h1>
+        <div class="btn-group" role="group">
+            @foreach(['week' => 'period_week', 'month' => 'period_month', 'all' => 'period_all'] as $key => $label)
+                <a href="{{ route('cabinet.index', $key === 'all' ? [] : ['period' => $key]) }}"
+                   class="btn btn-sm {{ $period === $key ? 'btn-primary' : 'btn-light' }}">{{trans('common.index.'.$label)}}</a>
+            @endforeach
+        </div>
+    </div>
     <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
         <div class="col-xl-8">
             <div class="row">
@@ -15,11 +23,11 @@
                                         {{trans('common.index.done_tickets')}}
                                     </p>
                                     <span class="fs-6 text-gray-500 fs-semibase">
-                                {{trans('common.index.all_time')}}
+                                {{ $period === 'all' ? trans('common.index.all_time') : trans('common.index.done_period_'.$period) }}
                             </span>
                                 </div>
                                 <span class="text-gray-800 fw-bold fs-2x">
-                            {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::COMPLETED) }}
+                            {{ $myCounts[\App\Enums\TicketStatusEnum::COMPLETED->value] ?? 0 }}
                         </span>
                             </div>
                         </div>
@@ -42,6 +50,24 @@
                         </span>
                             </div>
                         </div>
+                        @if($deptSummary)
+                            <div class="card-body pt-2 pb-0">
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    <span class="badge badge-light-secondary fs-7">{{trans('common.index.dept_new')}}: {{$deptSummary['opened']}}</span>
+                                    <span class="badge badge-light-warning fs-7">{{trans('common.index.dept_in_work')}}: {{$deptSummary['in_progress']}}</span>
+                                    <span class="badge badge-light-danger fs-7">{{trans('common.index.overdue')}}: {{$deptSummary['overdue']}}</span>
+                                </div>
+                                @if($deptSummary['busiest']->isNotEmpty())
+                                    <span class="fs-7 fw-bold text-gray-700 d-block mb-1">{{trans('common.index.busiest')}}</span>
+                                    @foreach($deptSummary['busiest'] as $row)
+                                        <div class="d-flex justify-content-between fs-7 text-gray-600">
+                                            <a href="{{route('cabinet.users.show', $row['user'])}}" class="text-gray-700 text-hover-primary">{{$row['user']->name}}</a>
+                                            <span class="fw-bold">{{$row['count']}}</span>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+                        @endif
                         @if(count($topPerformers))
                             <div class="card-body d-flex flex-column justify-content-end pe-0">
                     <span class="fs-6 fw-bolder text-gray-800 d-block mb-2">
@@ -56,6 +82,58 @@
                                 </div>
                             </div>
                         @endif
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="attention">
+                <div class="col-xl-12">
+                    <div class="card card-flush mb-5 mb-xl-10">
+                        <div class="card-header pt-5">
+                            <h3 class="card-title align-items-start flex-column">
+                                <span class="card-label fw-bold text-gray-800">{{trans('common.index.attention')}}</span>
+                            </h3>
+                        </div>
+                        <div class="card-body pt-0">
+                            @php
+                                $attentionGroups = [
+                                    ['common.index.att_overdue', $overdueTickets, 'danger'],
+                                    ['common.index.att_due_soon', $dueSoonTickets, 'warning'],
+                                    ['common.index.att_await_close', $awaitingCloseTickets, 'primary'],
+                                    ['common.index.att_unassigned', $unassignedTickets, 'secondary'],
+                                ];
+                            @endphp
+                            @if(collect($attentionGroups)->sum(fn ($g) => $g[1]->count()) === 0)
+                                <div class="text-gray-600 fs-6">{{trans('common.index.attention_empty')}}</div>
+                            @endif
+                            @foreach($attentionGroups as [$title, $list, $color])
+                                @continue($list->isEmpty())
+                                <div class="mb-5">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="fw-bold text-gray-800 fs-6">{{trans($title)}}</span>
+                                        <span class="badge badge-light-{{$color}} ms-2">{{$list->count()}}</span>
+                                    </div>
+                                    @foreach($list->take(5) as $ticket)
+                                        <div class="d-flex flex-stack py-2 border-bottom border-gray-200">
+                                            <div class="d-flex align-items-center me-3 text-truncate">
+                                                <a href="{{route('cabinet.tickets.show', $ticket)}}" class="fw-bold text-gray-900 text-hover-primary me-3">#{{$ticket->id}}</a>
+                                                <span class="text-gray-600 text-truncate">{{\Illuminate\Support\Str::limit(strip_tags($ticket->text), 70)}}</span>
+                                            </div>
+                                            <span class="text-nowrap fs-7 {{ $ticket->due_date && $ticket->isDue() ? 'text-danger fw-bold' : 'text-muted' }}">
+                                                @if($ticket->due_date)
+                                                    {{$ticket->due_date->isoFormat('D MMM YYYY, HH:mm')}}
+                                                @else
+                                                    {{$ticket->creator?->name}}
+                                                @endif
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                    @if($list->count() > 5)
+                                        <div class="text-muted fs-7 pt-2">+ {{$list->count() - 5}}</div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
@@ -112,6 +190,7 @@
                                                 <th class="min-w-125px">{{trans('tickets.table.creator')}}</th>
                                                 <th class="min-w-125px">{{trans('tickets.table.priority')}}</th>
                                                 <th class="min-w-125px">{{trans('tickets.table.created_at')}}</th>
+                                                <th class="min-w-150px">{{trans('common.index.deadline')}}</th>
                                                 <th>{{trans('tickets.table.main_ticket')}}</th>
                                             </tr>
                                             </thead>
@@ -155,6 +234,14 @@
                                                     </td>
                                                     <td>
                                                         {{\Carbon\Carbon::parse($ticket->created_at)->isoFormat('D MMM YYYY, HH:mm')}}
+                                                    </td>
+                                                    <td data-order="{{ $ticket->due_date?->timestamp ?? PHP_INT_MAX }}">
+                                                        @if($ticket->due_date)
+                                                            {{$ticket->due_date->isoFormat('D MMM YYYY, HH:mm')}}
+                                                            <div class="fs-7 {{ $ticket->isDue() ? 'text-danger fw-bold' : 'text-muted' }}">{{$ticket->timeUntilDueFull()}}</div>
+                                                        @else
+                                                            {{trans('common.index.no_deadline')}}
+                                                        @endif
                                                     </td>
                                                     <td>
                                                         @if($ticket->parent)
@@ -452,7 +539,7 @@
 
         <div class="col-xl-4">
             <div class="col-12">
-                <div class="card card-flush h-xl-100">
+                <div class="card card-flush mb-5 mb-xl-10">
                     <div class="card-header rounded bgi-no-repeat bgi-size-cover bgi-position-y-top bgi-position-x-center align-items-start h-250px" style="background: linear-gradient(112.14deg, #3A7BD5 0%, #00D2FF 100%);" data-bs-theme="light">
                         <h3 class="card-title align-items-start flex-column text-white pt-15">
                             <span class="fw-bold fs-2x mb-3">
@@ -490,7 +577,7 @@
 
                                         <div class="m-0">
                                             <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::IN_PROGRESS]) }}" class="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                                                {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::IN_PROGRESS) }}
+                                                {{ $myCounts[\App\Enums\TicketStatusEnum::IN_PROGRESS->value] ?? 0 }}
                                             </a>
                                             <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::IN_PROGRESS]) }}" class="text-gray-500 fw-semibold fs-6">
                                                 {{trans('tickets.statuses.in_progress')}}
@@ -507,7 +594,7 @@
                                         </div>
                                         <div class="m-0">
                                             <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::DONE]) }}" class="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                                                {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::DONE) }}
+                                                {{ $myCounts[\App\Enums\TicketStatusEnum::DONE->value] ?? 0 }}
                                             </a>
                                             <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::DONE]) }}" class="text-gray-500 fw-semibold fs-6">
                                                 {{trans('tickets.statuses.done')}}
@@ -524,7 +611,7 @@
                                         </div>
                                         <div class="m-0">
                                             <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::COMPLETED]) }}" class="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                                                {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::COMPLETED) }}
+                                                {{ $myCounts[\App\Enums\TicketStatusEnum::COMPLETED->value] ?? 0 }}
                                             </a>
                                             <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::COMPLETED]) }}" class="text-gray-500 fw-semibold fs-6">
                                                 {{trans('tickets.statuses.completed')}}
@@ -535,16 +622,16 @@
                                 <div class="col-6">
                                     <div class="bg-gray-100 bg-opacity-70 rounded-2 px-6 py-5">
                                         <div class="symbol symbol-30px me-5 mb-8">
-                                <span class="symbol-label">
-                                    <i class="ki-outline ki-cross-circle fs-1 text-primary"></i>
-                                </span>
+                                            <span class="symbol-label">
+                                                <i class="ki-outline ki-information-5 fs-1 text-danger"></i>
+                                            </span>
                                         </div>
                                         <div class="m-0">
-                                            <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::CANCELED]) }}" class="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                                                {{ auth()->user()->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::CANCELED) }}
+                                            <a href="#attention" class="{{ count($overdueTickets) ? 'text-danger' : 'text-gray-700' }} fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
+                                                {{ count($overdueTickets) }}
                                             </a>
-                                            <a href="{{ route('cabinet.tickets.inbox', ["filter[status]" => \App\Enums\TicketStatusEnum::CANCELED]) }}" class="text-gray-500 fw-semibold fs-6">
-                                                {{trans('tickets.statuses.canceled')}}
+                                            <a href="#attention" class="text-gray-500 fw-semibold fs-6">
+                                                {{trans('common.index.overdue')}}
                                             </a>
                                         </div>
                                     </div>
@@ -552,6 +639,32 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="card card-flush">
+                <div class="card-header pt-5">
+                    <h3 class="card-title"><span class="card-label fw-bold text-gray-800">{{trans('common.index.feed')}}</span></h3>
+                </div>
+                <div class="card-body pt-0">
+                    @forelse($feed as $event)
+                        <div class="d-flex flex-column py-2 {{ $loop->last ? '' : 'border-bottom border-gray-200' }}">
+                            <div class="fs-6 text-gray-800">
+                                <span class="fw-bold">{{$event->user?->name}}</span>
+                                @if($event->action === \App\Enums\TicketActionEnum::ASSIGN_USER)
+                                    {{trans('common.index.feed_assigned')}}
+                                @else
+                                    {{trans('common.index.feed_status')}}
+                                @endif
+                                <a href="{{route('cabinet.tickets.show', $event->ticket_id)}}" class="fw-bold text-hover-primary">#{{$event->ticket_id}}</a>
+                                @if($event->action === \App\Enums\TicketActionEnum::UPDATE_STATUS && $event->status)
+                                    <span class="badge badge-light-{{$event->status->color()}}">{{$event->status->label()}}</span>
+                                @endif
+                            </div>
+                            <span class="text-muted fs-8">{{$event->created_at->isoFormat('D MMM YYYY, HH:mm')}}</span>
+                        </div>
+                    @empty
+                        <div class="text-gray-600 fs-6">{{trans('common.index.feed_empty')}}</div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -578,7 +691,7 @@
 
 @push('custom_js')
     <script src="{{asset('assets/js/custom/tickets/create.js')}}"></script>
-    <script src="{{asset('assets/js/custom/index/opened_tickets_table.js?v=2')}}"></script>
+    <script src="{{asset('assets/js/custom/index/opened_tickets_table.js?v=3')}}"></script>
     <script src="{{asset('assets/js/custom/index/done_tickets_table.js?v=2')}}"></script>
     <script src="{{asset('assets/js/custom/index/my_done_tickets_table.js?v=2')}}"></script>
     <script src="{{asset('assets/js/custom/index/sent_tickets_table.js?v=2')}}"></script>

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Cabinet;
 
+use App\Enums\TicketActionEnum;
 use App\Enums\TicketStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Priorities;
 use App\Models\Ticket;
+use App\Models\TicketHistory;
 use App\Models\User;
 use App\Services\TicketService;
 use Illuminate\Support\Facades\Auth;
@@ -51,7 +53,72 @@ class IndexController extends Controller
         $sentTickets = $tickets
             ->where('user_id', auth()->id());
 
-        //dd($openedTickets);
+        $period = in_array(request('period'), ['week', 'month']) ? request('period') : 'all';
+        $periodStart = match ($period) {
+            'week' => now()->subDays(6)->startOfDay(),
+            'month' => now()->startOfMonth(),
+            default => null,
+        };
+        $myCounts = $user->ticketsByExecutor()
+            ->whereColumn('user_id', '!=', 'executor_id')
+            ->when($periodStart, fn ($query) => $query->where('created_at', '>=', $periodStart))
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $activeStatuses = [TicketStatusEnum::OPENED, TicketStatusEnum::IN_PROGRESS];
+        $myActive = $tickets
+            ->where('executor_id', $user->id)
+            ->whereIn('status', $activeStatuses)
+            ->whereNotNull('due_date');
+        $overdueTickets = $myActive->filter(fn ($ticket) => $ticket->isDue())->sortBy('due_date')->values();
+        $dueSoonTickets = $myActive
+            ->filter(fn ($ticket) => ! $ticket->isDue() && $ticket->due_date->lte(now()->addHours(48)))
+            ->sortBy('due_date')
+            ->values();
+        $awaitingCloseTickets = $sentTickets->where('status', TicketStatusEnum::DONE)->values();
+        $unassignedTickets = $user->isManager()
+            ? $tickets
+                ->where('department_id', $user->getDepartmentId())
+                ->whereNull('executor_id')
+                ->where('status', TicketStatusEnum::OPENED)
+                ->values()
+            : collect();
+
+        $deptSummary = null;
+        if ($user->isManager()) {
+            $deptActive = $tickets
+                ->where('department_id', $user->getDepartmentId())
+                ->whereIn('status', $activeStatuses)
+                ->whereNotNull('executor_id');
+            $deptSummary = [
+                'opened' => $deptActive->where('status', TicketStatusEnum::OPENED)->count(),
+                'in_progress' => $deptActive->where('status', TicketStatusEnum::IN_PROGRESS)->count(),
+                'overdue' => $deptActive->filter(fn ($ticket) => $ticket->isDue())->count(),
+                'busiest' => $deptActive->groupBy('executor_id')
+                    ->map(fn ($group) => ['user' => $group->first()->performer, 'count' => $group->count()])
+                    ->sortByDesc('count')
+                    ->take(3)
+                    ->values(),
+            ];
+        }
+
+        $feed = TicketHistory::with(['ticket', 'user'])
+            ->where('created_at', '>=', now()->subDays(14))
+            ->whereHas('ticket')
+            ->where(function ($query) use ($user) {
+                $query->where(fn ($q) => $q
+                    ->where('action', TicketActionEnum::ASSIGN_USER)
+                    ->where('assign_user', $user->id)
+                    ->where('user_id', '!=', $user->id))
+                    ->orWhere(fn ($q) => $q
+                        ->where('action', TicketActionEnum::UPDATE_STATUS)
+                        ->where('user_id', '!=', $user->id)
+                        ->whereHas('ticket', fn ($t) => $t->where('user_id', $user->id)));
+            })
+            ->latest()
+            ->limit(8)
+            ->get();
 
         $statusLabels = [];
         foreach (TicketStatusEnum::cases() as $status) {
@@ -68,7 +135,7 @@ class IndexController extends Controller
 
         if ($department) {
             return $department->active
-                ? view('cabinet.index', compact('priorities','openedTickets', 'departments', 'topPerformers', 'totalTickets', 'tickets', 'doneTickets', 'sentTickets', 'myDoneTickets'))
+                ? view('cabinet.index', compact('priorities','openedTickets', 'departments', 'topPerformers', 'totalTickets', 'tickets', 'doneTickets', 'sentTickets', 'myDoneTickets', 'period', 'myCounts', 'overdueTickets', 'dueSoonTickets', 'awaitingCloseTickets', 'unassignedTickets', 'deptSummary', 'feed'))
                 : view('cabinet.deactive', compact('priorities', 'departments'));
         } else {
             // Пользователь не привязан к департаменту

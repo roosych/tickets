@@ -9,12 +9,12 @@ let DeptTickets = (function () {
                     paging: true,
                     pageLength: 10,
                     lengthMenu: [5, 10, 15, 20],
-                    order: [],
+                    order: [[4, 'asc']],
                     columnDefs: [
                         { orderable: false, targets: 0 },
                         { orderable: false, targets: 1 },
                         { orderable: false, targets: 2 },
-                        { orderable: false, targets: 4 },
+                        { orderable: false, targets: 5 },
                     ],
                 }))
             );
