@@ -49,6 +49,8 @@ return [
         'only_mine' => 'Yalnız mənimkilər',
         'all_performers' => 'Bütün icraçılar',
         'period' => 'Bütün vaxt',
+        'all_creators' => 'Bütün müəlliflər',
+        'all_depts' => 'Bütün şöbələr',
     ],
     'create_modal' => [
         'title' => 'Yeni tiket',

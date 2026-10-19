@@ -132,8 +132,10 @@ class TicketController extends Controller
         // Получаем ID всех пользователей из отдела текущего пользователя
         $departmentUserIds = $user->deptAllUsers()->pluck('id');
         $tickets = Ticket::query()
-            ->with(['priority', 'creator', 'department', 'performer', 'comments'])
+            ->with(['priority', 'creator', 'department', 'performer'])
+            ->withCount('children')
             ->whereIn('user_id', $departmentUserIds)
+            ->visibleToUser()
             ->when($request->input('filter.status'), function ($query, $status) {
                 $query->where('status', $status);
             })

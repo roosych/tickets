@@ -49,6 +49,8 @@ return [
         'only_mine' => 'Только мои',
         'all_performers' => 'Все исполнители',
         'period' => 'Все время',
+        'all_creators' => 'Все авторы',
+        'all_depts' => 'Все отделы',
     ],
     'create_modal' => [
         'title' => 'Новый тикет',
