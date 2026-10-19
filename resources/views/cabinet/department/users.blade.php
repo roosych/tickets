@@ -83,9 +83,20 @@
                                 </td>
                                 <td>
                                     @if($user->last_login)
-                                        {{\Carbon\Carbon::parse($user->last_login)->isoFormat('D MMMM YYYY, HH:mm')}}
+                                        @php
+                                            $lastLogin = \Carbon\Carbon::parse($user->last_login);
+                                            $daysAgo = $lastLogin->diffInDays(now());
+                                            $loginColor = match(true) {
+                                                $lastLogin->isToday() => 'success',
+                                                $daysAgo <= 7 => 'primary',
+                                                $daysAgo <= 30 => 'warning',
+                                                default => 'danger',
+                                            };
+                                        @endphp
+                                        <span class="badge badge-light-{{$loginColor}} fs-7">{{$lastLogin->diffForHumans()}}</span>
+                                        <div class="text-muted fs-8 mt-1">{{$lastLogin->isoFormat('D MMM YYYY, HH:mm')}}</div>
                                     @else
-                                        {{trans('users.not_logined')}}
+                                        <span class="badge badge-light-secondary fs-7">{{trans('users.not_logined')}}</span>
                                     @endif
                                 </td>
                             </tr>
@@ -141,19 +152,64 @@
                                     </div>
                                 </td>
                                 <td class="text-end pe-0">
-                                    {{$user->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::OPENED)}}
+                                    @php($count = $user->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::OPENED))
+                                    @if($count > 0)
+                                        @can('users', 'report')
+                                            <a href="{{ route('cabinet.reports.tickets', ['filter' => ['executor_id' => $user->id, 'status' => 'opened']]) }}" target="_blank" class="text-gray-800 text-hover-primary fw-bold">{{$count}}</a>
+                                        @else
+                                            {{$count}}
+                                        @endcan
+                                    @else
+                                        {{$count}}
+                                    @endif
                                 </td>
                                 <td class="text-end pe-0">
-                                    {{$user->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::IN_PROGRESS)}}
+                                    @php($count = $user->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::IN_PROGRESS))
+                                    @if($count > 0)
+                                        @can('users', 'report')
+                                            <a href="{{ route('cabinet.reports.tickets', ['filter' => ['executor_id' => $user->id, 'status' => 'in_progress']]) }}" target="_blank" class="text-gray-800 text-hover-primary fw-bold">{{$count}}</a>
+                                        @else
+                                            {{$count}}
+                                        @endcan
+                                    @else
+                                        {{$count}}
+                                    @endif
                                 </td>
                                 <td class="text-end pe-0">
-                                    {{$user->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::DONE)}}
+                                    @php($count = $user->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::DONE))
+                                    @if($count > 0)
+                                        @can('users', 'report')
+                                            <a href="{{ route('cabinet.reports.tickets', ['filter' => ['executor_id' => $user->id, 'status' => 'done']]) }}" target="_blank" class="text-gray-800 text-hover-primary fw-bold">{{$count}}</a>
+                                        @else
+                                            {{$count}}
+                                        @endcan
+                                    @else
+                                        {{$count}}
+                                    @endif
                                 </td>
                                 <td class="text-end pe-0">
-                                    {{$user->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::COMPLETED)}}
+                                    @php($count = $user->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::COMPLETED))
+                                    @if($count > 0)
+                                        @can('users', 'report')
+                                            <a href="{{ route('cabinet.reports.tickets', ['filter' => ['executor_id' => $user->id, 'status' => 'completed']]) }}" target="_blank" class="text-gray-800 text-hover-primary fw-bold">{{$count}}</a>
+                                        @else
+                                            {{$count}}
+                                        @endcan
+                                    @else
+                                        {{$count}}
+                                    @endif
                                 </td>
                                 <td class="text-end">
-                                    {{$user->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::CANCELED)}}
+                                    @php($count = $user->getTicketsCountByStatus(\App\Enums\TicketStatusEnum::CANCELED))
+                                    @if($count > 0)
+                                        @can('users', 'report')
+                                            <a href="{{ route('cabinet.reports.tickets', ['filter' => ['executor_id' => $user->id, 'status' => 'canceled']]) }}" target="_blank" class="text-gray-800 text-hover-primary fw-bold">{{$count}}</a>
+                                        @else
+                                            {{$count}}
+                                        @endcan
+                                    @else
+                                        {{$count}}
+                                    @endif
                                 </td>
                                 @can('users', 'report')
                                     <td class="text-end">
