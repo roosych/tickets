@@ -51,6 +51,11 @@ return [
         'period' => 'Bütün vaxt',
         'all_creators' => 'Bütün müəlliflər',
         'all_depts' => 'Bütün şöbələr',
+        'only_own' => 'Yalnız şəxsi',
+        'chip_done_inbox' => 'İcra olunmuş',
+        'only_overdue' => 'Yalnız gecikmişlər',
+        'archive' => 'Tamamlanmış və ləğv edilmiş',
+        'archive_hint' => 'son 20',
     ],
     'create_modal' => [
         'title' => 'Yeni tiket',

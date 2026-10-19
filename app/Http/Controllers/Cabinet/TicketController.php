@@ -71,7 +71,8 @@ class TicketController extends Controller
         }
         $priorities = Priorities::getCachedPriorities();
         $tickets = Ticket::query()
-            ->with(['priority', 'creator', 'tags', 'performer', 'rating'])
+            ->with(['priority', 'creator.departmentRelation', 'tags', 'performer', 'rating', 'parent'])
+            ->withCount('children')
             ->where('executor_id', auth()->id())
             ->when($request->input('filter.status'), function ($query, $status) {
                 $query->where('status', $status);
@@ -96,7 +97,8 @@ class TicketController extends Controller
         }
         $priorities = Priorities::getCachedPriorities();
         $departments = Department::where('active', '=', true)->get();
-        $tickets = Ticket::query()->with(['priority', 'creator', 'department', 'performer', 'comments'])
+        $tickets = Ticket::query()->with(['priority', 'creator', 'department', 'performer'])
+            ->withCount('comments')
             ->where(function ($query) {
                 $query->whereColumn('user_id', '!=', 'executor_id')
                     ->orWhereNull('executor_id'); // Добавляем условие для NULL
@@ -107,8 +109,14 @@ class TicketController extends Controller
         $openTickets = $tickets->where('status', TicketStatusEnum::OPENED);
         $inProgressTickets = $tickets->where('status', TicketStatusEnum::IN_PROGRESS);
         $doneTickets = $tickets->where('status', TicketStatusEnum::DONE);
+        $archivedTickets = $tickets
+            ->whereIn('status', [TicketStatusEnum::COMPLETED, TicketStatusEnum::CANCELED])
+            ->take(20);
+        $sentDepartments = $tickets->pluck('department')->filter()->unique('id')->sortBy('name');
 
         return view('cabinet.tickets.sent', compact(
+            'archivedTickets',
+            'sentDepartments',
             'priorities',
             'statusLabels',
             'departments',

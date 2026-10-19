@@ -51,6 +51,11 @@ return [
         'period' => 'Все время',
         'all_creators' => 'Все авторы',
         'all_depts' => 'Все отделы',
+        'only_own' => 'Только личные',
+        'chip_done_inbox' => 'Выполнены',
+        'only_overdue' => 'Только просроченные',
+        'archive' => 'Завершённые и отменённые',
+        'archive_hint' => 'последние 20',
     ],
     'create_modal' => [
         'title' => 'Новый тикет',

@@ -16,13 +16,32 @@
 
 @section('content')
     <div class="card-body pt-0">
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-9">
+                <div class="position-relative">
+                    <i class="ki-outline ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                    <input type="text" id="sent_search" class="form-control ps-12 w-250px" placeholder="{{trans('tickets.table.search')}}" autocomplete="off">
+                </div>
+                <div class="w-250px">
+                    <select id="sent_dept" class="form-select" data-control="select2" data-placeholder="{{trans('tickets.table.all_depts')}}">
+                        <option></option>
+                        <option value="all">{{trans('tickets.table.all_depts')}}</option>
+                        @foreach($sentDepartments as $dept)
+                            <option value="{{$dept->id}}">{{$dept->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <label class="form-check form-switch form-check-custom form-check-solid">
+                    <input class="form-check-input" type="checkbox" id="sent_overdue">
+                    <span class="form-check-label fw-semibold text-gray-700">{{trans('tickets.table.only_overdue')}}</span>
+                </label>
+            </div>
             <div class="row g-9">
                 <div class="col-md-4 col-lg-12 col-xl-4">
                     <div class="mb-9">
                         <div class="d-flex flex-stack">
                             <div class="fw-bold fs-4">
                                 {{trans('tickets.sent.opened')}}
-                                <span class="fs-6 text-gray-500 ms-2">
+                                <span class="fs-6 text-gray-500 ms-2 sent-col-count">
                                     {{count($openTickets)}}
                                 </span>
                             </div>
@@ -43,7 +62,7 @@
                         <div class="d-flex flex-stack">
                             <div class="fw-bold fs-4">
                                 {{trans('tickets.sent.in_progress')}}
-                                <span class="fs-6 text-gray-500 ms-2">
+                                <span class="fs-6 text-gray-500 ms-2 sent-col-count">
                                     {{count($inProgressTickets)}}
                                 </span>
                             </div>
@@ -59,7 +78,7 @@
                         <div class="d-flex flex-stack">
                             <div class="fw-bold fs-4">
                                 {{trans('tickets.sent.done')}}
-                                <span class="fs-6 text-gray-500 ms-2">
+                                <span class="fs-6 text-gray-500 ms-2 sent-col-count">
                                     {{count($doneTickets)}}
                                 </span>
                             </div>
@@ -71,6 +90,32 @@
                     @endforeach
                 </div>
             </div>
+
+            @if($archivedTickets->isNotEmpty())
+                <div class="card card-flush mt-10">
+                    <div class="card-header pt-5">
+                        <h3 class="card-title">
+                            <span class="card-label fw-bold text-gray-800">{{trans('tickets.table.archive')}}</span>
+                            <span class="text-muted fs-7 ms-3">{{trans('tickets.table.archive_hint')}}</span>
+                        </h3>
+                    </div>
+                    <div class="card-body pt-0">
+                        <table class="table align-middle table-row-dashed fs-6 gy-3">
+                            <tbody class="fw-semibold text-gray-600">
+                            @foreach($archivedTickets as $ticket)
+                                <tr class="clickable-row cursor-pointer" data-href="{{ route('cabinet.tickets.show', $ticket) }}">
+                                    <td class="ps-3"><a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a></td>
+                                    <td>{{Str::limit(strip_tags($ticket->text), 70)}}</td>
+                                    <td>{{$ticket->department?->name}}</td>
+                                    <td class="text-nowrap">{{$ticket->created_at->isoFormat('D MMM YYYY')}}</td>
+                                    <td><x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge></td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
     </div>
 @endsection
 
@@ -96,6 +141,33 @@
 @endpush
 
 @push('custom_js')
+    <script>
+        $(function () {
+            const $cards = $('.clickable-card');
+            function applyFilters() {
+                const q = $('#sent_search').val().trim().toLowerCase();
+                const dept = $('#sent_dept').val();
+                const overdueOnly = $('#sent_overdue').is(':checked');
+                $cards.each(function () {
+                    const $c = $(this);
+                    const ok = (!q || String($c.data('search')).includes(q))
+                        && (!dept || dept === 'all' || String($c.data('dept')) === dept)
+                        && (!overdueOnly || $c.data('overdue') === 1);
+                    $c.toggle(ok);
+                });
+                $('.sent-col-count').each(function () {
+                    $(this).text($(this).closest('.col-md-4').find('.clickable-card:visible').length);
+                });
+            }
+            $('#sent_search').on('keyup', applyFilters);
+            $('#sent_dept').on('change', applyFilters);
+            $('#sent_overdue').on('change', applyFilters);
+            $('.clickable-row').on('click', function (e) {
+                if ($(e.target).closest('a, button').length) return;
+                window.location.href = $(this).data('href');
+            });
+        });
+    </script>
     <script src="{{asset('assets/js/custom/tickets/table.js')}}"></script>
     <script src="{{asset('assets/js/custom/tickets/create.js')}}"></script>
     <script src="{{asset('assets/js/custom/initFileUpload.js')}}"></script>

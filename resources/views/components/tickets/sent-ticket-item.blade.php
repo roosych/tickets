@@ -1,5 +1,12 @@
+@php
+    $isActive = in_array($ticket->status, [\App\Enums\TicketStatusEnum::OPENED, \App\Enums\TicketStatusEnum::IN_PROGRESS]);
+    $overdue = $isActive && $ticket->due_date && $ticket->due_date->isPast();
+@endphp
 <div class="card mb-6 mb-xl-9 ticket_item_{{$ticket->id}} cursor-pointer clickable-card"
-     data-href="{{ route('cabinet.tickets.show', $ticket) }}">
+     data-href="{{ route('cabinet.tickets.show', $ticket) }}"
+     data-dept="{{$ticket->department_id}}"
+     data-overdue="{{$overdue ? 1 : 0}}"
+     data-search="{{ mb_strtolower('#'.$ticket->id.' '.strip_tags($ticket->text).' '.$ticket->department?->name.' '.$ticket->performer?->name) }}">
     <div class="card-body">
         <div class="d-flex flex-stack mb-3">
             <div class="badge badge-light">
@@ -39,7 +46,17 @@
         </div>
 
         <div class="fs-6 fw-semibold text-gray-600 mb-5">
-            {{Str::limit($ticket->text, 80)}}
+            {{Str::limit(strip_tags($ticket->text), 80)}}
+        </div>
+
+        <div class="d-flex flex-stack fs-7 mb-5 text-muted">
+            <span>{{$ticket->created_at->isoFormat('D MMM YYYY')}}</span>
+            @if($ticket->due_date)
+                <span class="{{ $overdue ? 'text-danger fw-bold' : '' }}">
+                    <i class="ki-outline ki-time fs-6 {{ $overdue ? 'text-danger' : '' }}"></i>
+                    {{$ticket->due_date->isoFormat('D MMM YYYY, HH:mm')}}
+                </span>
+            @endif
         </div>
 
         <div class="d-flex flex-stack flex-wrap">
@@ -63,7 +80,7 @@
             <div class="d-flex my-1">
                 <div class="border border-dashed border-gray-300 d-flex align-items-center rounded py-2 px-3 ms-3">
                     <i class="ki-outline ki-message-text-2 fs-3"></i>
-                    <span class="ms-1 fs-7 fw-bold text-gray-600">{{count($ticket->comments)}}</span>
+                    <span class="ms-1 fs-7 fw-bold text-gray-600">{{$ticket->comments_count ?? 0}}</span>
                 </div>
             </div>
         </div>

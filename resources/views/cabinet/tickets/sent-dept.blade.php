@@ -141,7 +141,7 @@
                                 </div>
                             </td>
                             <td class="d-flex align-items-center border-bottom-1">
-                                <div class="symbol symbol-circle symbol-35px overflow-hidden me-3">
+                                <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
                                     <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank">
                                         @if($ticket->creator->avatar)
                                             <div class="symbol-label">
@@ -155,10 +155,10 @@
                                     </a>
                                 </div>
                                 <div class="d-flex flex-column">
-                                    <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary" style="width: fit-content;">
+                                    <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1" style="width: fit-content;">
                                         {{$ticket->creator->name}}
                                     </a>
-                                    <span class="fs-8 text-muted">{{$ticket->creator->email}}</span>
+                                    <span>{{$ticket->creator->email}}</span>
                                 </div>
                             </td>
                             <td data-order="{{ $ticket->performer?->name ?? $ticket->department?->name }}">
