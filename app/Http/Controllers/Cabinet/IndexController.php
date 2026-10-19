@@ -38,7 +38,7 @@ class IndexController extends Controller
 
         $openedTickets = $tickets
             ->where('executor_id', $user->id)
-            ->where('status', TicketStatusEnum::OPENED);
+            ->whereIn('status', [TicketStatusEnum::OPENED, TicketStatusEnum::IN_PROGRESS]);
 
         $doneTickets = $tickets
             ->where('department_id', Auth::user()->getDepartmentId())

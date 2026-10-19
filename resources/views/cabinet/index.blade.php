@@ -1,5 +1,10 @@
 @extends('layouts.app')
 @section('content')
+    @php
+        $activeStatuses = [\App\Enums\TicketStatusEnum::OPENED, \App\Enums\TicketStatusEnum::IN_PROGRESS];
+        $openedOverdue = $openedTickets->filter(fn ($t) => $t->due_date && $t->due_date->isPast())->count();
+        $sentOverdue = $sentTickets->filter(fn ($t) => in_array($t->status, $activeStatuses) && $t->due_date && $t->due_date->isPast())->count();
+    @endphp
     <div class="d-flex flex-stack flex-wrap gap-3 mb-8">
         <h1 class="page-heading d-flex align-items-center text-gray-900 fw-bold fs-3 mb-0">
             <span class="fs-1 me-2">👋</span> {{trans('common.index.greeting')}} {{auth()->user()->name}}!
@@ -153,7 +158,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-active-primary d-flex align-items-center pb-5 active"
                                        data-bs-toggle="tab" href="#my_opened">
-                                        {{trans('tickets.my_open')}} (<span class="text-gray-800">{{count($openedTickets)}}</span>)
+                                        {{trans('tickets.my_active')}} (<span class="text-gray-800">{{count($openedTickets)}}</span>@if($openedOverdue > 0) · <span class="text-danger">{{trans('tickets.overdue_count', ['count' => $openedOverdue])}}</span>@endif)
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -165,7 +170,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-active-primary d-flex align-items-center pb-5"
                                        data-bs-toggle="tab" href="#my_out">
-                                        {{trans('sidebar.tickets.sent.text')}} (<span class="text-gray-800">{{count($sentTickets)}}</span>)
+                                        {{trans('sidebar.tickets.sent.text')}} (<span class="text-gray-800">{{count($sentTickets)}}</span>@if($sentOverdue > 0) · <span class="text-danger">{{trans('tickets.overdue_count', ['count' => $sentOverdue])}}</span>@endif)
                                     </a>
                                 </li>
 
@@ -182,6 +187,11 @@
 
                             <div class="tab-content" id="myTabContent">
                                 <div class="tab-pane fade show active" id="my_opened" role="tabpanel">
+                                    @if(count($openedTickets))
+                                        <div class="text-end mb-3">
+                                            <a href="{{ route('cabinet.tickets.inbox') }}" class="fs-6 fw-semibold">{{trans('tickets.view_all')}} →</a>
+                                        </div>
+                                    @endif
                                     @if(count($openedTickets))
                                         <table class="clickable-table table align-middle table-hover table-row-dashed fs-6 gy-5" id="my_open_tickets_table">
                                             <thead>
@@ -200,6 +210,7 @@
                                                     data-href="{{ route('cabinet.tickets.show', $ticket) }}">
                                                     <td class="ps-3">
                                                         <a href="{{route('cabinet.tickets.show', $ticket)}}" class="text-gray-800 text-hover-primary fw-bold">#{{$ticket->id}}</a>
+                                                        <div class="mt-1"><x-ticket-status-badge :status="$ticket->status->label()" :color="$ticket->status->color()"></x-ticket-status-badge></div>
                                                         @if($ticket->allChildren()->exists())
                                                             <div class="ms-2" data-bs-toggle="tooltip" aria-label="{{trans('tickets.has_children')}}" data-bs-original-title="{{trans('tickets.has_children')}}">
                                                                 <i class="ki-outline ki-note-2 fs-2"></i>
@@ -255,18 +266,16 @@
                                             </tbody>
                                         </table>
                                     @else
-                                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-6 my-5">
-                                            <i class="ki-outline ki-information fs-2tx text-warning me-4"></i>
-                                            <div class="d-flex flex-stack flex-grow-1 ">
-                                                <div class=" fw-semibold">
-                                                    <h4 class="text-gray-900 fw-bold mb-0">{{trans('tickets.table.empty')}}</h4>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @include('partials.index.empty_tab', ['title' => trans('tickets.empty_active_title'), 'text' => trans('tickets.empty_active_text'), 'btnLabel' => trans('tickets.table.create_ticket'), 'btnModal' => '#kt_modal_new_ticket'])
                                     @endif
                                 </div>
 
                                 <div class="tab-pane fade" id="my_done" role="tabpanel">
+                                    @if(count($myDoneTickets))
+                                        <div class="text-end mb-3">
+                                            <a href="{{ route('cabinet.tickets.inbox', ['filter[status]' => 'done']) }}" class="fs-6 fw-semibold">{{trans('tickets.view_all')}} →</a>
+                                        </div>
+                                    @endif
                                     @if(count($myDoneTickets))
                                         <table class="clickable-table table align-middle table-hover table-row-dashed fs-6 gy-5" id="my_done_tickets_table">
                                             <thead>
@@ -331,20 +340,16 @@
                                             </tbody>
                                         </table>
                                     @else
-                                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-6 my-5">
-                                            <i class="ki-outline ki-information fs-2tx text-warning me-4"></i>
-                                            <div class="d-flex flex-stack flex-grow-1 ">
-                                                <div class="fw-semibold">
-                                                    <h4 class="text-gray-900 fw-bold mb-0">
-                                                        Нет выполненных тикетов
-                                                    </h4>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @include('partials.index.empty_tab', ['title' => trans('tickets.empty_done_title'), 'text' => trans('tickets.empty_done_text'), 'btnLabel' => trans('tickets.view_all_completed'), 'btnHref' => route('cabinet.tickets.inbox', ['filter[status]' => 'completed'])])
                                     @endif
                                 </div>
 
                                 <div class="tab-pane fade" id="my_out" role="tabpanel">
+                                    @if(count($sentTickets))
+                                        <div class="text-end mb-3">
+                                            <a href="{{ route('cabinet.tickets.sent') }}" class="fs-6 fw-semibold">{{trans('tickets.view_all')}} →</a>
+                                        </div>
+                                    @endif
 
                                     @if(count($sentTickets))
                                         <table class="clickable-table table align-middle table-hover table-row-dashed fs-6 gy-5" id="sent_tickets_table">
@@ -423,21 +428,17 @@
                                             </tbody>
                                         </table>
                                     @else
-                                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-6 my-5">
-                                            <i class="ki-outline ki-information fs-2tx text-warning me-4"></i>
-                                            <div class="d-flex flex-stack flex-grow-1 ">
-                                                <div class=" fw-semibold">
-                                                    <h4 class="text-gray-900 fw-bold mb-0">
-                                                        {{trans('tickets.empty_out')}}
-                                                    </h4>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @include('partials.index.empty_tab', ['title' => trans('tickets.empty_sent_title'), 'text' => trans('tickets.empty_sent_text'), 'btnLabel' => trans('tickets.table.create_ticket'), 'btnModal' => '#kt_modal_new_ticket'])
                                     @endif
                                 </div>
 
                                 @if(auth()->user()->hasPermissions('close', \App\Models\Ticket::class))
                                     <div class="tab-pane fade" id="wait_closed" role="tabpanel">
+                                    @if(count($doneTickets))
+                                        <div class="text-end mb-3">
+                                            <a href="{{ route('cabinet.tickets.index') }}" class="fs-6 fw-semibold">{{trans('tickets.view_all')}} →</a>
+                                        </div>
+                                    @endif
                                         @if(count($doneTickets))
                                             <table class="clickable-table table align-middle table-hover table-row-dashed fs-6 gy-5" id="done_tickets_table">
                                                 <thead>
@@ -514,16 +515,7 @@
                                                 </tbody>
                                             </table>
                                         @else
-                                            <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-6 my-5">
-                                                <i class="ki-outline ki-information fs-2tx text-warning me-4"></i>
-                                                <div class="d-flex flex-stack flex-grow-1 ">
-                                                    <div class=" fw-semibold">
-                                                        <h4 class="text-gray-900 fw-bold mb-0">
-                                                            {{trans('tickets.empty_wait_close')}}
-                                                        </h4>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            @include('partials.index.empty_tab', ['title' => trans('tickets.empty_wait_title'), 'text' => trans('tickets.empty_wait_close'), 'btnLabel' => trans('tickets.view_all'), 'btnHref' => route('cabinet.tickets.index')])
                                         @endif
                                     </div>
                                 @endif
