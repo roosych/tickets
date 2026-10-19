@@ -12,6 +12,15 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        $schedule->command('ldap:manual-sync')
+            ->weekdays()
+            ->at('15:00')
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->before(function () {
+                \Log::info('ldap:manual-sync is about to run');
+            });
+
         $schedule->command('tickets:report-open')
             ->hourly()
             ->between('9:00', '18:00')
