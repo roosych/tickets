@@ -572,13 +572,21 @@ class TicketService
     //
     public function getFilteredAndGroupedTickets(array $data)
     {
+        $closedMode = ($data['date_mode'] ?? 'created') === 'closed';
+
         $tickets = QueryBuilder::for(Ticket::class)
             ->allowedFilters(TicketFilter::filter())
             ->defaultSort('-created_at') // новые сверху
-            ->when(isset($data['date_range']), function ($query) use ($data) {
+            ->when(isset($data['date_range']) && ! $closedMode, function ($query) use ($data) {
                 return $query->filterByDateRange($data['date_range']);
             })
-            ->with(['tags', 'performer', 'priority'])
+            ->when(isset($data['date_range']) && $closedMode, function ($query) use ($data) {
+                return $query->closedBetween($data['date_range']);
+            })
+            ->when(! empty($data['hide_inactive']), function ($query) {
+                return $query->whereHas('performer', fn ($q) => $q->where('active', true));
+            })
+            ->with(['tags', 'performer', 'priority', 'creator', 'histories'])
             ->where('tickets.department_id', auth()->user()->getDepartmentId())
             ->whereColumn('user_id', '!=', 'executor_id')
             ->whereNotNull('executor_id')

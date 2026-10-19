@@ -250,6 +250,23 @@ class Ticket extends Model
         return $query;
     }
 
+    public function scopeClosedBetween(Builder $query, string $dateRange): Builder
+    {
+        $dates = explode(' - ', $dateRange);
+        if (count($dates) !== 2) {
+            return $query;
+        }
+
+        return $query->whereHas('histories', function ($q) use ($dates) {
+            $q->where('action', TicketActionEnum::UPDATE_STATUS)
+                ->whereIn('status', [TicketStatusEnum::DONE, TicketStatusEnum::COMPLETED])
+                ->whereBetween('created_at', [
+                    Carbon::parse($dates[0])->startOfDay(),
+                    Carbon::parse($dates[1])->endOfDay(),
+                ]);
+        });
+    }
+
     // Метод для получения времени последнего изменения статуса для конкретного пользователя
 //    public function getLastStatusChangeTime(TicketStatusEnum $status, int $userId)
 //    {
@@ -265,12 +282,12 @@ class Ticket extends Model
 
     public function getLastStatusChangeTimes(int $userId): Collection
     {
-        // Получаем все записи статусов для указанного assign_user
-        return $this->histories()
-            ->where('assign_user', $userId)
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->groupBy('status'); // Группируем по статусу
+        // Если история уже загружена (отчёты), не делаем лишний запрос
+        $histories = $this->relationLoaded('histories')
+            ? $this->histories->where('assign_user', $userId)->sortByDesc('created_at')->values()
+            : $this->histories()->where('assign_user', $userId)->orderBy('created_at', 'desc')->get();
+
+        return $histories->groupBy('status'); // Группируем по статусу
     }
 
     public function isPrivate(): bool
@@ -349,6 +366,15 @@ class Ticket extends Model
 
     public function statusChangedAt(TicketStatusEnum $status): ?\Carbon\Carbon
     {
+        if ($this->relationLoaded('histories')) {
+            return $this->histories
+                ->where('status', $status)
+                ->where('action', TicketActionEnum::UPDATE_STATUS)
+                ->sortByDesc('created_at')
+                ->first()
+                ?->created_at;
+        }
+
         // Последняя запись о смене статуса
         return $this->histories()
             ->where('status', $status)

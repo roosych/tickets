@@ -40,6 +40,15 @@
                                         {{ $user->name }}
                                     </option>
                                 @endforeach
+                                @if($inactiveUsers->isNotEmpty())
+                                    <optgroup label="{{trans('common.reports.former_employees')}}">
+                                        @foreach($inactiveUsers as $user)
+                                            <option value="{{ $user->id }}"{{ request('filter.executor_id') == $user->id ? 'selected' : '' }}>
+                                                {{ $user->name }}
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @endif
                             </select>
                         </div>
 
@@ -63,6 +72,25 @@
 
                         <div class="mb-5">
                             <label class="fs-6 form-label fw-bold text-gray-900">
+                                {{trans('common.reports.status')}}
+                            </label>
+                            <select class="form-select form-select-solid"
+                                    name="filter[status]"
+                                    data-control="select2"
+                                    data-placeholder="{{trans('tickets.table.all_statuses')}}"
+                                    data-allow-clear="true"
+                                    data-hide-search="true">
+                                <option value=""></option>
+                                @foreach(\App\Enums\TicketStatusEnum::cases() as $status)
+                                    <option value="{{ $status->value }}"{{ request('filter.status') === $status->value ? 'selected' : '' }}>
+                                        {{ $status->label() }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="fs-6 form-label fw-bold text-gray-900">
                                 {{trans('common.reports.period.title')}}
                             </label>
                             <input class="form-control form-control-solid w-100"
@@ -71,6 +99,15 @@
                                    id="users_report_period"
                                    value="{{ request('date_range') }}"
                             />
+                            <div class="d-flex gap-5 mt-3">
+                                @foreach(['created' => 'by_created', 'closed' => 'by_closed'] as $mode => $label)
+                                    <label class="form-check form-check-custom form-check-solid form-check-sm">
+                                        <input class="form-check-input" type="radio" name="date_mode" value="{{$mode}}"
+                                            {{ request('date_mode', 'created') === $mode ? 'checked' : '' }}>
+                                        <span class="form-check-label fs-7 text-gray-700">{{trans('common.reports.'.$label)}}</span>
+                                    </label>
+                                @endforeach
+                            </div>
                         </div>
 
                         <div class="mb-5">
@@ -115,7 +152,7 @@
 
                         <div class="mb-10">
                             <label class="fs-6 form-label fw-bold text-gray-900 mb-5">
-                                {{trans('common.reports.grouping.priority')}}
+                                {{trans('common.reports.priorities')}}
                             </label>
 
                             @foreach($priorities as $priority)
@@ -135,6 +172,13 @@
                             @endforeach
                         </div>
 
+                        <div class="mb-8">
+                            <label class="form-check form-switch form-check-custom form-check-solid">
+                                <input class="form-check-input" type="checkbox" name="hide_inactive" value="1" {{ request('hide_inactive') ? 'checked' : '' }}>
+                                <span class="form-check-label fw-semibold text-gray-700">{{trans('common.reports.hide_inactive')}}</span>
+                            </label>
+                        </div>
+
                         <div class="d-flex align-items-center justify-content-end">
                             <a href="{{route('cabinet.reports.tickets')}}" class="btn btn-active-light-primary btn-color-gray-500 me-3">
                                 {{trans('common.reports.clear_btn')}}
@@ -149,6 +193,7 @@
         </div>
 
         <div class="flex-lg-row-fluid">
+            @include('partials.reports.summary')
             <div class="card pt-4 mb-6 mb-xl-9">
                 @if(\App\Enums\FilterGroupingEnum::isSelected(request('grouping'), \App\Enums\FilterGroupingEnum::PRIORITY))
                     @include('partials.reports.priority_accordion')

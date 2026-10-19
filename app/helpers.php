@@ -74,9 +74,11 @@ if (!function_exists('formatTimeDifference')) {
     function formatTimeDifference($difference): string
     {
         $timeString = '';
+        // Берём общее число дней, чтобы не терять месяцы и годы
+        $days = $difference->days !== false ? $difference->days : $difference->d;
         // Добавляем дни, если они больше 0
-        if ($difference->d > 0) {
-            $timeString .= pluralize($difference->d, 'д|д|д') . ' ';
+        if ($days > 0) {
+            $timeString .= pluralize($days, 'д|д|д') . ' ';
         }
         // Добавляем часы, если они больше 0
         if ($difference->h > 0) {
@@ -85,6 +87,33 @@ if (!function_exists('formatTimeDifference')) {
         // Добавляем минуты
         $timeString .= pluralize($difference->i, 'м|м|м');
         return trim($timeString); // Убираем лишний пробел
+    }
+}
+
+if (!function_exists('intervalMinutes')) {
+    function intervalMinutes(\DateInterval $difference): int
+    {
+        $days = $difference->days !== false ? $difference->days : $difference->d;
+
+        return ($days * 1440) + ($difference->h * 60) + $difference->i;
+    }
+}
+
+if (!function_exists('formatMinutes')) {
+    function formatMinutes(?int $minutes): string
+    {
+        if ($minutes === null) {
+            return '—';
+        }
+        $days = intdiv($minutes, 1440);
+        $hours = intdiv($minutes % 1440, 60);
+        $mins = $minutes % 60;
+
+        return trim(
+            ($days ? $days . ' д ' : '')
+            . ($hours ? $hours . ' ч ' : '')
+            . (($mins || (!$days && !$hours)) ? $mins . ' м' : '')
+        );
     }
 }
 

@@ -28,6 +28,7 @@
                             <div class="badge badge-light-primary ms-5">
                                 {{ $tagData['tickets']->count() }}
                             </div>
+                            @include('partials.reports.group_metrics', ['tickets' => $tagData['tickets']])
                         </div>
                     </div>
                 </div>

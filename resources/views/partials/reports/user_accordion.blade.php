@@ -7,16 +7,11 @@
 
     <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
         <button type="button" class="btn btn-light-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
-            <i class="ki-outline ki-exit-up fs-2"></i>Export</button>
+            <i class="ki-outline ki-exit-up fs-2"></i>{{trans('common.reports.export')}}</button>
         <div id="kt_ecommerce_report_customer_orders_export_menu" class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-6 w-200px py-4" data-kt-menu="true">
             <div class="menu-item px-3">
                 <a href="{{ route('cabinet.reports.export', request()->query()) }}" class="menu-link px-3">
                     Excel
-                </a>
-            </div>
-            <div class="menu-item px-3">
-                <a href="#" class="menu-link px-3">
-                    PDF
                 </a>
             </div>
         </div>
@@ -58,6 +53,15 @@
                             <div class="badge badge-light-primary ms-5">
                                 {{ count($tickets) }}
                             </div>
+                            @include('partials.reports.group_metrics', ['tickets' => $tickets])
+                            @if(!$performer->active)
+                                @php
+                                    $stuck = $tickets->filter(fn ($t) => in_array($t->status, [\App\Enums\TicketStatusEnum::OPENED, \App\Enums\TicketStatusEnum::IN_PROGRESS]))->count();
+                                @endphp
+                                <span class="badge badge-light-danger ms-3">
+                                    {{trans('common.reports.inactive')}}@if($stuck) · {{trans('common.reports.inactive_active_tickets', ['count' => $stuck])}}@endif
+                                </span>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -121,7 +125,7 @@
                                 @if ($lastStatusInProgressTime)
                                     @php
                                         $difference = $startTime->diff(\Carbon\Carbon::parse($lastStatusInProgressTime));
-                                        $totalMinutes = ($difference->h * 60) + $difference->i;
+                                        $totalMinutes = intervalMinutes($difference);
                                     @endphp
 
                                     <p class="fw-bold mb-0 {{ $totalMinutes > $ticket->priority->minutes ? 'text-danger' : 'text-success' }}">

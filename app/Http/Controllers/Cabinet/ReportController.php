@@ -8,6 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tickets\FilterRequest;
 use App\Models\Department;
 use App\Models\Priorities;
+use App\Models\Ticket;
+use App\Models\User;
+use App\Services\TicketReportMetrics;
 use App\Services\TicketService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -16,7 +19,8 @@ use Maatwebsite\Excel\Facades\Excel;
 class ReportController extends Controller
 {
     public function __construct(
-        private readonly TicketService $ticketService
+        private readonly TicketService $ticketService,
+        private readonly TicketReportMetrics $metrics
     ) {}
 
     public function tickets(FilterRequest $request)
@@ -29,9 +33,21 @@ class ReportController extends Controller
 
         $data = $request->validated();
 
-        $groupedTickets = $this->ticketService->getFilteredAndGroupedTickets($data);;
+        $groupedTickets = $this->ticketService->getFilteredAndGroupedTickets($data);
 
-        return view('cabinet.reports.users', compact('deptUsers', 'priorities', 'groupedTickets', 'departments'));
+        $summary = $this->metrics->summarize($this->flattenTickets($groupedTickets));
+
+        // Бывшие сотрудники отдела, у которых остались тикеты: нужны в фильтре, чтобы их можно было выбрать
+        $inactiveUsers = User::where('active', false)
+            ->whereIn('id', Ticket::where('department_id', $user->getDepartmentId())
+                ->whereNotNull('executor_id')
+                ->select('executor_id'))
+            ->orderBy('name')
+            ->get();
+
+        return view('cabinet.reports.users', compact(
+            'deptUsers', 'priorities', 'groupedTickets', 'departments', 'summary', 'inactiveUsers'
+        ));
     }
 
     public function depts()
@@ -63,27 +79,38 @@ class ReportController extends Controller
         // Получаем сгруппированные тикеты с фильтрами
         $tickets = $this->ticketService->getFilteredAndGroupedTickets($request->all());
 
-        // Разворачиваем группы в плоскую коллекцию
-        $flatTickets = collect();
-
-        foreach ($tickets as $group) {
-            if ($group instanceof Collection) {
-                foreach ($group as $item) {
-                    // если элемент массива ['ticket' => ..., 'tag' => ...]
-                    if (is_array($item) && isset($item['ticket']) && $item['ticket'] instanceof \App\Models\Ticket) {
-                        $flatTickets->push($item['ticket']->loadMissing(['creator', 'performer', 'priority']));
-                    }
-                    // если элемент — сразу Ticket
-                    elseif ($item instanceof \App\Models\Ticket) {
-                        $flatTickets->push($item->loadMissing(['creator', 'performer', 'priority']));
-                    }
-                }
-            }
-        }
+        $flatTickets = $this->flattenTickets($tickets);
 
         // Сортировка по дате создания
         $flatTickets = $flatTickets->sortBy('created_at')->values();
 
         return Excel::download(new TicketsReportExport($flatTickets), 'tickets_report.xlsx');
+    }
+
+    /**
+     * Разворачивает сгруппированные тикеты в плоскую коллекцию (с учётом формата группировки по тегам).
+     */
+    private function flattenTickets($grouped): \Illuminate\Support\Collection
+    {
+        $flat = collect();
+
+        foreach ($grouped as $group) {
+            // группировка по тегам: ['tag' => ..., 'tickets' => Collection]
+            if (is_array($group) && isset($group['tickets'])) {
+                $group = $group['tickets'];
+            }
+            if (! $group instanceof \Illuminate\Support\Collection) {
+                continue;
+            }
+            foreach ($group as $item) {
+                if (is_array($item) && ($item['ticket'] ?? null) instanceof Ticket) {
+                    $flat->push($item['ticket']->loadMissing(['creator', 'performer', 'priority']));
+                } elseif ($item instanceof Ticket) {
+                    $flat->push($item->loadMissing(['creator', 'performer', 'priority']));
+                }
+            }
+        }
+
+        return $flat->unique('id')->values();
     }
 }
