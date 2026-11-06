@@ -137,7 +137,7 @@
                                         <div class="d-flex flex-column">
                                             <a href="{{route('cabinet.users.show', $item)}}"
                                                class="text-gray-800 text-hover-primary mb-1" target="_blank">{{$item->name}}</a>
-                                            <span>{{$item->email}}</span>
+                                            <span>{{$item->contact_line}}</span>
                                         </div>
                                     </td>
                                     <td>

@@ -146,6 +146,14 @@ class User extends Authenticatable implements LdapAuthenticatable
         return null; // Или путь к изображению по умолчанию
     }
 
+    /**
+     * Что показывать под именем вместо почты: подпись, если она задана, иначе почту.
+     */
+    public function getContactLineAttribute(): ?string
+    {
+        return $this->tagline ?: $this->email;
+    }
+
     public function getTicketsCountByStatus(TicketStatusEnum $status): int
     {
         return $this->ticketsByExecutor()

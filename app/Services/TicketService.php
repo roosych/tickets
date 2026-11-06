@@ -477,7 +477,7 @@ class TicketService
         return $recipients->unique('id')->pluck('id')->toArray();
     }
 
-    private function getRecipientsForCreation(Ticket $ticket): array
+    public function getRecipientsForCreation(Ticket $ticket): array
     {
         $recipients = collect();
 

@@ -163,7 +163,7 @@
                                                         >
                                                             {{$user->name}}
                                                         </a>
-                                                        <span>{{$user->email}}</span>
+                                                        <span>{{$user->contact_line}}</span>
                                                     </div>
                                                 </td>
                                                 <td>{{$user->position}}</td>

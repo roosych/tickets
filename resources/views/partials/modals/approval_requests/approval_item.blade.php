@@ -14,7 +14,7 @@
 
         <div class="fw-semibold">
             <p class="fw-bold text-gray-900 mb-0">{{ $request->approver->name }}</p>
-            <div class="text-gray-500">{{ $request->approver->email }}</div>
+            <div class="text-gray-500">{{ $request->approver->contact_line }}</div>
         </div>
     </div>
 

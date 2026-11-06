@@ -30,7 +30,7 @@
                                             </div>
                                             <div class="ms-5">
                                                 <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary mb-2">{{$employee->name}}</a>
-                                                <div class="fw-semibold text-muted">{{$employee->email}}</div>
+                                                <div class="fw-semibold text-muted">{{$employee->contact_line}}</div>
                                             </div>
                                         </div>
                                         <div class="ms-2 text-end">

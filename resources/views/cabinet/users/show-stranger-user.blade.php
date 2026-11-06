@@ -104,7 +104,7 @@
                         <div class="fw-bold mt-5">Отдел</div>
                         <div class="text-gray-600">{{$department?->name ?? $user->department}}</div>
                         <div class="fw-bold mt-5">Email</div>
-                        <div class="text-gray-600">{{$user->email}}</div>
+                        <div class="text-gray-600">{{$user->contact_line}}</div>
                         @if($user->mobile)
                             <div class="fw-bold mt-5">Номер</div>
                             <div class="text-gray-600">{{$user->mobile}}</div>

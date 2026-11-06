@@ -69,7 +69,7 @@
                         {{auth()->user()->name}}
                     </div>
                     <a href="#" class="fw-semibold text-muted text-hover-primary fs-7">
-                        {{auth()->user()->email}}
+                        {{auth()->user()->contact_line}}
                     </a>
                 </div>
             </div>

@@ -38,7 +38,7 @@
                                                     {{ $employee->name }}
                                                 </p>
                                                 <div class="fw-semibold text-muted">
-                                                    {{ $employee->email }}
+                                                    {{ $employee->contact_line }}
                                                 </div>
                                             </div>
                                         </div>

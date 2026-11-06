@@ -89,17 +89,32 @@
                         ])
                     @endif
 
+                        @if($ticket->parent && !$ticket->parent->isPrivate())
+                            @php
+                                $parent = $ticket->parent;
+                                $siblings = $parent->children;
+                                $siblingsDone = $siblings->filter(fn ($c) => $c->status->is(\App\Enums\TicketStatusEnum::DONE) || $c->status->is(\App\Enums\TicketStatusEnum::COMPLETED))->count();
+                            @endphp
+                            {{-- Подтикет: сразу видно, частью какого тикета он является. --}}
+                            <a href="{{route('cabinet.tickets.show', $parent->id)}}"
+                               class="d-flex align-items-center gap-4 bg-light-primary border border-primary border-dashed rounded p-4 mb-5 text-hover-primary">
+                                <i class="ki-outline ki-abstract-26 fs-2tx text-primary"></i>
+                                <div class="flex-grow-1 min-w-0">
+                                    <div class="text-gray-600 fs-7 fw-semibold">{{trans('tickets.table.main_ticket')}}</div>
+                                    <div class="fw-bold text-gray-900 fs-6 text-truncate">
+                                        #{{$parent->id}} · {{\Illuminate\Support\Str::limit(strtok(strip_tags($parent->text), "\n"), 100)}}
+                                    </div>
+                                    <div class="text-gray-600 fs-7">{{trans('tickets.children_progress', ['done' => $siblingsDone, 'total' => $siblings->count()])}}</div>
+                                </div>
+                                <span class="badge badge-light-{{$parent->status->color()}}">{{$parent->status->label()}}</span>
+                            </a>
+                        @endif
+
                         <div class="badge badge-lg badge-light-secondary mb-4">
                             <div class="d-flex align-items-center flex-wrap">
-                                @if($ticket->parent && !$ticket->parent->isPrivate())
-                                {{trans('tickets.table.main_ticket')}}: <a href="{{route('cabinet.tickets.show', $ticket->parent->id)}}" class="text-dgray-800 text-hover-primary ms-1" target="_blank">
-                                        #{{$ticket->parent_id}}
-                                    </a>
-                                @else
-                                    {{$ticket->creator->department}}
-                                    <i class="ki-outline ki-right fs-2 text-gray-800 mx-1"></i>
-                                    {{$ticket->department->name}}
-                                @endif
+                                {{$ticket->creator->department}}
+                                <i class="ki-outline ki-right fs-2 text-gray-800 mx-1"></i>
+                                {{$ticket->department->name}}
                             </div>
                         </div>
 
@@ -129,7 +144,7 @@
                                     </div>
                                     <div>
                                         <span class="text-muted fw-semibold">
-                                            {{$ticket->creator->email}}
+                                            {{$ticket->creator->contact_line}}
                                         </span>
                                     </div>
                                     <div>
@@ -227,6 +242,8 @@
                         @endif
                     @endif
 
+                    {{-- Блок одобрений — только если запросы есть; иначе лишь кнопка запроса для тех, кому можно. --}}
+                    @if($ticket->approvalRequests->isNotEmpty())
                         <div class="card card-flush mt-8 py-2">
                         <div class="card-header">
                             <div class="card-title flex-column">
@@ -258,6 +275,16 @@
                             </div>
                         @endif
                     </div>
+                    @elseif($canRequestApproval)
+                        <div class="mt-6">
+                            <button class="btn btn-sm btn-light-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#approved_users_modal">
+                                <i class="ki-outline ki-send fs-2"></i>
+                                Запросить одобрение
+                            </button>
+                        </div>
+                    @endif
 
                 </div>
             </div>

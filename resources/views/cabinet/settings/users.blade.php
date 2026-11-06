@@ -115,7 +115,7 @@
                                         <span class="badge badge-light-danger ms-2 badge-inactive">Неактивен</span>
                                     @endunless
                                 </p>
-                                <span>{{$user->email}}</span>
+                                <span>{{$user->contact_line}}</span>
                             </div>
                         </td>
                         <td>{{$user->departmentRelation?->name}}</td>

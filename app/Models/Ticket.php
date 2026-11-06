@@ -413,6 +413,8 @@ class Ticket extends Model
         'client_id',
         'is_private',
         'is_hidden',
+        'external_system',
+        'external_id',
     ];
 
     protected $casts = [

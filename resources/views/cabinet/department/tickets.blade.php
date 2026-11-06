@@ -81,7 +81,7 @@
                                     <a href="#" class="text-gray-800 text-hover-primary mb-1">
                                         {{$ticket->creator->name}}
                                     </a>
-                                    <span>{{$ticket->creator->email}}</span>
+                                    <span>{{$ticket->creator->contact_line}}</span>
                                 </div>
                             </td>
                             <td>

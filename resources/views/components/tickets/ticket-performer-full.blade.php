@@ -20,7 +20,7 @@
             </div>
             <div>
                 <span class="text-muted fw-semibold">
-                    {{$ticket->performer->email}}
+                    {{$ticket->performer->contact_line}}
                 </span>
             </div>
         </div>

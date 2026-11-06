@@ -126,7 +126,7 @@
                                     </div>
                                     <div>
                                     <span class="text-muted fw-semibold">
-                                        {{$ticket->creator->email}}
+                                        {{$ticket->creator->contact_line}}
                                     </span>
                                     </div>
                                 </div>
@@ -160,7 +160,7 @@
                                             </div>
                                             <div>
                                             <span class="text-muted fw-semibold">
-                                                {{$approvalRequest->creator->email}}
+                                                {{$approvalRequest->creator->contact_line}}
                                             </span>
                                             </div>
                                         </div>

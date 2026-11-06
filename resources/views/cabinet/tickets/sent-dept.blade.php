@@ -158,7 +158,7 @@
                                     <a href="{{route('cabinet.users.show', $ticket->creator)}}" target="_blank" class="text-gray-800 text-hover-primary mb-1" style="width: fit-content;">
                                         {{$ticket->creator->name}}
                                     </a>
-                                    <span>{{$ticket->creator->email}}</span>
+                                    <span>{{$ticket->creator->contact_line}}</span>
                                 </div>
                             </td>
                             <td data-order="{{ $ticket->performer?->name ?? $ticket->department?->name }}">

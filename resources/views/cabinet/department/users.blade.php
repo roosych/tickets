@@ -68,7 +68,7 @@
                                         >
                                             {{$user->name}}
                                         </a>
-                                        <span>{{$user->email}}</span>
+                                        <span>{{$user->contact_line}}</span>
                                     </div>
                                 </td>
                                 <td>{{$user->position}}</td>
@@ -148,7 +148,7 @@
                                         >
                                             {{$user->name}}
                                         </a>
-                                        <span>{{$user->email}}</span>
+                                        <span>{{$user->contact_line}}</span>
                                     </div>
                                 </td>
                                 <td class="text-end pe-0">
