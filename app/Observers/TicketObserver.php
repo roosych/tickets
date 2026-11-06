@@ -3,6 +3,8 @@
 namespace App\Observers;
 
 use App\Enums\TicketStatusEnum;
+use App\Http\Controllers\Api\IntegrationTicketController;
+use App\Jobs\SendIntegrationWebhook;
 use App\Models\Ticket;
 
 class TicketObserver
@@ -29,6 +31,27 @@ class TicketObserver
         if ($ticket->isDirty('status') && $ticket->status === TicketStatusEnum::IN_PROGRESS) {
             $ticket->in_progress_at = now();
         }
+
+        $this->notifyIntegration($ticket);
+    }
+
+    /**
+     * Тикет внешней системы изменили здесь (исполнитель, статус, срок) — сообщаем ей вебхуком после коммита.
+     * Изменения, пришедшие от самой внешней системы через API, обратно не отправляем.
+     */
+    private function notifyIntegration(Ticket $ticket): void
+    {
+        $changed = array_keys(array_intersect_key($ticket->getChanges(), array_flip(['executor_id', 'status', 'due_date'])));
+
+        if ($ticket->external_system === null || $changed === [] || ! config('services.integration.webhook_url')) {
+            return;
+        }
+
+        if (request()->user()?->tokenCan(IntegrationTicketController::ABILITY)) {
+            return;
+        }
+
+        SendIntegrationWebhook::dispatch($ticket->id, $changed)->afterCommit();
     }
 
     /**

@@ -37,4 +37,10 @@ return [
         'it_dept_topic_id' => env('IT_DEPT_TOPIC_ID'),
     ],
 
+    // Вебхук внешней системы (ServiceRadar): при смене исполнителя, статуса или срока тикета, созданного через API.
+    'integration' => [
+        'webhook_url' => env('INTEGRATION_WEBHOOK_URL'),
+        'webhook_secret' => env('INTEGRATION_WEBHOOK_SECRET'),
+    ],
+
 ];

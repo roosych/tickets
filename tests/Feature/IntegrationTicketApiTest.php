@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Events\TicketEvent;
 use App\Http\Controllers\Api\IntegrationTicketController;
+use App\Jobs\SendIntegrationWebhook;
 use App\Jobs\SendTicketNotification;
 use App\Models\Ticket;
 use App\Models\User;
@@ -11,8 +12,11 @@ use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request as HttpRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
@@ -279,5 +283,69 @@ class IntegrationTicketApiTest extends TestCase
         $this->assertSame(1, User::query()->where('email', 'chuck.norris@serviceradar.local')->count());
         $this->assertNull($first->fresh(), 'старый токен отозван');
         $this->assertSame(1, $robot->tokens()->count());
+    }
+
+    public function test_changes_made_in_tickets_are_announced_to_the_external_system(): void
+    {
+        config(['services.integration.webhook_url' => 'https://serviceradar.test/api/webhooks/tickets', 'services.integration.webhook_secret' => 'hook-secret']);
+        $robot = $this->user(['name' => 'Chuck Norris']);
+        $manager = $this->user();
+        $external = $this->ticket($robot);
+        $manual = $this->ticket($manager, ['external_system' => null, 'external_id' => null]);
+
+        $this->actingAs($manager);
+        $external->update(['executor_id' => $manager->id]);
+        $external->update(['text' => 'только текст']);
+        $manual->update(['executor_id' => $manager->id]);
+
+        Queue::assertPushed(SendIntegrationWebhook::class, 1);
+        Queue::assertPushed(SendIntegrationWebhook::class, fn (SendIntegrationWebhook $job) => $job->ticketId === $external->id && $job->changed === ['executor_id']);
+    }
+
+    public function test_changes_coming_from_the_external_system_are_not_echoed_back(): void
+    {
+        config(['services.integration.webhook_url' => 'https://serviceradar.test/api/webhooks/tickets', 'services.integration.webhook_secret' => 'hook-secret']);
+        $robot = $this->robot();
+        $this->user(['username' => 'syezhov']);
+        $ticket = $this->ticket($robot);
+
+        $this->patchJson(route('api.integration.tickets.update', $ticket), ['due_date' => '2026-11-12T18:59:00+04:00', 'executor' => ['username' => 'syezhov']])->assertOk();
+        $this->postJson(route('api.integration.tickets.status', $ticket), ['status' => 'done'])->assertOk();
+
+        Queue::assertNotPushed(SendIntegrationWebhook::class);
+    }
+
+    public function test_webhook_sends_the_current_ticket_state_with_a_verifiable_signature(): void
+    {
+        config(['services.integration.webhook_url' => 'https://serviceradar.test/api/webhooks/tickets', 'services.integration.webhook_secret' => 'hook-secret']);
+        Http::fake(['serviceradar.test/*' => Http::response(['result' => 'task'])]);
+        $robot = $this->user(['name' => 'Chuck Norris']);
+        $executor = $this->user(['username' => 'syezhov', 'guid' => 'guid-5']);
+        $ticket = $this->ticket($robot, ['executor_id' => $executor->id, 'status' => 'in_progress', 'external_id' => 'task:5']);
+
+        (new SendIntegrationWebhook($ticket->id, ['executor_id']))->handle();
+
+        Http::assertSent(function (HttpRequest $request) use ($ticket): bool {
+            $expected = 'sha256='.hash_hmac('sha256', $request->header('X-Tickets-Timestamp')[0].'.'.$request->body(), 'hook-secret');
+
+            return $request->url() === 'https://serviceradar.test/api/webhooks/tickets'
+                && hash_equals($expected, $request->header('X-Tickets-Signature')[0])
+                && $request['ticket']['id'] === $ticket->id
+                && $request['ticket']['status'] === 'in_progress'
+                && $request['ticket']['executor']['guid'] === 'guid-5'
+                && $request['ticket']['external_system'] === 'serviceradar'
+                && $request['changed'] === ['executor_id'];
+        });
+    }
+
+    public function test_webhook_failure_is_retried_by_the_queue(): void
+    {
+        config(['services.integration.webhook_url' => 'https://serviceradar.test/api/webhooks/tickets', 'services.integration.webhook_secret' => 'hook-secret']);
+        Http::fake(['serviceradar.test/*' => Http::response(['result' => 'busy'], 503)]);
+        $ticket = $this->ticket($this->user(['name' => 'Chuck Norris']));
+
+        $this->expectException(RequestException::class);
+
+        (new SendIntegrationWebhook($ticket->id))->handle();
     }
 }
