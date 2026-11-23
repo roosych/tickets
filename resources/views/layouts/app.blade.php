@@ -81,8 +81,14 @@
     <script src="{{asset('assets/js/plugins/waitMe.min.js')}}"></script>
     <script>
         window.sessionExpiredI18n = @json(trans('common.session_expired'));
+        window.newTicketsTitle = {
+            url: @json(route('cabinet.tickets.new_count')),
+            text: @json(trans('common.new_ticket_title')),
+            icon: @json(asset('assets/media/favicon.png')),
+            notify: @json(trans('common.desktop_notify')),
+        };
     </script>
-    <script src="{{asset('assets/js/custom/main.js?v=3')}}"></script>
+    <script src="{{asset('assets/js/custom/main.js?v=5')}}"></script>
     <script>
         $(window).on('load', function() {
             $('.preloader').fadeOut('slow');
