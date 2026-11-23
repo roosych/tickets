@@ -30,16 +30,24 @@ let DeptTickets = (function () {
     }
 
     function initChips() {
+        const sorter = TicketTableOrder(e, { page: "sent_dept", createdCol: 4, deadlineCol: 5 });
         const box = document.querySelector("#dept_tickets_chips");
-        if (!box) return;
-        box.querySelectorAll("[data-chip]").forEach((link) => {
+        const links = box ? Array.from(box.querySelectorAll("[data-chip]")) : [];
+        const select = (link) => {
+            state.chip = link.dataset.chip;
+            links.forEach((l) => l.classList.toggle("active", l === link));
+            sorter.apply(state.chip);
+        };
+        links.forEach((link) => {
             link.addEventListener("click", (ev) => {
                 ev.preventDefault();
-                state.chip = link.dataset.chip;
-                box.querySelectorAll("[data-chip]").forEach((l) => l.classList.toggle("active", l === link));
-                e.draw();
+                select(link);
             });
         });
+        // Восстанавливаем последнюю открытую вкладку (и её сортировку)
+        const saved = sorter.savedChip();
+        const initial = links.find((l) => l.dataset.chip === saved) || links.find((l) => l.classList.contains("active"));
+        initial ? select(initial) : sorter.apply("all");
     }
 
     function initPeriod() {

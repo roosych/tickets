@@ -243,7 +243,8 @@
             reset: "{{trans('common.roles.buttons.cancel')}}",
         };
     </script>
-    <script src="{{asset('assets/js/custom/tickets/dept_sent_tickets.js?v=2')}}"></script>
+    <script src="{{asset('assets/js/custom/tickets/table_order.js?v=1')}}"></script>
+    <script src="{{asset('assets/js/custom/tickets/dept_sent_tickets.js?v=3')}}"></script>
     <script>
         $(document).ready(function () {
             $('#dept_tickets_table').on('click', '.clickable-row', function (e) {
