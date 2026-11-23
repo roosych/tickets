@@ -18,6 +18,7 @@ return [
     'errors' => [
         'empty_login' => 'İstifadəçi adınızı daxil edin',
         'empty_password' => 'Şifrınizi daxil edin',
-        'failed' => 'İstifadəçi adı və ya şifrə yalnışdır'
+        'failed' => 'İstifadəçi adı və ya şifrə yalnışdır',
+        'no_email' => 'Active Directory-də hesabınızın e-poçtu yoxdur. IT şöbəsinə müraciət edin.'
     ],
 ];

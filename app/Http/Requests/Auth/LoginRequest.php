@@ -44,7 +44,21 @@ class LoginRequest extends FormRequest
 
         //dd($credentials);
 
-        if (! Auth::attempt($credentials, $this->filled('remember'))) {
+        try {
+            $authenticated = Auth::attempt($credentials, $this->filled('remember'));
+        } catch (\Illuminate\Database\QueryException $e) {
+            // У учётки в AD нет почты, а в users.email она обязательна — раньше пользователь получал голый 500
+            if (! str_contains($e->getMessage(), "'email'")) {
+                throw $e;
+            }
+            \Illuminate\Support\Facades\Log::warning("Login of {$this->username} failed: no e-mail in AD");
+
+            throw ValidationException::withMessages([
+                'samaccountname' => trans('auth.errors.no_email'),
+            ]);
+        }
+
+        if (! $authenticated) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
