@@ -88,19 +88,19 @@
                                 </div>
 
                                 @if($activity->action->is(\App\Enums\TicketActionEnum::UPDATE_DEADLINE))
-                                    <div class="p-5 mb-10 rounded bg-light-primary text-gray-900 fw-semibold mw-lg-400px text-start">
+                                    <div class="p-5 mb-10 rounded bg-light-primary text-gray-900 fw-semibold mw-100 mw-lg-400px text-start text-break">
                                         {{$activity->comment}}
                                     </div>
                                 @endif
 
                                 @if($activity->status === \App\Enums\TicketStatusEnum::DONE)
-                                    <div class="p-5 mb-10 rounded bg-light-primary text-gray-900 fw-semibold mw-lg-400px text-start">
+                                    <div class="p-5 mb-10 rounded bg-light-primary text-gray-900 fw-semibold mw-100 mw-lg-400px text-start text-break">
                                         {{$ticket->getDoneTicketComment()}}
                                     </div>
                                 @endif
 
                                 @if($activity->status === \App\Enums\TicketStatusEnum::CANCELED)
-                                    <div class="p-5 mb-10 rounded bg-light-danger text-gray-900 fw-semibold mw-lg-400px text-start">
+                                    <div class="p-5 mb-10 rounded bg-light-danger text-gray-900 fw-semibold mw-100 mw-lg-400px text-start text-break">
                                         {{$ticket->getCanceledTicketComment()}}
                                     </div>
                                 @endif
@@ -118,7 +118,7 @@
                                         @endfor
                                     </div>
 
-                                    <div class="p-5 mt-3 rounded bg-light-success text-gray-900 fw-semibold mw-lg-400px text-start">
+                                    <div class="p-5 mt-3 rounded bg-light-success text-gray-900 fw-semibold mw-100 mw-lg-400px text-start text-break">
                                         {{$ticket->rating->comment}}
                                     </div>
                                 @endif

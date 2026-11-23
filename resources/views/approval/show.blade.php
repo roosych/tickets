@@ -93,7 +93,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="badge badge-lg badge-light-secondary mb-4">
+                    <div class="badge badge-lg badge-light-secondary mb-4 mw-100 text-wrap text-start lh-base">
                         <div class="d-flex align-items-center flex-wrap">
                             {{$ticket->creator->department}}
                             <i class="ki-outline ki-right fs-2 text-gray-800 mx-1"></i>
