@@ -9,13 +9,19 @@ use App\Http\Requests\Roles\StoreRequest;
 use App\Http\Requests\Roles\UpdateRequest;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
+use App\Services\DepartmentAccess;
 use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
 {
     public function index()
     {
-        $roles = auth()->user()->getDepartment()->roles;
+        abort_unless(DepartmentAccess::canViewRoles(auth()->user()), 403);
+
+        $department = auth()->user()->getDepartment();
+        abort_unless($department, 404);
+        $roles = $department->roles;
         $permissions = Permission::getCachedPermissions(); // Права из кеша
         $groupedPermissions = $permissions->groupBy('group');
 
@@ -43,7 +49,14 @@ class RoleController extends Controller
     public function store(StoreRequest $request)
     {
         $data = $request->validated();
-        $data['department_id'] = auth()->user()->getDepartmentId(); // может быть null
+        $actor = auth()->user();
+
+        abort_unless(DepartmentAccess::isPrivileged($actor) || $actor->hasPermissions('create', Role::class), 403);
+        abort_unless($actor->getDepartmentId(), 422, 'Нет текущего отдела');
+        abort_unless(DepartmentAccess::canGrant($actor, $data['permissions'] ?? []), 403,
+            'Нельзя включить в роль полномочия, которых нет у вас самих');
+
+        $data['department_id'] = $actor->getDepartmentId();
         $data['user_id'] = auth()->id(); // не может быть null
 
         try {
@@ -64,6 +77,12 @@ class RoleController extends Controller
     public function update(UpdateRequest $request, Role $role)
     {
         $data = $request->validated();
+        $actor = auth()->user();
+
+        abort_unless(DepartmentAccess::canManageRole($actor, $role), 403);
+        $added = array_diff(array_map('intval', $data['permissions'] ?? []), $role->permissions()->pluck('permissions.id')->map(fn ($id) => (int) $id)->all());
+        abort_unless(DepartmentAccess::canGrant($actor, $added), 403,
+            'Нельзя включить в роль полномочия, которых нет у вас самих');
 
         try {
             DB::beginTransaction();
@@ -81,6 +100,8 @@ class RoleController extends Controller
 
     public function delete(Role $role)
     {
+        abort_unless(DepartmentAccess::canManageRole(auth()->user(), $role, 'delete'), 403);
+
         $role->delete();
         return response(['success' => true], 200);
     }
@@ -88,13 +109,26 @@ class RoleController extends Controller
     public function attach_users(AttachUsersRequest $request, Role $role)
     {
         $data = $request->validated();
-        $role->users()->sync($data['users'] ?? []);
+        $actor = auth()->user();
+
+        abort_unless(DepartmentAccess::canManageRole($actor, $role), 403);
+        abort_unless(DepartmentAccess::canGrant($actor, $role->permissions()->pluck('permissions.id')->all()), 403,
+            'Нельзя назначать роль с полномочиями, которых нет у вас самих');
+
+        // В роль можно добавлять только сотрудников отдела этой роли
+        $users = User::whereIn('id', $data['users'] ?? [])->get();
+        $foreign = $users->reject(fn (User $u) => in_array((int) $role->department_id, $u->accessibleDepartmentIds(), true));
+        abort_if($foreign->isNotEmpty(), 422, 'В роль можно добавить только сотрудников отдела');
+
+        $role->users()->sync($users->pluck('id')->all());
         return response()->json(['success' => true]);
     }
 
     public function detach_user(DetachUserRequest $request, Role $role)
     {
         $data = $request->validated();
+        abort_unless(DepartmentAccess::canManageRole(auth()->user(), $role), 403);
+
         $role->users()->detach($data['user_id']);
         return response()->json(['success'=> true]);
     }

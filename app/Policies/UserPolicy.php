@@ -12,6 +12,6 @@ class UserPolicy
     #[PolicyPermissionNameAttribute(['az' => 'İcazələr', 'en' => 'Accesses', 'ru' => 'Доступы'])]
     public function accesses(User $authUser, User $user): bool
     {
-        return $authUser->hasPermissions('accesses', User::class);
+        return \App\Services\DepartmentAccess::canManageUser($authUser, $user);
     }
 }
