@@ -64,7 +64,7 @@
                 </select></div>
                 <div class="w-200px"><select class="form-select form-select-solid" id="filterStatus" data-control="select2" data-hide-search="true">
                     <option value="all">Все</option>
-                    <option value="active">Активные</option>
+                    <option value="active" selected>Активные</option>
                     <option value="inactive">Неактивные</option>
                     <option value="hidden">Скрытые</option>
                     <option value="approver">Согласующие</option>
