@@ -294,7 +294,8 @@
             reset: "{{trans('common.roles.buttons.cancel')}}",
         };
     </script>
-    <script src="{{asset('assets/js/custom/tickets/dept_table.js?v=2')}}"></script>
+    <script src="{{asset('assets/js/custom/tickets/table_order.js?v=1')}}"></script>
+    <script src="{{asset('assets/js/custom/tickets/dept_table.js?v=3')}}"></script>
     <script src="{{asset('assets/js/custom/tickets/create.js')}}"></script>
     <script src="{{asset('assets/js/custom/initFileUpload.js')}}"></script>
 
