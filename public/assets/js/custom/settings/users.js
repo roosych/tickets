@@ -15,20 +15,22 @@ $(function() {
             table = $("#user_report_table");
             if (!table.length) return;
 
+            // Фильтр регистрируем ДО создания таблицы, иначе первая отрисовка идёт без него
+            // и неактивные видны, пока не переключишь сортировку
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                if (settings.nTable !== table[0]) return true;
+                const row = $(settings.aoData[dataIndex].nTr);
+                const dept = $('#filterDept').val();
+                const rowDept = String(row.attr('data-dept') || '');
+                if (dept === 'none' ? rowDept !== '' : (dept && rowDept !== dept)) return false;
+                return (matchers[$('#filterStatus').val()] || matchers.all)(row);
+            });
+
             datatable = table.DataTable({
                 info: false,
                 order: [],
                 pageLength: 25,
                 columnDefs: [{ orderable: false, targets: [] }]
-            });
-
-            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                if (settings.nTable !== table[0]) return true;
-                const row = $(datatable.row(dataIndex).node());
-                const dept = $('#filterDept').val();
-                const rowDept = String(row.attr('data-dept') || '');
-                if (dept === 'none' ? rowDept !== '' : (dept && rowDept !== dept)) return false;
-                return (matchers[$('#filterStatus').val()] || matchers.all)(row);
             });
 
             $('[user-report-filter="search"]').on("keyup", function() {

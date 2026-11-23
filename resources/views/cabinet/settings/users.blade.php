@@ -243,7 +243,7 @@
     <script>
         window.userDepartmentUrl = '{{ route('cabinet.settings.users.department', ['user' => ':id']) }}';
     </script>
-    <script src="{{asset('assets/js/custom/settings/users.js')}}?v=2"></script>
+    <script src="{{asset('assets/js/custom/settings/users.js')}}?v=3"></script>
     <script>
         $(document).ready(function() {
             $.ajaxSetup({
