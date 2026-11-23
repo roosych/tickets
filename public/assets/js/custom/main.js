@@ -80,3 +80,148 @@ function getAjaxErrorMessage(response) {
         }).then(reload);
     });
 })();
+
+// Уведомления о новых тикетах.
+// Раз в 30 сек запрашиваем открытые тикеты пользователя/отдела:
+// - заголовок вкладки: «(3) Ticket system», при новом тикете мигает, пока окно не в фокусе;
+// - системное уведомление браузера (Notification API), если пользователь его разрешил.
+(function () {
+    const cfg = window.newTicketsTitle;
+    if (!cfg || !cfg.url) return;
+    const L = cfg.notify || {};
+    const STORE_MUTED = 'desktop_notify_muted';
+    const STORE_ASKED = 'desktop_notify_asked';
+
+    const baseTitle = document.title;
+    let count = 0;
+    let lastId = null;
+    let blinkTimer = null;
+
+    // --- localStorage (может быть недоступен) ---
+    function store(key, value) {
+        try {
+            if (value === undefined) return localStorage.getItem(key);
+            value === null ? localStorage.removeItem(key) : localStorage.setItem(key, value);
+        } catch (_) { return null; }
+    }
+
+    // --- заголовок вкладки ---
+    function render() {
+        document.title = count > 0 ? '(' + count + ') ' + baseTitle : baseTitle;
+    }
+    function stopBlink() {
+        if (!blinkTimer) return;
+        clearInterval(blinkTimer);
+        blinkTimer = null;
+        render();
+    }
+    function startBlink() {
+        if (blinkTimer) return;
+        let alt = false;
+        blinkTimer = setInterval(function () {
+            alt = !alt;
+            alt ? (document.title = '🔔 ' + cfg.text) : render();
+        }, 1000);
+    }
+
+    // --- системные уведомления ---
+    const supported = 'Notification' in window;
+    function notifyEnabled() {
+        return supported && Notification.permission === 'granted' && store(STORE_MUTED) !== '1';
+    }
+    function showNotification(t) {
+        try {
+            const n = new Notification(t.title, {
+                body: t.body,
+                icon: cfg.icon,
+                tag: 'ticket-' + t.id, // одинаковый tag — несколько вкладок не дублируют уведомление
+            });
+            n.onclick = function () {
+                window.focus();
+                window.location.href = t.url;
+                n.close();
+            };
+        } catch (_) { /* некоторые браузеры не дают создавать Notification напрямую */ }
+    }
+
+    function updateMenu() {
+        const badge = document.querySelector('[data-desktop-notify-status]');
+        if (!badge) return;
+        let text = L.off, cls = 'badge-light';
+        if (!supported) { text = L.unsupported; }
+        else if (Notification.permission === 'denied') { text = L.blocked; cls = 'badge-light-danger'; }
+        else if (notifyEnabled()) { text = L.on; cls = 'badge-light-success'; }
+        badge.textContent = text;
+        badge.className = 'badge ' + cls;
+    }
+
+    function requestPermission() {
+        return Notification.requestPermission().then(function (p) {
+            store(STORE_ASKED, '1');
+            if (p === 'granted') store(STORE_MUTED, null);
+            updateMenu();
+            return p;
+        });
+    }
+
+    // Пункт в меню пользователя: включить / выключить / подсказка, если заблокировано
+    $(document).on('click', '[data-desktop-notify-toggle]', function (ev) {
+        ev.preventDefault();
+        if (!supported) return;
+        if (Notification.permission === 'denied') {
+            typeof Swal !== 'undefined' && Swal.fire({ icon: 'info', text: L.blocked_help, buttonsStyling: false, customClass: { confirmButton: 'btn btn-primary' } });
+            return;
+        }
+        if (Notification.permission === 'default') { requestPermission(); return; }
+        store(STORE_MUTED, notifyEnabled() ? '1' : null);
+        updateMenu();
+    });
+
+    // Один раз предлагаем включить уведомления (разрешение можно запросить только по клику)
+    function offerOnce() {
+        if (!supported || Notification.permission !== 'default' || store(STORE_ASKED) || typeof Swal === 'undefined') return;
+        Swal.fire({
+            icon: 'question',
+            title: L.prompt_title,
+            text: L.prompt_text,
+            showCancelButton: true,
+            confirmButtonText: L.enable,
+            cancelButtonText: L.later,
+            buttonsStyling: false,
+            customClass: { confirmButton: 'btn btn-primary', cancelButton: 'btn btn-light' },
+        }).then(function (res) {
+            store(STORE_ASKED, '1');
+            if (res.isConfirmed) requestPermission();
+        });
+    }
+
+    // --- опрос ---
+    function poll() {
+        $.ajax({
+            url: cfg.url,
+            method: 'GET',
+            dataType: 'json',
+            data: lastId !== null ? { after: lastId } : {},
+        }).done(function (r) {
+            count = r.count || 0;
+            const id = r.latest_id || 0;
+            const away = document.hidden || !document.hasFocus();
+            if (lastId !== null && id > lastId) {
+                if (away) startBlink();
+                if (away && notifyEnabled()) (r.new || []).slice().reverse().forEach(showNotification);
+            }
+            lastId = lastId === null ? id : Math.max(lastId, id);
+            if (!blinkTimer) render();
+        });
+    }
+
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) { stopBlink(); poll(); }
+    });
+    window.addEventListener('focus', stopBlink);
+
+    updateMenu();
+    setTimeout(offerOnce, 3000);
+    poll();
+    setInterval(poll, 30000);
+})();

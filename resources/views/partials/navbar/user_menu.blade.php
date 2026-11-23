@@ -116,6 +116,12 @@
                 </div>
             </div>
         </div>
+        <div class="menu-item px-5">
+            <a href="#" class="menu-link px-5" data-desktop-notify-toggle>
+                <span class="menu-title">{{trans('common.desktop_notify.menu')}}</span>
+                <span class="badge badge-light" data-desktop-notify-status></span>
+            </a>
+        </div>
         <div class="menu-item px-5" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="left-start" data-kt-menu-offset="-15px, 0">
             <a href="#" class="menu-link px-5">
                 <span class="menu-title position-relative">{{trans('common.user_menu.languages')}}

@@ -25,6 +25,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TicketController extends Controller
 {
@@ -150,6 +151,60 @@ class TicketController extends Controller
             ->latest()
             ->get();
         return view('cabinet.tickets.sent-dept', compact('tickets', 'priorities', 'statusLabels'));
+    }
+
+    /**
+     * Счётчик новых (открытых) тикетов для уведомления в заголовке вкладки.
+     * Учитываются: тикеты, назначенные на пользователя, и тикеты его отдела
+     * (как на странице /tickets). Свои собственные тикеты не считаются.
+     */
+    public function newCount(Request $request)
+    {
+        $user = auth()->user();
+        $department = $user->getDepartment();
+        $deptActive = $department && $department->active;
+
+        $query = Ticket::query()
+            ->where('status', TicketStatusEnum::OPENED)
+            ->where('user_id', '!=', $user->id)
+            ->where(function ($q) use ($user, $deptActive) {
+                $q->where('executor_id', $user->id);
+
+                if ($deptActive) {
+                    $q->orWhere(function ($q) use ($user) {
+                        $q->where('department_id', $user->getDepartmentId())
+                            ->where(function ($q) {
+                                $q->whereColumn('user_id', '!=', 'executor_id')
+                                    ->orWhereNull('executor_id');
+                            })
+                            ->visibleToUser();
+                    });
+                }
+            });
+
+        // Для уведомлений на рабочем столе: тикеты, появившиеся после ?after=<id>
+        $after = $request->has('after') ? (int) $request->query('after') : null;
+        $new = $after !== null
+            ? (clone $query)->with('creator:id,name')
+                ->where('id', '>', $after)
+                ->latest('id')
+                ->limit(5)
+                ->get(['id', 'user_id', 'text'])
+                ->map(fn (Ticket $t) => [
+                    'id' => $t->id,
+                    'title' => trans('common.desktop_notify.new_ticket', ['id' => $t->id]),
+                    'body' => trim(($t->creator?->name ? $t->creator->name . ': ' : '')
+                        . (Str::limit(trim(html_entity_decode(strip_tags((string) $t->text))), 120)
+                            ?: trans('common.desktop_notify.no_text'))),
+                    'url' => route('cabinet.tickets.show', $t->id),
+                ])
+            : [];
+
+        return response()->json([
+            'count' => (clone $query)->count(),
+            'latest_id' => (int) $query->max('id'),
+            'new' => $new,
+        ]);
     }
 
     public function show(Request $request, Ticket $ticket)
