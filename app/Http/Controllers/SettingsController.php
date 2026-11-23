@@ -21,6 +21,7 @@ class SettingsController extends Controller
                 TicketStatusEnum::OPENED->value,
                 TicketStatusEnum::IN_PROGRESS->value,
             ])])
+            ->withCount('tickets as created_tickets_count')
             ->orderByDesc('active')
             ->orderBy('name')
             ->get();

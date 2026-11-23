@@ -92,7 +92,7 @@
                     <th class="min-w-75px">Департамент</th>
                     <th class="min-w-75px">Позиция</th>
                     <th class="min-w-100px">Учетка</th>
-                    <th class="text-end">Открытых тикетов</th>
+                    <th class="text-end">Создал тикетов</th>
                     <th class="min-w-100px">Последний вход</th>
                     <th class="text-end">Видимый</th>
                     <th class="text-end">Активный</th>
@@ -135,10 +135,9 @@
                         </td>
                         <td>{{$user->position}}</td>
                         <td>{{$user->username}}</td>
-                        <td class="text-end" data-order="{{$user->open_tickets_count}}">
-                            @if($user->open_tickets_count > 0)
-                                <a href="{{route('cabinet.reports.tickets', ['filter' => ['executor_id' => $user->id]])}}"
-                                   class="badge badge-light-{{$user->active ? 'primary' : 'danger'}}">{{$user->open_tickets_count}}</a>
+                        <td class="text-end" data-order="{{$user->created_tickets_count}}">
+                            @if($user->created_tickets_count > 0)
+                                <span class="badge badge-light-primary">{{$user->created_tickets_count}}</span>
                             @else
                                 <span class="text-muted">0</span>
                             @endif
