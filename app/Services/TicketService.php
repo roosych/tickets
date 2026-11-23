@@ -525,7 +525,7 @@ class TicketService
     public function isDepartmentHead(Ticket $ticket): bool
     {
         // Проверяем, если текущий пользователь начальник департамента и департамент тикета совпадает
-        return auth()->user()->isManager() && auth()->user()->department_id === $ticket->department_id;
+        return auth()->user()->isManager() && auth()->user()->getDepartmentId() === $ticket->department_id;
     }
 
     protected function checkTicketStatus(Ticket $ticket, array|TicketStatusEnum $statuses, string $errorMessage): void

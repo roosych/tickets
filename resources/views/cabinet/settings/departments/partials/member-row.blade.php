@@ -24,7 +24,12 @@
                     <span class="badge badge-light ms-2">скрыт</span>
                 @endunless
             </span>
-            <span class="text-muted fs-7">{{$user->position}}</span>
+            <span class="text-muted fs-7">
+                {{$user->position}}
+                @if($user->department_id != $department->id)
+                    <span class="text-warning">· числится в «{{$user->departmentRelation?->name ?? 'без отдела'}}»</span>
+                @endif
+            </span>
         </div>
         </div>
     </td>

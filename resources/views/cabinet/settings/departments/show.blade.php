@@ -93,7 +93,7 @@
                                     <input class="form-check-input" type="checkbox" name="revoke_old_manager" value="1" checked>
                                     <span class="form-check-label text-gray-700">Снять права у прежнего менеджера</span>
                                 </label>
-                                <div class="text-muted fs-8 mt-1">Новый менеджер получит все права и попадёт в состав отдела. Прежний останется сотрудником отдела.</div>
+                                <div class="text-muted fs-8 mt-1">Новый менеджер получит все права. Если он числится в другом отделе, то останется там, а этот отдел появится у него в переключателе в шапке. Прежний менеджер остаётся сотрудником отдела.</div>
                             </div>
                         </div>
 
@@ -162,9 +162,8 @@
                                     <option value="{{$user->id}}"
                                             data-name="{{$user->name}}"
                                             data-dept="{{$user->departmentRelation?->name}}"
-                                            data-manager-of="{{$otherManagers[$user->id] ?? ''}}"
-                                            {{ isset($otherManagers[$user->id]) ? 'disabled' : '' }}>
-                                        {{$user->name}}{{$user->departmentRelation ? ' · ' . $user->departmentRelation->name : ''}}{{ isset($otherManagers[$user->id]) ? ' (руководитель)' : '' }}
+                                            data-manager-of="{{$otherManagers[$user->id] ?? ''}}">
+                                        {{$user->name}}{{$user->departmentRelation ? ' · ' . $user->departmentRelation->name : ''}}
                                     </option>
                                 @endforeach
                             </select>
@@ -267,7 +266,7 @@
 
             e.preventDefault();
             const revoke = $('input[name="revoke_old_manager"][type="checkbox"]').prop('checked') && initialManager;
-            confirmDialog('<b>Меняется менеджер.</b> Новый получит все права и попадёт в состав отдела'
+            confirmDialog('<b>Меняется менеджер.</b> Новый получит все права'
                 + (revoke ? ', у прежнего права будут сняты.' : '.'), 'Сохранить')
                 .then(ok => { if (ok) { confirmed = true; $form.trigger('submit'); } });
         });
@@ -288,8 +287,8 @@
                 const dept = $o.data('dept');
                 const managerOf = $o.data('manager-of');
                 let extra = '';
-                if (managerOf) extra = '<span class="text-danger fs-8 ms-2">руководитель «' + escapeHtml(managerOf) + '»</span>';
-                else if (dept) extra = '<span class="text-muted fs-8 ms-2">' + escapeHtml(dept) + '</span>';
+                if (dept) extra = '<span class="text-muted fs-8 ms-2">' + escapeHtml(dept) + '</span>';
+                if (managerOf) extra += '<span class="text-primary fs-8 ms-2">★ руководит «' + escapeHtml(managerOf) + '»</span>';
                 return $('<span>' + escapeHtml($o.data('name')) + extra + '</span>');
             }
         });
@@ -308,7 +307,8 @@
 
             const moved = ids.map(id => $addSelect.find('option[value="' + id + '"]'))
                 .filter($o => $o.data('dept'))
-                .map($o => escapeHtml($o.data('name')) + ' ← ' + escapeHtml($o.data('dept')));
+                .map($o => escapeHtml($o.data('name')) + ' ← ' + escapeHtml($o.data('dept'))
+                    + ($o.data('manager-of') ? ' <span class="text-muted">(останется руководителем «' + escapeHtml($o.data('manager-of')) + '»)</span>' : ''));
 
             const go = moved.length
                 ? confirmDialog('<b>Будут перенесены из других отделов:</b><br>' + moved.join('<br>'), 'Перенести')

@@ -43,7 +43,7 @@ class RoleController extends Controller
     public function store(StoreRequest $request)
     {
         $data = $request->validated();
-        $data['department_id'] = auth()->user()->head->getDepartmentId(); // может быть null
+        $data['department_id'] = auth()->user()->getDepartmentId(); // может быть null
         $data['user_id'] = auth()->id(); // не может быть null
 
         try {

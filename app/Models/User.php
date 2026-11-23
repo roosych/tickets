@@ -28,26 +28,66 @@ class User extends Authenticatable implements LdapAuthenticatable
 
     public function head(): ?User
     {
-        return Department::where('id', $this->department_id)
+        return Department::where('id', $this->getDepartmentId())
             ->with('manager') // Жадная загрузка менеджера
             ->first()
             ?->manager;
     }
 
+    public const CURRENT_DEPARTMENT_SESSION_KEY = 'current_department_id';
+
+    /** @var array<int>|null */
+    protected ?array $accessibleDepartmentIdsCache = null;
+
+    /**
+     * Текущий департамент, в котором работает пользователь.
+     * Менеджер нескольких отделов выбирает отдел переключателем в шапке (хранится в сессии);
+     * для всех остальных это просто department_id.
+     */
     public function getDepartmentId()
     {
-        return $this->department_id;
-        // Возвращаем department_id пользователя или department_id его руководителя
-        //return $this->department_id ?: optional($this->head)->department_id;
+        if (auth()->id() === $this->id && app()->bound('session')) {
+            $current = session(self::CURRENT_DEPARTMENT_SESSION_KEY);
+            if ($current && in_array((int) $current, $this->accessibleDepartmentIds(), true)) {
+                return (int) $current;
+            }
+        }
+
+        return $this->department_id ?? ($this->accessibleDepartmentIds()[0] ?? null);
+    }
+
+    /**
+     * Отделы, в которых пользователь может работать: свой + те, где он менеджер.
+     *
+     * @return array<int>
+     */
+    public function accessibleDepartmentIds(): array
+    {
+        if ($this->accessibleDepartmentIdsCache === null) {
+            $managed = Department::where('manager_id', $this->id)->orderBy('name')->pluck('id')->all();
+            $ids = $this->department_id ? array_merge([(int) $this->department_id], $managed) : $managed;
+            $this->accessibleDepartmentIdsCache = array_values(array_unique(array_map('intval', $ids)));
+        }
+
+        return $this->accessibleDepartmentIdsCache;
+    }
+
+    public function accessibleDepartments(): Collection
+    {
+        $ids = $this->accessibleDepartmentIds();
+
+        return $ids ? Department::whereIn('id', $ids)->orderBy('name')->get() : new Collection();
     }
 
     public function getDepartment(): ?Department
     {
-//        return Department::query()
-//            //->with(['roles', 'tags']) // Жадная загрузка ролей
-//            ->where('id', $this->getDepartmentId())
-//            ->first();
-        return $this->departmentRelation;
+        $id = $this->getDepartmentId();
+
+        if ($id && (int) $id === (int) $this->department_id) {
+            return $this->departmentRelation;
+        }
+
+        return $id ? Department::find($id) : null;
     }
 
     public function departmentRelation(): BelongsTo
@@ -77,8 +117,15 @@ class User extends Authenticatable implements LdapAuthenticatable
 
     public function deptUsers(): array|Collection
     {
-        return self::where('department_id', $this->getDepartmentId())
+        $departmentId = $this->getDepartmentId();
+
+        // Сотрудники отдела + его менеджер, даже если сам он числится в другом отделе
+        return self::query()
             ->where('active', true)
+            ->where(function ($q) use ($departmentId) {
+                $q->where('department_id', $departmentId)
+                    ->orWhereIn('id', Department::whereKey($departmentId)->whereNotNull('manager_id')->select('manager_id'));
+            })
             ->get();
        /* // Если пользователь — менеджер, то выбираем сотрудников, у которых он является менеджером
         if ($this->isManager()) {
