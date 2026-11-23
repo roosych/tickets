@@ -38,9 +38,8 @@
         @endif
     </td>
     <td class="text-end">
-        @if($user->open_tickets_count)
-            <a href="{{route('cabinet.reports.tickets', ['filter' => ['executor_id' => $user->id]])}}"
-               class="badge badge-light-{{$user->active ? 'primary' : 'danger'}}">{{$user->open_tickets_count}}</a>
+        @if($user->created_tickets_count)
+            <span class="badge badge-light-primary">{{$user->created_tickets_count}}</span>
         @else
             <span class="text-muted">0</span>
         @endif

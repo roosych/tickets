@@ -190,7 +190,7 @@
                         <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0">
                             <th>Сотрудник</th>
                             <th class="w-150px">Последний вход</th>
-                            <th class="text-end w-125px">Открытых тикетов</th>
+                            <th class="text-end w-125px">Создал тикетов</th>
                             <th class="text-end w-100px"></th>
                         </tr>
                         </thead>
