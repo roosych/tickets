@@ -46,6 +46,17 @@
         </div>
     @endif
 
+    @if($stats['no_department'] > 0)
+        <div class="alert alert-primary d-flex align-items-center mb-5" id="noDeptAlert">
+            <i class="ki-outline ki-people fs-2 text-primary me-3"></i>
+            <div>
+                <strong id="noDeptCount">{{$stats['no_department']}}</strong> активных сотрудников не привязаны к департаменту
+                тикет-системы — они не видят тикеты своего отдела.
+                <a href="#" class="fw-bold ms-2" data-dept-filter="none">Показать</a>
+            </div>
+        </div>
+    @endif
+
     <div class="card">
         <div class="card-header border-0 pt-6">
             <div class="card-title">
@@ -58,8 +69,9 @@
             <div class="card-toolbar flex-row flex-nowrap align-items-center gap-3">
                 <div class="w-250px"><select class="form-select form-select-solid" id="filterDept" data-control="select2" data-placeholder="Все департаменты">
                     <option value="">Все департаменты</option>
+                    <option value="none">— Без департамента —</option>
                     @foreach($departments as $dept)
-                        <option value="{{$dept->id}}">{{$dept->name}}</option>
+                        <option value="{{$dept->id}}">{{$dept->name}}{{$dept->active ? '' : ' (неактивен)'}}</option>
                     @endforeach
                 </select></div>
                 <div class="w-200px"><select class="form-select form-select-solid" id="filterStatus" data-control="select2" data-hide-search="true">
@@ -118,7 +130,9 @@
                                 <span>{{$user->contact_line}}</span>
                             </div>
                         </td>
-                        <td>{{$user->departmentRelation?->name}}</td>
+                        <td data-order="{{$user->departmentRelation?->name ?? ''}}">
+                            @include('cabinet.settings.partials.user-department-cell')
+                        </td>
                         <td>{{$user->position}}</td>
                         <td>{{$user->username}}</td>
                         <td class="text-end" data-order="{{$user->open_tickets_count}}">
@@ -190,11 +204,46 @@
 @endpush
 
 @push('modals')
+    <div class="modal fade" id="modal_user_department" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-500px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="fw-bold">Департамент сотрудника</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <i class="ki-outline ki-cross fs-1"></i>
+                    </div>
+                </div>
+                <div class="modal-body mx-lg-5 my-5">
+                    <div class="fs-5 fw-bold text-gray-800 mb-1" id="udm_user_name"></div>
+                    <div class="text-muted fs-7 mb-7" id="udm_ad_dept"></div>
 
+                    <label class="fs-6 fw-bold form-label mb-2" for="udm_department">Департамент в тикет-системе</label>
+                    <select class="form-select form-select-solid" id="udm_department" data-placeholder="Не привязан">
+                        <option value="">— Не привязан —</option>
+                        @foreach($departments as $dept)
+                            <option value="{{$dept->id}}">{{$dept->name}}{{$dept->active ? '' : ' (неактивен)'}}</option>
+                        @endforeach
+                    </select>
+                    <div class="form-text" id="udm_hint"></div>
+                </div>
+                <div class="modal-footer flex-center">
+                    <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="udm_save">
+                        <span class="indicator-label">Сохранить</span>
+                        <span class="indicator-progress">Сохранение...
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endpush
 
 @push('custom_js')
-    <script src="{{asset('assets/js/custom/settings/users.js')}}"></script>
+    <script>
+        window.userDepartmentUrl = '{{ route('cabinet.settings.users.department', ['user' => ':id']) }}';
+    </script>
+    <script src="{{asset('assets/js/custom/settings/users.js')}}?v=2"></script>
     <script>
         $(document).ready(function() {
             $.ajaxSetup({

@@ -34,7 +34,9 @@ class SettingsController extends Controller
             'inactive_with_tickets' => $users->where('active', false)->where('open_tickets_count', '>', 0)->count(),
         ];
 
-        $departments = $users->pluck('departmentRelation')->filter()->unique('id')->sortBy('name')->values();
+        $stats['no_department'] = $users->where('active', true)->whereNull('department_id')->count();
+
+        $departments = Department::query()->orderBy('name')->get(['id', 'name', 'active']);
 
         return view('cabinet.settings.users', compact('users', 'stats', 'departments'));
     }
@@ -219,5 +221,30 @@ class SettingsController extends Controller
         $user->save();
 
         return response()->json(['success' => true, 'value' => $user->$setting]);
+    }
+
+    public function updateUserDepartment(Request $request, User $user)
+    {
+        $data = $request->validate([
+            'department_id' => ['nullable', 'integer', 'exists:departments,id'],
+        ]);
+        $newId = $data['department_id'] ?? null;
+
+        // Руководителя нельзя увести из его департамента — иначе у отдела останется «чужой» руководитель
+        if ($user->department_id && (int) $user->department_id !== (int) $newId
+            && Department::whereKey($user->department_id)->where('manager_id', $user->id)->exists()) {
+            return response()->json([
+                'message' => 'Сотрудник — руководитель своего департамента. Сначала назначьте другого руководителя на странице департамента.',
+            ], 422);
+        }
+
+        $user->department_id = $newId;
+        $user->save();
+        $user->load('departmentRelation');
+
+        return response()->json([
+            'department_id' => $newId,
+            'html' => view('cabinet.settings.partials.user-department-cell', compact('user'))->render(),
+        ]);
     }
 }
