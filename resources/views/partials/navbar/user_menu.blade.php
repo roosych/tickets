@@ -1,6 +1,27 @@
 @php($languages = \App\Models\Language::getActive())
 
 <div class="app-navbar-item" id="kt_header_user_menu_toggle">
+    @php($myDepartments = auth()->user()->accessibleDepartments())
+    @php($currentDeptId = (int) auth()->user()->getDepartmentId())
+    @php($canSwitchDept = $myDepartments->count() > 1)
+    @php($currentDept = $myDepartments->firstWhere('id', $currentDeptId))
+    @if($canSwitchDept)
+        <div class="d-none d-lg-block me-5">
+            <button type="button"
+                    class="btn btn-sm bg-body border border-gray-300 border-hover-primary d-inline-flex align-items-center gap-2 h-40px px-4 py-0"
+                    data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end"
+                    title="{{trans('common.department_switch.title')}}">
+                <span class="text-gray-800 fw-semibold fs-7 text-truncate mw-250px">{{$currentDept?->name}}</span>
+                <i class="ki-outline ki-down fs-6 text-gray-500 p-0"></i>
+            </button>
+            <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-color fw-semibold py-3 fs-6 w-325px" data-kt-menu="true">
+                <div class="menu-item px-3">
+                    <div class="menu-content text-muted fs-7 px-3 pb-2">{{trans('common.department_switch.title')}}</div>
+                </div>
+                @include('partials.navbar.department_switch_items')
+            </div>
+        </div>
+    @endif
     <div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px w-md-40px h-md-40px position-relative me-5" id="kt_drawer_chat_toggle">
         <i class="ki-duotone ki-message-text-2 fs-1">
             <span class="path1"></span>
@@ -81,6 +102,20 @@
             </a>
         </div>
         <div class="separator my-2"></div>--}}
+        @if($canSwitchDept)
+            <div class="menu-item px-5 d-lg-none" data-kt-menu-trigger="click" data-kt-menu-placement="left-start" data-kt-menu-offset="-15px, 0">
+                <a href="#" class="menu-link px-5">
+                    <span class="menu-title d-flex flex-column align-items-start text-start">
+                        {{trans('common.department_switch.title')}}
+                        <span class="text-muted fs-7 text-truncate mw-200px">{{$myDepartments->firstWhere('id', $currentDeptId)?->name}}</span>
+                    </span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="menu-sub menu-sub-dropdown w-275px py-4">
+                    @include('partials.navbar.department_switch_items')
+                </div>
+            </div>
+        @endif
         <div class="menu-item px-5" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="left-start" data-kt-menu-offset="-15px, 0">
             <a href="#" class="menu-link px-5">
                 <span class="menu-title position-relative">{{trans('common.user_menu.theme')}}

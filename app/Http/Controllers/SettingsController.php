@@ -91,6 +91,7 @@ class SettingsController extends Controller
             ->where('active', true)
             ->where('visible', true)
             ->where(fn ($q) => $q->whereNull('department_id')->orWhere('department_id', '!=', $department->id))
+            ->when($department->manager_id, fn ($q) => $q->where('id', '!=', $department->manager_id))
             ->orderBy('name')
             ->get();
 
@@ -114,16 +115,19 @@ class SettingsController extends Controller
             'tickets as open_tickets_count' => fn ($q) => $q->whereIn('status', $openStatuses),
         ]);
 
+        // Менеджер может числиться в другом отделе — в счётчиках и блокировке удаления его не учитываем
+        $ownMembers = $members->where('department_id', $department->id);
+
         $stats = [
-            'members_active' => $members->where('active', true)->count(),
-            'members_total' => $members->count(),
+            'members_active' => $ownMembers->where('active', true)->count(),
+            'members_total' => $ownMembers->count(),
             'open_tickets' => $department->open_tickets_count,
             'tags' => $department->tags_count,
             'roles' => $department->roles_count,
         ];
 
         $deleteBlockers = array_values(array_filter([
-            $members->count() ? "сотрудников: {$members->count()}" : null,
+            $ownMembers->count() ? "сотрудников: {$ownMembers->count()}" : null,
             $department->total_tickets_count ? "тикетов: {$department->total_tickets_count}" : null,
             $department->tags_count ? "тегов: {$department->tags_count}" : null,
             $department->roles_count ? "ролей: {$department->roles_count}" : null,
@@ -141,23 +145,12 @@ class SettingsController extends Controller
             'user_ids.*' => ['integer', 'exists:users,id'],
         ]);
 
-        $managers = Department::query()
-            ->whereNotNull('manager_id')
-            ->where('id', '!=', $department->id)
-            ->pluck('name', 'manager_id');
-
-        $blocked = [];
-        $ids = [];
-        foreach (User::whereIn('id', $data['user_ids'])->get() as $user) {
-            if ($user->department_id == $department->id) {
-                continue;
-            }
-            if ($managers->has($user->id)) {
-                $blocked[] = "{$user->name} — руководитель отдела «{$managers[$user->id]}»";
-                continue;
-            }
-            $ids[] = $user->id;
-        }
+        // Руководитель другого отдела тоже может быть перенесён: свой прежний отдел
+        // он продолжит видеть через переключатель, так как остаётся там менеджером
+        $ids = User::whereIn('id', $data['user_ids'])
+            ->where(fn ($q) => $q->whereNull('department_id')->orWhere('department_id', '!=', $department->id))
+            ->pluck('id')
+            ->all();
 
         if ($ids) {
             User::whereIn('id', $ids)->update(['department_id' => $department->id]);
@@ -170,7 +163,7 @@ class SettingsController extends Controller
         return response()->json([
             'added' => $ids,
             'rows' => $rows,
-            'blocked' => $blocked,
+            'blocked' => [],
             'total' => User::where('department_id', $department->id)->count(),
         ]);
     }
@@ -195,12 +188,18 @@ class SettingsController extends Controller
     private function memberQuery(Department $department)
     {
         return User::query()
+            ->with('departmentRelation')
             ->withCount(['ticketsByExecutor as open_tickets_count' => fn ($q) => $q->whereIn('status', [
                 TicketStatusEnum::OPENED->value,
                 TicketStatusEnum::IN_PROGRESS->value,
             ])])
             ->withCount('tickets as created_tickets_count')
-            ->where('department_id', $department->id)
+            ->where(function ($q) use ($department) {
+                $q->where('department_id', $department->id);
+                if ($department->manager_id) {
+                    $q->orWhere('id', $department->manager_id);
+                }
+            })
             ->orderByDesc('active')
             ->orderBy('name');
     }
@@ -235,15 +234,6 @@ class SettingsController extends Controller
         $oldManagerId = $department->manager_id;
         $newManagerId = $data['manager_id'] ?? null;
 
-        // Новый менеджер не должен уже руководить другим отделом
-        if ($newManagerId && $newManagerId != $oldManagerId) {
-            $other = Department::where('manager_id', $newManagerId)->where('id', '!=', $department->id)->first();
-            if ($other) {
-                return back()->withInput()
-                    ->withErrors(['manager_id' => "Этот сотрудник уже руководит отделом «{$other->name}»."]);
-            }
-        }
-
         DB::transaction(function () use ($department, $data, $oldManagerId, $newManagerId) {
             $department->update([
                 'name' => $data['name'],
@@ -253,15 +243,18 @@ class SettingsController extends Controller
                 'tg_topic_id' => $data['tg_topic_id'] ?? null,
             ]);
 
-            // Менеджер всегда состоит в своём отделе. Прежний менеджер остаётся участником.
+            // Менеджер без отдела становится сотрудником этого отдела. Если он уже числится в другом
+            // отделе — не переносим: этот отдел будет доступен ему через переключатель в шапке.
             if ($newManagerId) {
-                User::whereKey($newManagerId)->update(['department_id' => $department->id]);
+                User::whereKey($newManagerId)->whereNull('department_id')->update(['department_id' => $department->id]);
             }
 
             if ($oldManagerId != $newManagerId) {
                 $allPermissionIds = Permission::pluck('id')->toArray();
 
-                if ($oldManagerId && ($data['revoke_old_manager'] ?? true)) {
+                // Права у прежнего менеджера снимаем, только если он больше нигде не руководит
+                $stillManages = $oldManagerId && Department::where('manager_id', $oldManagerId)->exists();
+                if ($oldManagerId && ! $stillManages && ($data['revoke_old_manager'] ?? true)) {
                     User::find($oldManagerId)?->permissions()->detach($allPermissionIds);
                 }
 
@@ -295,14 +288,6 @@ class SettingsController extends Controller
             'department_id' => ['nullable', 'integer', 'exists:departments,id'],
         ]);
         $newId = $data['department_id'] ?? null;
-
-        // Руководителя нельзя увести из его департамента — иначе у отдела останется «чужой» руководитель
-        if ($user->department_id && (int) $user->department_id !== (int) $newId
-            && Department::whereKey($user->department_id)->where('manager_id', $user->id)->exists()) {
-            return response()->json([
-                'message' => 'Сотрудник — руководитель своего департамента. Сначала назначьте другого руководителя на странице департамента.',
-            ], 422);
-        }
 
         $user->department_id = $newId;
         $user->save();

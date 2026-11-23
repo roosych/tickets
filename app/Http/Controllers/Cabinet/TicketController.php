@@ -161,18 +161,21 @@ class TicketController extends Controller
     public function newCount(Request $request)
     {
         $user = auth()->user();
-        $department = $user->getDepartment();
-        $deptActive = $department && $department->active;
+        // Все активные отделы пользователя: менеджер нескольких отделов узнаёт о новых тикетах в каждом
+        $departmentIds = Department::whereIn('id', $user->accessibleDepartmentIds())
+            ->where('active', true)
+            ->pluck('id')
+            ->all();
 
         $query = Ticket::query()
             ->where('status', TicketStatusEnum::OPENED)
             ->where('user_id', '!=', $user->id)
-            ->where(function ($q) use ($user, $deptActive) {
+            ->where(function ($q) use ($user, $departmentIds) {
                 $q->where('executor_id', $user->id);
 
-                if ($deptActive) {
-                    $q->orWhere(function ($q) use ($user) {
-                        $q->where('department_id', $user->getDepartmentId())
+                if ($departmentIds) {
+                    $q->orWhere(function ($q) use ($departmentIds) {
+                        $q->whereIn('department_id', $departmentIds)
                             ->where(function ($q) {
                                 $q->whereColumn('user_id', '!=', 'executor_id')
                                     ->orWhereNull('executor_id');
@@ -210,6 +213,15 @@ class TicketController extends Controller
     public function show(Request $request, Ticket $ticket)
     {
         //auth()->loginUsingId(151);
+
+        // Менеджер нескольких отделов открыл тикет другого своего отдела —
+        // переключаем текущий отдел, иначе права (назначение, закрытие и т.д.) проверялись бы по прежнему
+        $user = $request->user();
+        if ($ticket->department_id
+            && (int) $ticket->department_id !== (int) $user->getDepartmentId()
+            && in_array((int) $ticket->department_id, $user->accessibleDepartmentIds(), true)) {
+            $request->session()->put(User::CURRENT_DEPARTMENT_SESSION_KEY, (int) $ticket->department_id);
+        }
 
         $this->authorize('view', $ticket);
 

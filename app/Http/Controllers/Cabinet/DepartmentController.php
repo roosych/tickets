@@ -20,8 +20,7 @@ class DepartmentController extends Controller
         }
 
         $tickets = Ticket::query()
-            ->where('department_id', auth()
-            ->user()->head->department_id)
+            ->where('department_id', auth()->user()->getDepartmentId())
             ->latest()
             ->get();
         //dd($tickets);

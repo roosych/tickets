@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Cabinet\ApproveRequestController;
+use App\Http\Controllers\Cabinet\CurrentDepartmentController;
 use App\Http\Controllers\Cabinet\DepartmentController;
 use App\Http\Controllers\Cabinet\IndexController;
 use App\Http\Controllers\Cabinet\MentionController;
@@ -24,6 +25,8 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
     Route::get('/', [IndexController::class, 'index'])->name('index');
 
     Route::get('chart-data', [IndexController::class, 'getChartData'])->name('get_tickets_chart');
+
+    Route::post('current-department', CurrentDepartmentController::class)->name('current_department.switch');
 
 
     //upload files (filepond)

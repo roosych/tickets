@@ -113,8 +113,13 @@ return [
         ],
     ],
     'new_ticket_title' => 'Yeni tiket!',
+    'department_switch' => [
+        'inactive' => 'tiket icra etmir',
+        'title' => 'Cari şöbə',
+        'manager' => 'menecer',
+    ],
     'desktop_notify' => [
-        'menu' => 'Masaüstü bildirişləri',
+        'menu' => 'PC bildirişləri',
         'on' => 'Aktiv',
         'off' => 'Deaktiv',
         'blocked' => 'Bloklanıb',
