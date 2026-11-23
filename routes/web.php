@@ -102,6 +102,8 @@ Route::middleware('auth')->prefix('cabinet')->name('cabinet.')->group(function (
         Route::get('/departments/{department}/show', [SettingsController::class, 'show'])->name('departments.show');
         Route::delete('/departments/{department}', [SettingsController::class, 'destroy'])->name('departments.destroy');
         Route::post('/departments/{department}/show', [SettingsController::class, 'store'])->name('departments.store');
+        Route::post('/departments/{department}/members', [SettingsController::class, 'addMembers'])->name('departments.members.add');
+        Route::delete('/departments/{department}/members/{user}', [SettingsController::class, 'removeMember'])->name('departments.members.remove');
     });
 
     Route::prefix('mentions')->name('mentions.')->group(function () {

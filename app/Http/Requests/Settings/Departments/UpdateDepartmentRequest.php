@@ -16,8 +16,6 @@ class UpdateDepartmentRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255', 'unique:departments,name,' . $this->department->id],
             'manager_id' => ['nullable', 'exists:users,id'],
-            'users' => ['nullable', 'array'],
-            'users.*' => ['exists:users,id'],
             'active' => ['required', 'boolean'],
             'tg_chat_id' => ['nullable', 'string', 'max:255'],
             'tg_topic_id' => ['nullable', 'string', 'max:255'],
@@ -35,9 +33,6 @@ class UpdateDepartmentRequest extends FormRequest
 
             'manager_id.required' => 'Необходимо выбрать менеджера департамента.',
             'manager_id.exists' => 'Выбранный менеджер не найден в системе.',
-
-            'users.array' => 'Список сотрудников должен быть массивом.',
-            'users.*.exists' => 'Один или несколько выбранных сотрудников не найдены в системе.',
 
             'tg_chat_id.max' => 'ID чата Telegram слишком длинный.',
             'tg_topic_id.max' => 'ID темы Telegram слишком длинный.',
