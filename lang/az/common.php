@@ -112,6 +112,11 @@ return [
             'delete' => 'Sil',
         ],
     ],
+    'session_expired' => [
+        'title' => 'Sessiyanın vaxtı bitdi',
+        'text' => 'Uzun müddət sistemdə aktiv olmadınız. Yenidən daxil olun — daxil olduqdan sonra bu səhifəyə qayıdacaqsınız.',
+        'button' => 'Daxil ol',
+    ],
     'error_pages' => [
         'title' => 'Uups!',
         '403_subtitle' => 'Səhifəyə giriş məhdudlaşdırılıb',
