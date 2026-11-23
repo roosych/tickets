@@ -10,6 +10,7 @@ use App\Models\Department;
 use App\Models\Permission;
 use App\Models\Priorities;
 use App\Models\User;
+use App\Services\DepartmentAccess;
 use App\Services\TicketReportMetrics;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -81,6 +82,17 @@ class UserController extends Controller
     public function attach_roles(AttachRolesRequest $request, User $user)
     {
         $data = $request->validated();
+        $actor = $request->user();
+
+        abort_unless(DepartmentAccess::canManageUser($actor, $user), 403);
+
+        // Новые роли не должны давать полномочий, которых нет у самого назначающего
+        $newRoleIds = array_diff(array_map('intval', $data['roles'] ?? []), $user->roles()->pluck('roles.id')->map(fn ($id) => (int) $id)->all());
+        $granted = \App\Models\Role::whereIn('id', $newRoleIds)->with('permissions')->get()
+            ->flatMap(fn ($role) => $role->permissions->pluck('id'))->all();
+        abort_unless(DepartmentAccess::canGrant($actor, $granted), 403,
+            'Нельзя назначить роль с полномочиями, которых нет у вас самих');
+
         $user->roles()->sync($data['roles'] ?? []);
 
         return response()->json(['success' => true]);
@@ -89,6 +101,14 @@ class UserController extends Controller
     public function attach_permissions(AttachPermissionsRequest $request, User $user)
     {
         $data = $request->validated();
+        $actor = $request->user();
+
+        abort_unless(DepartmentAccess::canManageUser($actor, $user), 403);
+
+        $added = array_diff(array_map('intval', $data['permissions'] ?? []), $user->permissions()->pluck('permissions.id')->map(fn ($id) => (int) $id)->all());
+        abort_unless(DepartmentAccess::canGrant($actor, $added), 403,
+            'Нельзя выдать полномочия, которых нет у вас самих');
+
         $user->permissions()->sync($data['permissions'] ?? []);
 
         return response()->json(['success' => true]);

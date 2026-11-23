@@ -172,6 +172,7 @@
                                     </span>
                                 </a>
                             </div>
+                            @if(\App\Services\DepartmentAccess::canViewRoles(auth()->user()))
                             <div class="menu-item">
                                 <a class="menu-link" href="{{route('cabinet.dept.roles')}}"
                                    title="{{trans('sidebar.dept.access.hint')}}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
@@ -183,6 +184,7 @@
                                     </span>
                                 </a>
                             </div>
+                            @endif
                             @can('users', 'report')
                                 <div class="menu-item">
                                     <a class="menu-link" href="{{route('cabinet.reports.tickets')}}"
