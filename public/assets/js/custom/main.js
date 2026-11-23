@@ -56,3 +56,27 @@ function getAjaxErrorMessage(response) {
 
     return errorMessage;
 }
+
+// Сессия истекла (401) или устарел CSRF-токен (419): вместо «тихой» ошибки
+// показываем окно и перезагружаем страницу. Если сессии нет, middleware auth
+// отправит на логин и после входа вернёт на эту же страницу.
+(function () {
+    let shown = false;
+    $(document).ajaxError(function (event, xhr) {
+        if (shown || (xhr.status !== 401 && xhr.status !== 419)) return;
+        shown = true;
+        const L = window.sessionExpiredI18n || {};
+        const reload = () => window.location.reload();
+        if (typeof Swal === 'undefined') return reload();
+        Swal.fire({
+            icon: 'warning',
+            title: L.title || 'Session expired',
+            text: L.text || '',
+            confirmButtonText: L.button || 'OK',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            buttonsStyling: false,
+            customClass: { confirmButton: 'btn btn-primary' },
+        }).then(reload);
+    });
+})();
